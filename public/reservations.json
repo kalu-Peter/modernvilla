@@ -1,0 +1,41 @@
+[
+  {
+    "id": "res-001",
+    "villaId": "blue-villa",
+    "villaName": "Blue Villa",
+    "guestCount": 2,
+    "checkInDate": "2026-03-03",
+    "checkOutDate": "2026-03-06",
+    "customerName": "John Doe",
+    "phoneNumber": "1234567890",
+    "email": "johndoe@example.com",
+    "price": 240,
+    "status": "confirmed"
+  },
+  {
+    "id": "res-002",
+    "villaId": "green-villa",
+    "villaName": "Green Villa",
+    "guestCount": 4,
+    "checkInDate": "2026-03-14",
+    "checkOutDate": "2026-03-16",
+    "customerName": "Jane Smith",
+    "phoneNumber": "0987654321",
+    "email": "janesmith@example.com",
+    "price": 300,
+    "status": "confirmed"
+  },
+  {
+    "id": "res-003",
+    "villaId": "yellow-villa",
+    "villaName": "Yellow Villa",
+    "guestCount": 2,
+    "checkInDate": "2026-04-10",
+    "checkOutDate": "2026-04-12",
+    "customerName": "Peter Jones",
+    "phoneNumber": "1122334455",
+    "email": "peterjones@example.com",
+    "price": 140,
+    "status": "confirmed"
+  }
+]
