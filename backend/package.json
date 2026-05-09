@@ -1,7 +1,7 @@
 {
-  "name": "crocodile-villas-backend",
+  "name": "modern-refuge-backend",
   "version": "1.0.0",
-  "description": "Backend API for Crocodile Villas booking system",
+  "description": "Backend API for The Modern Refuge booking system",
   "type": "module",
   "main": "server.js",
   "scripts": {

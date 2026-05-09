@@ -49,7 +49,7 @@ const VillaDetailsPage: React.FC = () => {
     <>
       <SEO
         title={villa.name}
-        description={`${villa.name} at Crocodile Lodge, Diani Beach — sleeps up to ${villa.maxGuests} guests. Private pool, tropical garden, steps from the Indian Ocean.`}
+        description={`${villa.name} at The Modern Refuge, Diani Beach — sleeps up to ${villa.maxGuests} guests. Private pool, tropical garden, steps from the Indian Ocean.`}
         image={villa.image}
         url={`/villa/${villa.id}`}
         type="article"

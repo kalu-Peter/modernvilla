@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import SEO from "./components/SEO";
 
 const Gallery: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<string>("general");
+  const [activeSection, setActiveSection] = useState<string>("aloe");
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
@@ -24,363 +24,186 @@ const Gallery: React.FC = () => {
   };
 
   const galleryData = {
-    general: [
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.35.jpeg", alt: "Crocodile Lodge" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.35 (1).jpeg", alt: "Lodge Grounds" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.35 (2).jpeg", alt: "Outdoor Area" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.36.jpeg", alt: "Property" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.36 (1).jpeg", alt: "Lodge Exterior" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.36 (2).jpeg", alt: "Garden" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.36 (3).jpeg", alt: "Tropical Setting" },
-      { src: "/images/WhatsApp Image 2026-04-03 at 13.21.36 (4).jpeg", alt: "Lodge Area" },
-      { src: "/images/IMG_20240814_134945.jpg", alt: "Lodge View" },
-      {
-        src: "/images/crocodile/Maisons Diani-photos-Pierre_Rich-2.jpg",
-        alt: "Crocodile Lodge",
-      },
-      {
-        src: "/images/crocodile/IMG_20241121_135225.jpg",
-        alt: "Lodge Exterior",
-      },
-      { src: "/images/crocodile/IMG_20241121_135032.jpg", alt: "Common Area" },
-      { src: "/images/crocodile/IMG_20240717_131652.jpg", alt: "Garden View" },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.25.32.jpeg",
-        alt: "Poolside",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.25.33.jpeg",
-        alt: "Pool Area",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.25.36.jpeg",
-        alt: "Outdoor Space",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.25.37.jpeg",
-        alt: "Lodge Surroundings",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.25.52.jpeg",
-        alt: "Tropical Gardens",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.25.58.jpeg",
-        alt: "Property View",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.26.32.jpeg",
-        alt: "Grounds",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.26.36.jpeg",
-        alt: "Lodge Area",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.26.37.jpeg",
-        alt: "Outdoor Living",
-      },
-      {
-        src: "/images/crocodile/WhatsApp Image 2026-03-09 at 13.26.42.jpeg",
-        alt: "Lodge Entrance",
-      },
-      { src: "/images/gate.jpg", alt: "Main Gate" },
-      { src: "/images/poolview.jpeg", alt: "Pool View" },
-      { src: "/images/IMG-20250728-WA0039.jpg", alt: "General View" },
+    aloe: [
+      { src: "/images/The Aloe Refuge/IMG_20201002_161720.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161747.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161757.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161900.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163012.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163024.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163508.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163539.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163623.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163644.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163722.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165212.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165253.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165335.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165339.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165353.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165514.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0003.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0004.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0005.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0006.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0008.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0009.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0010.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0011.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0012.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0013.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0014.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0015.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0016.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0017.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG-20241105-WA0045.jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (135).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (136).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (137).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (138).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (139).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (140).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (141).jpg", alt: "The Aloe Refuge" },
     ],
-    blue: [
-      {
-        src: "/images/crocodile/blue/Maisons Diani-photos-Pierre_Rich-45.jpg",
-        alt: "Blue Villa",
-      },
-      {
-        src: "/images/crocodile/blue/Maisons Diani-photos-Pierre_Rich-37.jpg",
-        alt: "Blue Villa Interior",
-      },
-      {
-        src: "/images/crocodile/blue/IMG-20250728-WA0040.jpg",
-        alt: "Blue Villa Room",
-      },
-      {
-        src: "/images/crocodile/blue/IMG-20250728-WA0036.jpg",
-        alt: "Blue Villa Bedroom",
-      },
-      {
-        src: "/images/crocodile/blue/IMG-20250728-WA0033.jpg",
-        alt: "Blue Villa Living Area",
-      },
-      {
-        src: "/images/crocodile/blue/IMG-20250728-WA0031.jpg",
-        alt: "Blue Villa Exterior",
-      },
-      {
-        src: "/images/crocodile/blue/IMG-20250728-WA0015.jpg",
-        alt: "Blue Villa View",
-      },
-      {
-        src: "/images/crocodile/blue/20241121_140024.jpg",
-        alt: "Blue Villa Space",
-      },
-      {
-        src: "/images/crocodile/blue/20241121_135924.jpg",
-        alt: "Blue Villa Detail",
-      },
-      {
-        src: "/images/crocodile/blue/20241121_135917.jpg",
-        alt: "Blue Villa Area",
-      },
-      {
-        src: "/images/crocodile/blue/20241121_135844.jpg",
-        alt: "Blue Villa Garden",
-      },
+    modernhouse: [
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (7).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (50).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (51).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (52).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (53).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (54).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (55).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (56).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (57).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (58).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (59).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (60).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (61).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (62).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (63).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (64).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (65).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (67).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (70).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (71).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (73).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (74).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (75).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (76).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (77).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (78).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (79).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (80).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (81).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (82).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (83).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (84).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (85).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (86).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (87).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (88).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (89).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (90).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (91).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (92).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (93).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (94).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (95).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (96).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (97).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (99).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (101).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (103).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (105).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (107).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (109).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (110).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (112).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (114).jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-47.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-50.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-52.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-54.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-56.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-58.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-61.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-63.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-65.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-67.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-69.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-70.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-74.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-76.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-78.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-81.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-83.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-85.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-87.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-89.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-90.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-92.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-94.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-96.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-98.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-101.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-103.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-105.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-107.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-109.jpg", alt: "The Modern House" },
+      { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-110.jpg", alt: "The Modern House" },
     ],
-    green: [
-      {
-        src: "/images/crocodile/green/Maisons Diani-photos-Pierre_Rich-38.jpg",
-        alt: "Green Villa",
-      },
-      {
-        src: "/images/crocodile/green/Maisons Diani-photos-Pierre_Rich-42.jpg",
-        alt: "Green Villa Interior",
-      },
-      {
-        src: "/images/crocodile/green/IMG-20250728-WA0038.jpg",
-        alt: "Green Villa Bedroom",
-      },
-      {
-        src: "/images/crocodile/green/IMG-20250728-WA0037.jpg",
-        alt: "Green Villa Living Area",
-      },
-      {
-        src: "/images/crocodile/green/IMG-20250728-WA0033.jpg",
-        alt: "Green Villa Exterior",
-      },
-      {
-        src: "/images/crocodile/green/IMG-20250728-WA0032.jpg",
-        alt: "Green Villa Garden",
-      },
-      {
-        src: "/images/crocodile/green/IMG-20250728-WA0024.jpg",
-        alt: "Green Villa View",
-      },
-    ],
-    gold: [
-      {
-        src: "/images/crocodile/gold/Maisons Diani-photos-Pierre_Rich-15.jpg",
-        alt: "Gold Lodge",
-      },
-      {
-        src: "/images/crocodile/gold/Maisons Diani-photos-Pierre_Rich-11.jpg",
-        alt: "Gold Lodge Interior",
-      },
-      {
-        src: "/images/crocodile/gold/WhatsApp Image 2026-03-09 at 13.25.46.jpeg",
-        alt: "Gold Lodge Space",
-      },
-      {
-        src: "/images/crocodile/gold/20250803_162410.jpg",
-        alt: "Gold Lodge Room",
-      },
-      {
-        src: "/images/crocodile/gold/20250803_162250.jpg",
-        alt: "Gold Lodge Bedroom",
-      },
-      {
-        src: "/images/crocodile/gold/20250803_162139.jpg",
-        alt: "Gold Lodge Area",
-      },
-      {
-        src: "/images/crocodile/gold/20250803_162136.jpg",
-        alt: "Gold Lodge Living",
-      },
-      {
-        src: "/images/crocodile/gold/20250307_142357.jpg",
-        alt: "Gold Lodge View",
-      },
-      {
-        src: "/images/crocodile/gold/20250307_142209.jpg",
-        alt: "Gold Lodge Detail",
-      },
-      {
-        src: "/images/crocodile/gold/20250307_142205.jpg",
-        alt: "Gold Lodge Exterior",
-      },
-      {
-        src: "/images/crocodile/gold/20250307_142151.jpg",
-        alt: "Gold Lodge Garden",
-      },
-      {
-        src: "/images/crocodile/gold/IMG-20250307-WA0019.jpg",
-        alt: "Gold Lodge Amenity",
-      },
-      {
-        src: "/images/crocodile/gold/IMG-20250307-WA0012.jpg",
-        alt: "Gold Lodge Feature",
-      },
-      {
-        src: "/images/crocodile/gold/IMG_20250226_192834.jpg",
-        alt: "Gold Lodge Evening",
-      },
-      {
-        src: "/images/crocodile/gold/IMG_20250226_134129.jpg",
-        alt: "Gold Lodge Dining",
-      },
-      {
-        src: "/images/crocodile/gold/IMG_20250226_134110.jpg",
-        alt: "Gold Lodge Lounge",
-      },
-      {
-        src: "/images/crocodile/gold/IMG_20250226_132636.jpg",
-        alt: "Gold Lodge Pool",
-      },
-    ],
-    mango1stfloor: [
-      {
-        src: "/images/mango 1st floor/1st floor 1.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 2.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 3.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 4.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 5.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 6.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 7.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 8.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 9.jpg",
-        alt: "Mango 1st Floor",
-      },
-      {
-        src: "/images/mango 1st floor/1st floor 10.jpg",
-        alt: "Mango 1st Floor",
-      },
-    ],
-    mangopark: [
-      {
-        src: "/images/mango park/Maisons Diani-photos-Pierre_Rich-55.jpg",
-        alt: "Mango Park",
-      },
-      {
-        src: "/images/mango park/Maisons Diani-photos-Pierre_Rich-52.jpg",
-        alt: "Mango Park",
-      },
-      {
-        src: "/images/mango park/Maisons Diani-photos-Pierre_Rich-61_BD.jpg",
-        alt: "Mango Park",
-      },
-      {
-        src: "/images/mango park/Maisons Diani-photos-Pierre_Rich-58.jpg",
-        alt: "Mango Park",
-      },
-      {
-        src: "/images/mango park/Maisons Diani-photos-Pierre_Rich-57.jpg",
-        alt: "Mango Park",
-      },
-      { src: "/images/mango park/20250731_100752.jpg", alt: "Mango Park" },
-      { src: "/images/mango park/20250731_100808.jpg", alt: "Mango Park" },
-      { src: "/images/mango park/20250731_100905.jpg", alt: "Mango Park" },
-      { src: "/images/mango park/20250731_101142.jpg", alt: "Mango Park" },
-    ],
-    paradise: [
-      {
-        src: "/images/paradise/IMG_20260223_151803.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151823.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151836.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151847.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151927.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151930.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151951.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_151959.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_152031.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_154754.jpg",
-        alt: "Paradise Villa",
-      },
-      {
-        src: "/images/paradise/IMG_20260223_154913.jpg",
-        alt: "Paradise Villa",
-      },
+    pinemarten: [
+      { src: "/images/The Pine Marten Refuge/IMG_20210618_102853.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/IMG_20211113_091044.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/IMG_20211114_163234.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/IMG_20211114_163258.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/IMG-20191224-WA0002.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/PANO_20210618_102952.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/PANO_20210618_103026.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/PANO_20210618_225432.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0005.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0007.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0014.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0019.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0054.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0080.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0083.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-9979.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-9990.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-21.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-24.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-25.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-26.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-27.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-28.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-29.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-30.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-31.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-32.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-33.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-34.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-35.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-37.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-38.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-39.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-40.jpg", alt: "The Pine Marten Refuge" },
     ],
   };
-
-  const videos = [
-    { src: "/videos/VID-20260309-WA0002.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0004.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0006.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0007.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0008.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0019.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0021.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0026.mp4", label: "Crocodile Lodge" },
-    { src: "/videos/VID-20260309-WA0027.mp4", label: "Crocodile Lodge" },
-  ];
 
   const currentImages =
     galleryData[activeSection as keyof typeof galleryData] ?? [];
 
   const sections = [
-    { id: "general", label: "General", color: "#c8b89a" },
-    { id: "blue", label: "Blue Villa", color: "#3b82f6" },
-    { id: "green", label: "Green Villa", color: "#10b981" },
-    { id: "gold", label: "Gold Lodge", color: "#eab308" },
-    { id: "mango1stfloor", label: "Mango 1st Floor", color: "#f97316" },
-    { id: "mangopark", label: "Mango Villas", color: "#84cc16" },
-    { id: "paradise", label: "Paradise Villa", color: "#7c3aed" },
-    { id: "videos", label: "Videos", color: "#ef4444" },
+    { id: "aloe", label: "The Aloe Refuge", color: "#3b82f6" },
+    { id: "modernhouse", label: "The Modern House", color: "#10b981" },
+    { id: "pinemarten", label: "The Pine Marten Refuge", color: "#eab308" },
   ];
 
   return (
     <>
       <SEO
         title="Photo Gallery"
-        description="Browse photos of Crocodile Lodge — our Blue Villa, Green Villa, Gold Lodge, pool, and tropical gardens in Diani Beach, Kenya."
+        description="Browse photos of The Modern Refuge — The Aloe Refuge, The Modern House, and The Pine Marten Refuge."
         url="/gallery"
       />
       <style>{`
@@ -827,8 +650,8 @@ const Gallery: React.FC = () => {
       {/* NAV */}
       <nav>
         <Link to="/" className="nav-logo">
-          <img src="/favicon/logo.jpeg" alt="Crocodile Lodge" className="nav-logo-img" />
-          Croc<span>odile</span> Lodge
+          <img src="/favicon/logo.jpeg" alt="The Modern Refuge" className="nav-logo-img" />
+          The Modern <span>Refuge</span>
         </Link>
         <ul className="nav-links">
           <li>
@@ -903,43 +726,30 @@ const Gallery: React.FC = () => {
           ))}
         </div>
 
-        {/* Gallery Grid / Video Grid */}
-        {activeSection === "videos" ? (
-          <div className="video-grid">
-            {videos.map((video, index) => (
-              <div key={index} className="video-card">
-                <video controls preload="metadata" playsInline>
-                  <source src={video.src} type="video/mp4" />
-                </video>
-                <div className="video-card-label">{video.label}</div>
+        {/* Gallery Grid */}
+        <div className="gallery-grid">
+          {currentImages.map((image, index) => (
+            <div
+              key={index}
+              className="gallery-item"
+              onClick={() => {
+                setViewerIndex(index);
+                setViewerOpen(true);
+              }}
+            >
+              <img
+                src={image.src}
+                alt={image.alt}
+                className="gallery-item-img"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="gallery-item-overlay">
+                <div className="gallery-item-text">{image.alt}</div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="gallery-grid">
-            {currentImages.map((image, index) => (
-              <div
-                key={index}
-                className="gallery-item"
-                onClick={() => {
-                  setViewerIndex(index);
-                  setViewerOpen(true);
-                }}
-              >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="gallery-item-img"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div className="gallery-item-overlay">
-                  <div className="gallery-item-text">{image.alt}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Image viewer */}

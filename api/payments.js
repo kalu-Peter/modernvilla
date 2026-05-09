@@ -74,7 +74,7 @@ export default async function handler(req, res) {
           id: merchantRef,
           currency: "KES",
           amount: Math.ceil(amount),
-          description: description || "Villa Reservation – Crocodile Lodge",
+          description: description || "Villa Reservation – The Modern Refuge",
           callback_url: callbackUrl,
           ...(ipnId ? { notification_id: ipnId } : {}),
           billing_address: {

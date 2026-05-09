@@ -120,7 +120,7 @@ const ReservationPage: React.FC = () => {
   // ── Success screen ──────────────────────────────────────────────────────────
   if (submitted) {
     const waMessage = encodeURIComponent(
-      `Hi Crocodile Lodge! I just submitted a booking request.\n\n` +
+      `Hi! I just submitted a booking request to The Modern Refuge.\n\n` +
       `Property: ${villa.name}\n` +
       `Check-in: ${formatDate(checkin)}\n` +
       `Check-out: ${formatDate(checkout)}\n` +

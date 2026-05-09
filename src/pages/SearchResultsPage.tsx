@@ -180,10 +180,10 @@ const SearchResultsPage: React.FC = () => {
         <Link to="/" className="sr-nav-logo">
           <img
             src="/favicon/logo.jpeg"
-            alt="Crocodile Lodge"
+            alt="The Modern Refuge"
             className="sr-nav-logo-img"
           />
-          Croc<span>odile</span> Lodge
+          The Modern <span>Refuge</span>
         </Link>
         <ul className="sr-nav-links">
           <li>

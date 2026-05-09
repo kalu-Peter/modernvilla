@@ -8,13 +8,13 @@ interface SEOProps {
   type?: string;
 }
 
-const BASE_URL = "https://crocodilelodge.co.ke";
+const BASE_URL = "https://themodernrefuge.co.ke";
 const DEFAULT_IMAGE = `${BASE_URL}/images/crocodile/blue/IMG_20260202_180003.jpg`;
 
 export default function SEO({ title, description, image, url, type = "website" }: SEOProps) {
   const fullTitle = title
-    ? `${title} — Crocodile Lodge, Diani Beach`
-    : "Crocodile Lodge — Luxury Villas & Lodge, Diani Beach Kenya";
+    ? `${title} — The Modern Refuge, Diani Beach`
+    : "The Modern Refuge — Luxury Villas & Lodge, Diani Beach Kenya";
   const metaDesc =
     description ??
     "Luxury 3-bedroom villas and a large group lodge steps from Diani Beach, Kenya. Private pool, tropical garden, and the Indian Ocean at your doorstep.";

@@ -6,7 +6,7 @@ import PageTransition from "./components/PageTransition";
 import WhatsAppFloat from "./components/WhatsAppFloat";
 
 // Lazy-load every page so each is a separate JS chunk loaded on demand
-const CrocodileLodge     = lazy(() => import("./CrocodileLodge"));
+const ModernRefuge       = lazy(() => import("./CrocodileLodge"));
 const Gallery            = lazy(() => import("./Gallery"));
 const VillaDetailsPage   = lazy(() => import("./pages/VillaDetailsPage"));
 const SearchResultsPage  = lazy(() => import("./pages/SearchResultsPage"));
@@ -23,7 +23,7 @@ function App() {
         <Suspense fallback={null}>
           <PageTransition>
             <Routes>
-              <Route path="/"                          element={<CrocodileLodge />} />
+              <Route path="/"                          element={<ModernRefuge />} />
               <Route path="/gallery"                   element={<Gallery />} />
               <Route path="/villa/:villaId"            element={<VillaDetailsPage />} />
               <Route path="/search"                    element={<SearchResultsPage />} />

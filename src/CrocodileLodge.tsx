@@ -6,7 +6,7 @@ import SEO from "./components/SEO";
 import type { Villa } from "./types";
 import { VILLAS } from "./types";
 
-const CrocodileLodge: React.FC = () => {
+const ModernRefuge: React.FC = () => {
   const navigate = useNavigate();
   const [checkin, setCheckin] = useState<string>("");
   const [checkout, setCheckout] = useState<string>("");
@@ -347,7 +347,7 @@ const CrocodileLodge: React.FC = () => {
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          background: url('/images/landscape.jpeg') center center / cover no-repeat;
+          background: url('/images/hero.jpg') center center / cover no-repeat;
         }
 
         .hero-gate-overlay {
@@ -2066,7 +2066,7 @@ const CrocodileLodge: React.FC = () => {
         }
 
         @media (max-width: 600px) {
-          .hero { background-image: url('/images/portrait.jpeg'); }
+          .hero { background-image: url('/images/hero.jpg'); }
           .amenities-grid, .amenities-row2 { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: 1fr; }
           .hero-stats { display: none; }
@@ -2116,10 +2116,10 @@ const CrocodileLodge: React.FC = () => {
         <Link to="/" className="nav-logo">
           <img
             src="/favicon/logo.jpeg"
-            alt="Crocodile Lodge"
+            alt="The Modern Refuge"
             className="nav-logo-img"
           />
-          Croc<span>odile</span> Lodge
+          The Modern <span>Refuge</span>
         </Link>
         <ul className="nav-links">
           <li>
@@ -2176,7 +2176,7 @@ const CrocodileLodge: React.FC = () => {
             <h1 className="hero-title">
               Welcome to
               <br />
-              <em>Crocodile Lodge</em>
+              <em>The Modern Refuge</em>
             </h1>
           </div>
 
@@ -2241,7 +2241,7 @@ const CrocodileLodge: React.FC = () => {
       <section className="villas-section" id="villas">
         <div className="section-header reveal" style={{ marginBottom: "40px" }}>
           <div className="section-tag">Accommodation</div>
-          <h2 className="section-title">Crocodile <em style={{color:"#c9a84c",fontStyle:"italic"}}>Stay</em></h2>
+          <h2 className="section-title">The Modern <em style={{color:"#c9a84c",fontStyle:"italic"}}>Refuge</em></h2>
         </div>
 
         <div className="villas-grid">
@@ -2307,7 +2307,7 @@ const CrocodileLodge: React.FC = () => {
             <div className="location-label">Find Us</div>
             <h2 className="location-title">Our Location</h2>
             <p className="location-desc">
-              Crocodile Lodge is your perfect coastal retreat.
+              The Modern Refuge is your perfect coastal retreat.
             </p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
@@ -2333,7 +2333,7 @@ const CrocodileLodge: React.FC = () => {
           </div>
           <div className="location-map">
             <iframe
-              title="Crocodile Lodge Location"
+              title="The Modern Refuge Location"
               src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3978.2948503175276!2d39.5494013!3d-4.3556933!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x18404f0031034e99%3A0xa1696bc658b00344!2scrocodile%20lodge!5e0!3m2!1sen!2ske!4v1774341398801!5m2!1sen!2ske"
               allowFullScreen
               loading="lazy"
@@ -2349,10 +2349,10 @@ const CrocodileLodge: React.FC = () => {
           <div className="footer-logo">
             <img
               src="/favicon/logo.jpeg"
-              alt="Crocodile Lodge"
+              alt="The Modern Refuge"
               className="footer-logo-img"
             />
-            Croc<span>odile</span> Villas
+            The Modern <span>Refuge</span>
           </div>
           <div className="social-links">
             <a
@@ -2422,7 +2422,7 @@ const CrocodileLodge: React.FC = () => {
 
         <div className="footer-bottom">
           <span className="copyright">
-            © 2026 Crocodile Villas. All rights reserved.
+            © 2026 The Modern Refuge. All rights reserved.
           </span>
           <div className="footer-legal">
             <a href="#">Privacy Policy</a>
@@ -2435,4 +2435,4 @@ const CrocodileLodge: React.FC = () => {
   );
 };
 
-export default CrocodileLodge;
+export default ModernRefuge;
