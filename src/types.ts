@@ -57,7 +57,7 @@ export const VILLAS: Villa[] = [
       "The Aloe Refuge – A Serene Nature Retreat\n\nNestled in lush surroundings, The Aloe Refuge offers a peaceful and elegant escape for families and groups of up to 7 guests.\n\nBedrooms:\n• Bedroom 1 — 3 single beds\n• Bedroom 2 — 3 single beds\n• Bedroom 3 — sofa bed\n\nLiving Space:\n• Sofa bed · Heating · Air conditioning\n• Books and reading material · Hot water · Hair dryer\n\nKitchen:\n• Hot water kettle · Coffee maker · Freezer · Oven\n• Microwave · Toaster · Dishwasher · Baking sheet\n• Refrigerator · Barbecue utensils · Dishes and silverware\n• Wine glasses · Cooking basics",
     isAvailable: true,
     color: "#3b82f6",
-    image: "/images/The Aloe Refuge/IMG_20201002_161720.jpg",
+    image: "/images/The Aloe Refuge/IMG_20201002_165212.jpg",
     gallery: [
       "/images/The Aloe Refuge/IMG_20201002_161720.jpg",
       "/images/The Aloe Refuge/IMG_20201002_161747.jpg",
