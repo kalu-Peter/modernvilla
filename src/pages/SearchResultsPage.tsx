@@ -286,13 +286,19 @@ const SearchResultsPage: React.FC = () => {
                       <Link
                         to={`/villa/${villa.id}`}
                         style={{
+                          display: "inline-block",
                           fontFamily: "'Inter',sans-serif",
                           fontSize: "0.65rem",
                           letterSpacing: "0.12em",
                           textTransform: "uppercase",
-                          color: villa.color ?? "#0a0a0a",
-                          textDecoration: "underline",
-                          textUnderlineOffset: 3,
+                          color: "#fff",
+                          background: "#6b7280",
+                          border: "1.5px solid #6b7280",
+                          borderRadius: 6,
+                          padding: "7px 16px",
+                          textDecoration: "none",
+                          fontWeight: 700,
+                          transition: "opacity 0.2s",
                         }}
                       >
                         View Details

@@ -104,23 +104,27 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
               Opening Soon
             </span>
           ) : (
-            <span
+            <button
               onClick={() => villa.isAvailable && onSelectVilla(villa)}
+              disabled={!villa.isAvailable}
               style={{
-                color: villa.color,
+                background: villa.isAvailable ? "#6b7280" : "transparent",
+                color: villa.isAvailable ? "#fff" : "#6b7280",
                 fontFamily: "'Josefin Sans', sans-serif",
                 fontSize: "0.78rem",
                 fontWeight: 700,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
+                border: "1.5px solid #6b7280",
+                borderRadius: 6,
+                padding: "7px 18px",
                 cursor: villa.isAvailable ? "pointer" : "default",
                 opacity: villa.isAvailable ? 1 : 0.4,
-                textDecoration: "underline",
-                textUnderlineOffset: "3px",
+                transition: "background 0.2s, color 0.2s",
               }}
             >
               View Details
-            </span>
+            </button>
           )}
         </div>
       </div>

@@ -2226,53 +2226,6 @@ const ModernRefuge: React.FC = () => {
         </div>
       </section>
 
-      {/* REVIEWS */}
-      <section className="reviews-section">
-        <div className="reviews-header reveal">
-          <div className="reviews-tag">Guest Reviews</div>
-          <h2 className="reviews-title">
-            What Our Guests <em>Say</em>
-          </h2>
-        </div>
-        <div className="reviews-grid">
-          {[
-            {
-              name: "Mitchelle Waiyaki",
-              text: "This villa is nothing short of Amazing. The house has ample space it's clean. We enjoyed all the amenities. The pool table was a good idea. Jacy (the host) was so amazing and helpful. Looking forward to coming back for sure.",
-            },
-            {
-              name: "Molline Dove",
-              text: "Beautiful place. Quiet and serene. Wonderful, friendly hosts. Definitely worth many return visits ❣️🤩🎊",
-            },
-            {
-              name: "Philip Kiganjo",
-              text: "Crocodile Villa lodge is an amazing place to stay as you stay in Diani. My team of 17 friends enjoyed our stay at the villa, which is conveniently located 15 mins from the beach. The rooms were clean and well organized, all amenities were available for use and in good condition, and the swimming pool was absolutely divine 🤗",
-            },
-          ].map((review) => (
-            <div key={review.name} className="review-card reveal">
-              <div className="review-stars">★★★★★</div>
-              <p className="review-text">"{review.text}"</p>
-              <div className="review-author">
-                <div className="review-avatar">{review.name.charAt(0)}</div>
-                <div>
-                  <div className="review-name">{review.name}</div>
-                  <div className="review-platform">Verified Guest</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="reviews-cta">
-          <a
-            href="https://maps.app.goo.gl/SshmqRxQdQEuLnTB7"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read more reviews →
-          </a>
-        </div>
-      </section>
-
       {/* LOCATION */}
       <section className="location-section">
         <div className="location-inner">
