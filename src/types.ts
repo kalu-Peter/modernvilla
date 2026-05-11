@@ -59,6 +59,7 @@ export const VILLAS: Villa[] = [
     color: "#3b82f6",
     image: "/images/The Aloe Refuge/IMG_20201002_165212.jpg",
     gallery: [
+      "/images/The Aloe Refuge/IMG_20201002_165212.jpg",
       "/images/The Aloe Refuge/IMG_20201002_161720.jpg",
       "/images/The Aloe Refuge/IMG_20201002_161747.jpg",
       "/images/The Aloe Refuge/IMG_20201002_161757.jpg",
@@ -70,7 +71,6 @@ export const VILLAS: Villa[] = [
       "/images/The Aloe Refuge/IMG_20201002_163623.jpg",
       "/images/The Aloe Refuge/IMG_20201002_163644.jpg",
       "/images/The Aloe Refuge/IMG_20201002_163722.jpg",
-      "/images/The Aloe Refuge/IMG_20201002_165212.jpg",
       "/images/The Aloe Refuge/IMG_20201002_165253.jpg",
       "/images/The Aloe Refuge/IMG_20201002_165335.jpg",
       "/images/The Aloe Refuge/IMG_20201002_165339.jpg",
