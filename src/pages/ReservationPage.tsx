@@ -9,12 +9,9 @@ function nightsBetween(a: string, b: string) {
 }
 
 const MIN_NIGHTS: Record<string, number> = {
-  "gold-lodge": 2,
-  "blue-villa": 5,
-  "green-villa": 5,
-  "apartment-1": 5,
-  "mango-park-bungalow": 5,
-  "mango-park-1st-floor": 5,
+  "the-aloe-refuge": 2,
+  "the-modern-house": 2,
+  "the-pine-marten-refuge": 2,
 };
 
 function getMinNights(villaId: string) { return MIN_NIGHTS[villaId] ?? 1; }
@@ -84,7 +81,7 @@ const ReservationPage: React.FC = () => {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitError("");
     if (!validate()) return;
@@ -167,7 +164,7 @@ const ReservationPage: React.FC = () => {
             </p>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
               <a
-                href={`https://wa.me/254715510119?text=${waMessage}`}
+                href={`https://wa.me/?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="wa-btn"
@@ -254,7 +251,7 @@ const ReservationPage: React.FC = () => {
       {/* Nav */}
       <div className="rp-nav">
         <div className="rp-nav-logo" onClick={() => navigate("/")}>
-          Croco<span>dile</span> Lodge
+          The Modern <span>Refuge</span>
         </div>
       </div>
 

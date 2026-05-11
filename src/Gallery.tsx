@@ -650,7 +650,6 @@ const Gallery: React.FC = () => {
       {/* NAV */}
       <nav>
         <Link to="/" className="nav-logo">
-          <img src="/favicon/logo.jpeg" alt="The Modern Refuge" className="nav-logo-img" />
           The Modern <span>Refuge</span>
         </Link>
         <ul className="nav-links">

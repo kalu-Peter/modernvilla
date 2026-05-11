@@ -58,7 +58,7 @@ const WhatsAppFloat: React.FC = () => (
 
     <a
       className="whatsapp-float"
-      href="https://wa.me/254715510119"
+      href="https://wa.me/"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"

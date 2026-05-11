@@ -4,7 +4,7 @@ import { VILLAS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
 import SEO from "../components/SEO";
 
-const WA_NUMBER = "254715510119";
+const WA_NUMBER = "";
 
 const VillaDetailsPage: React.FC = () => {
   const { villaId } = useParams<{ villaId: string }>();
@@ -297,7 +297,7 @@ const VillaDetailsPage: React.FC = () => {
 
       {/* NAV */}
       <nav>
-        <Link to="/" className="nav-logo">Croc<span>odile</span> Lodge</Link>
+        <Link to="/" className="nav-logo">The Modern <span>Refuge</span></Link>
         <ul className="nav-links">
           <li><a href="/#villas">Villas</a></li>
           <li><Link to="/gallery">Gallery</Link></li>

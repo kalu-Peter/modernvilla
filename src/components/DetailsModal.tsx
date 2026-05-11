@@ -3,7 +3,7 @@ import type { Villa } from "../types";
 import { getVillaPrice, VILLAS } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
 
-const WA_NUMBER = "254715510119";
+const WA_NUMBER = "";
 
 interface DetailsModalProps {
   villa: Villa;

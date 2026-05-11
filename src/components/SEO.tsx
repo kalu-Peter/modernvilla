@@ -13,11 +13,11 @@ const DEFAULT_IMAGE = `${BASE_URL}/images/crocodile/blue/IMG_20260202_180003.jpg
 
 export default function SEO({ title, description, image, url, type = "website" }: SEOProps) {
   const fullTitle = title
-    ? `${title} — The Modern Refuge, Diani Beach`
-    : "The Modern Refuge — Luxury Villas & Lodge, Diani Beach Kenya";
+    ? `${title} — The Modern Refuge, Strasbourg, France`
+    : "The Modern Refuge — Luxury Holiday Rentals in Strasbourg, France";
   const metaDesc =
     description ??
-    "Luxury 3-bedroom villas and a large group lodge steps from Diani Beach, Kenya. Private pool, tropical garden, and the Indian Ocean at your doorstep.";
+    "Discover exceptional holiday properties across Strasbourg, France. The Modern Refuge offers handpicked retreats — from serene countryside villas to elegant woodland escapes.";
   const metaImage = image ? (image.startsWith("http") ? image : `${BASE_URL}${image}`) : DEFAULT_IMAGE;
   const canonical = url ? `${BASE_URL}${url}` : BASE_URL;
 

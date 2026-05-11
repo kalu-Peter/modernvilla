@@ -178,11 +178,6 @@ const SearchResultsPage: React.FC = () => {
       {/* NAV */}
       <nav className="sr-nav">
         <Link to="/" className="sr-nav-logo">
-          <img
-            src="/favicon/logo.jpeg"
-            alt="The Modern Refuge"
-            className="sr-nav-logo-img"
-          />
           The Modern <span>Refuge</span>
         </Link>
         <ul className="sr-nav-links">
