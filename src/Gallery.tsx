@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+﻿import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import SEO from "./components/SEO";
 
@@ -25,45 +25,45 @@ const Gallery: React.FC = () => {
 
   const galleryData = {
     aloe: [
-      { src: "/images/The Aloe Refuge/IMG_20201002_161720.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_161747.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_161757.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_161900.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163012.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163024.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163508.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163539.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163623.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163644.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_163722.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_165212.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_165253.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_165335.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_165339.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_165353.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG_20201002_165514.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0003.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0004.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0005.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0006.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0008.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0009.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0010.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0011.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0012.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0013.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0014.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0015.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0016.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241104-WA0017.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/IMG-20241105-WA0045.jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (135).jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (136).jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (137).jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (138).jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (139).jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (140).jpg", alt: "The Aloe Refuge" },
-      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (141).jpg", alt: "The Aloe Refuge" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161720.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161747.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161757.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_161900.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163012.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163024.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163508.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163539.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163623.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163644.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_163722.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165212.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165253.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165335.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165339.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165353.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG_20201002_165514.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0003.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0004.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0005.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0006.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0008.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0009.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0010.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0011.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0012.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0013.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0014.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0015.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0016.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241104-WA0017.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/IMG-20241105-WA0045.jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (135).jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (136).jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (137).jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (138).jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (139).jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (140).jpg", alt: "The Aloe Shelter" },
+      { src: "/images/The Aloe Refuge/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (141).jpg", alt: "The Aloe Shelter" },
     ],
     modernhouse: [
       { src: "/images/The modern house/© Alex Flores. PhotographeTel 0645412446 www.alex-flores (7).jpg", alt: "The Modern House" },
@@ -153,40 +153,40 @@ const Gallery: React.FC = () => {
       { src: "/images/The modern house/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-110.jpg", alt: "The Modern House" },
     ],
     pinemarten: [
-      { src: "/images/The Pine Marten Refuge/IMG_20210618_102853.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/IMG_20211113_091044.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/IMG_20211114_163234.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/IMG_20211114_163258.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/IMG-20191224-WA0002.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/PANO_20210618_102952.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/PANO_20210618_103026.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/PANO_20210618_225432.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0005.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0007.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0014.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0019.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0054.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0080.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0083.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-9979.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-9990.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-21.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-24.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-25.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-26.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-27.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-28.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-29.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-30.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-31.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-32.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-33.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-34.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-35.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-37.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-38.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-39.jpg", alt: "The Pine Marten Refuge" },
-      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-40.jpg", alt: "The Pine Marten Refuge" },
+      { src: "/images/The Pine Marten Refuge/IMG_20210618_102853.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/IMG_20211113_091044.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/IMG_20211114_163234.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/IMG_20211114_163258.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/IMG-20191224-WA0002.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/PANO_20210618_102952.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/PANO_20210618_103026.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/PANO_20210618_225432.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0005.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0007.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0014.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0019.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0054.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0080.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-0083.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-9979.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  bd-9990.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-21.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-24.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-25.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-26.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-27.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-28.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-29.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-30.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-31.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-32.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-33.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-34.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-35.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-37.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-38.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-39.jpg", alt: "The Pine Marten Shelter" },
+      { src: "/images/The Pine Marten Refuge/© Alex Flores. Photographe strasbourg Tel 0645412446 www.alex-flores.com  internet-40.jpg", alt: "The Pine Marten Shelter" },
     ],
   };
 
@@ -194,16 +194,16 @@ const Gallery: React.FC = () => {
     galleryData[activeSection as keyof typeof galleryData] ?? [];
 
   const sections = [
-    { id: "aloe", label: "The Aloe Refuge", color: "#3b82f6" },
+    { id: "aloe", label: "The Aloe Shelter", color: "#3b82f6" },
     { id: "modernhouse", label: "The Modern House", color: "#10b981" },
-    { id: "pinemarten", label: "The Pine Marten Refuge", color: "#eab308" },
+    { id: "pinemarten", label: "The Pine Marten Shelter", color: "#eab308" },
   ];
 
   return (
     <>
       <SEO
         title="Photo Gallery"
-        description="Browse photos of The Modern Refuge — The Aloe Refuge, The Modern House, and The Pine Marten Refuge."
+        description="Browse photos of The Modern Shelter — The Aloe Shelter, The Modern House, and The Pine Marten Shelter."
         url="/gallery"
       />
       <style>{`
@@ -650,7 +650,7 @@ const Gallery: React.FC = () => {
       {/* NAV */}
       <nav>
         <Link to="/" className="nav-logo">
-          The Modern <span>Refuge</span>
+          The Modern <span>Shelter</span>
         </Link>
         <ul className="nav-links">
           <li>

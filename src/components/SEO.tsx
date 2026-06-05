@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+﻿import { Helmet } from "react-helmet-async";
 
 interface SEOProps {
   title?: string;
@@ -13,11 +13,11 @@ const DEFAULT_IMAGE = `${BASE_URL}/images/The Aloe Refuge/IMG_20201002_165212.jp
 
 export default function SEO({ title, description, image, url, type = "website" }: SEOProps) {
   const fullTitle = title
-    ? `${title} — The Modern Refuge, Strasbourg, France`
-    : "The Modern Refuge — Luxury Holiday Rentals in Strasbourg, France";
+    ? `${title} — The Modern Shelter, Strasbourg, France`
+    : "The Modern Shelter — Luxury Holiday Rentals in Strasbourg, France";
   const metaDesc =
     description ??
-    "Discover exceptional holiday properties across Strasbourg, France. The Modern Refuge offers handpicked retreats — from serene countryside villas to elegant woodland escapes.";
+    "Discover exceptional holiday properties across Strasbourg, France. The Modern Shelter offers handpicked retreats — from serene countryside villas to elegant woodland escapes.";
   const metaImage = image ? (image.startsWith("http") ? image : `${BASE_URL}${image}`) : DEFAULT_IMAGE;
   const canonical = url ? `${BASE_URL}${url}` : BASE_URL;
 

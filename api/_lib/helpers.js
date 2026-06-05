@@ -1,4 +1,4 @@
-/** Set CORS headers and handle preflight OPTIONS requests.
+﻿/** Set CORS headers and handle preflight OPTIONS requests.
  *  Returns true if the request was a preflight (caller should return early). */
 export function cors(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -33,7 +33,7 @@ export async function sendEmail({ to, subject, html }) {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM || "The Modern Refuge <noreply@themodernrefuge.co.ke>",
+      from: process.env.RESEND_FROM || "The Modern Shelter <noreply@themodernrefuge.co.ke>",
       to,
       subject,
       html,

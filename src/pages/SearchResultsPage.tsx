@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { VILLAS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
@@ -178,7 +178,7 @@ const SearchResultsPage: React.FC = () => {
       {/* NAV */}
       <nav className="sr-nav">
         <Link to="/" className="sr-nav-logo">
-          The Modern <span>Refuge</span>
+          The Modern <span>Shelter</span>
         </Link>
         <ul className="sr-nav-links">
           <li>

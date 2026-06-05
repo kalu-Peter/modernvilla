@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { VILLAS, getVillaPrice } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
@@ -9,9 +9,9 @@ function nightsBetween(a: string, b: string) {
 }
 
 const MIN_NIGHTS: Record<string, number> = {
-  "the-aloe-refuge": 2,
+  "the-aloe-shelter": 2,
   "the-modern-house": 2,
-  "the-pine-marten-refuge": 2,
+  "the-pine-marten-shelter": 2,
 };
 
 function getMinNights(villaId: string) { return MIN_NIGHTS[villaId] ?? 1; }
@@ -117,7 +117,7 @@ const ReservationPage: React.FC = () => {
   // ── Success screen ──────────────────────────────────────────────────────────
   if (submitted) {
     const waMessage = encodeURIComponent(
-      `Hi! I just submitted a booking request to The Modern Refuge.\n\n` +
+      `Hi! I just submitted a booking request to The Modern Shelter.\n\n` +
       `Property: ${villa.name}\n` +
       `Check-in: ${formatDate(checkin)}\n` +
       `Check-out: ${formatDate(checkout)}\n` +
@@ -251,7 +251,7 @@ const ReservationPage: React.FC = () => {
       {/* Nav */}
       <div className="rp-nav">
         <div className="rp-nav-logo" onClick={() => navigate("/")}>
-          The Modern <span>Refuge</span>
+          The Modern <span>Shelter</span>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-// Villa Types and Constants
+﻿// Villa Types and Constants
 export interface PricingTier {
   baseGuests: number;     // guests included in the base price
   basePrice: number;      // flat nightly rate for up to baseGuests
@@ -47,14 +47,14 @@ export interface PaymentInfo {
 // Villa Pricing Configuration
 export const VILLAS: Villa[] = [
   {
-    id: "the-aloe-refuge",
-    name: "The Aloe Refuge",
+    id: "the-aloe-shelter",
+    name: "The Aloe Shelter",
     type: "Villa",
     bedrooms: 3,
     bathrooms: 2,
     maxGuests: 7,
     description:
-      "The Aloe Refuge – A Serene Nature Retreat\n\nNestled in lush surroundings, The Aloe Refuge offers a peaceful and elegant escape for families and groups of up to 7 guests.\n\nBedrooms:\n• Bedroom 1 — 3 single beds\n• Bedroom 2 — 3 single beds\n• Bedroom 3 — sofa bed\n\nLiving Space:\n• Sofa bed · Heating · Air conditioning\n• Books and reading material · Hot water · Hair dryer\n\nKitchen:\n• Hot water kettle · Coffee maker · Freezer · Oven\n• Microwave · Toaster · Dishwasher · Baking sheet\n• Refrigerator · Barbecue utensils · Dishes and silverware\n• Wine glasses · Cooking basics",
+      "The Aloe Shelter – A Serene Nature Retreat\n\nNestled in lush surroundings, The Aloe Shelter offers a peaceful and elegant escape for families and groups of up to 7 guests.\n\nBedrooms:\n• Bedroom 1 — 3 single beds\n• Bedroom 2 — 3 single beds\n• Bedroom 3 — sofa bed\n\nLiving Space:\n• Sofa bed · Heating · Air conditioning\n• Books and reading material · Hot water · Hair dryer\n\nKitchen:\n• Hot water kettle · Coffee maker · Freezer · Oven\n• Microwave · Toaster · Dishwasher · Baking sheet\n• Refrigerator · Barbecue utensils · Dishes and silverware\n• Wine glasses · Cooking basics",
     isAvailable: true,
     color: "#3b82f6",
     image: "/images/The Aloe Refuge/IMG_20201002_165212.jpg",
@@ -230,14 +230,14 @@ export const VILLAS: Villa[] = [
     pricing: [{ baseGuests: 5, basePrice: 8000, extraPersonFee: 2000 }],
   },
   {
-    id: "the-pine-marten-refuge",
-    name: "The Pine Marten Refuge",
+    id: "the-pine-marten-shelter",
+    name: "The Pine Marten Shelter",
     type: "Villa",
     bedrooms: 3,
     bathrooms: 2,
     maxGuests: 8,
     description:
-      "The Pine Marten Refuge – A Woodland Sanctuary\n\nA charming and characterful property set in a natural woodland setting, perfect for couples, families, and nature lovers.\n\nHighlights:\n• 3 cosy bedrooms with quality furnishings.\n• Warm, inviting living spaces.\n• Fully equipped kitchen.\n• Free WiFi, flat-screen TV, and all linen included.\n• Beautiful natural surroundings and outdoor spaces.\n\nAn idyllic retreat for those seeking tranquility and a connection with nature.",
+      "The Pine Marten Shelter – A Woodland Sanctuary\n\nA charming and characterful property set in a natural woodland setting, perfect for couples, families, and nature lovers.\n\nHighlights:\n• 3 cosy bedrooms with quality furnishings.\n• Warm, inviting living spaces.\n• Fully equipped kitchen.\n• Free WiFi, flat-screen TV, and all linen included.\n• Beautiful natural surroundings and outdoor spaces.\n\nAn idyllic retreat for those seeking tranquility and a connection with nature.",
     isAvailable: true,
     color: "#eab308",
     image: "/images/The Pine Marten Refuge/IMG_20210618_102853.jpg",

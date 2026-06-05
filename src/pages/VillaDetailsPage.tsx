@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+﻿import React, { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { VILLAS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
@@ -49,7 +49,7 @@ const VillaDetailsPage: React.FC = () => {
     <>
       <SEO
         title={villa.name}
-        description={`${villa.name} at The Modern Refuge, Diani Beach — sleeps up to ${villa.maxGuests} guests. Private pool, tropical garden, steps from the Indian Ocean.`}
+        description={`${villa.name} at The Modern Shelter, Diani Beach — sleeps up to ${villa.maxGuests} guests. Private pool, tropical garden, steps from the Indian Ocean.`}
         image={villa.image}
         url={`/villa/${villa.id}`}
         type="article"
@@ -297,7 +297,7 @@ const VillaDetailsPage: React.FC = () => {
 
       {/* NAV */}
       <nav>
-        <Link to="/" className="nav-logo">The Modern <span>Refuge</span></Link>
+        <Link to="/" className="nav-logo">The Modern <span>Shelter</span></Link>
         <ul className="nav-links">
           <li><a href="/#villas">Villas</a></li>
           <li><Link to="/gallery">Gallery</Link></li>

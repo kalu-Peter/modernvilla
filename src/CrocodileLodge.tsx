@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import VillaCard from "./components/VillaCard";
 import CurrencySelector from "./components/CurrencySelector";
@@ -2097,7 +2097,7 @@ const ModernRefuge: React.FC = () => {
         className={`${navScrolled ? "nav-scrolled" : ""} ${!navVisible ? "nav-hidden" : ""}`}
       >
         <Link to="/" className="nav-logo">
-          The Modern <span>Refuge</span>
+          The Modern <span>Shelter</span>
         </Link>
         <ul className="nav-links">
           <li>
@@ -2154,7 +2154,7 @@ const ModernRefuge: React.FC = () => {
             <h1 className="hero-title">
               Welcome to
               <br />
-              <em>The Modern Refuge</em>
+              <em>The Modern Shelter</em>
             </h1>
           </div>
 
@@ -2201,7 +2201,7 @@ const ModernRefuge: React.FC = () => {
             </p>
             <p>
               From secluded countryside retreats to elegant woodland escapes,
-              every refuge is designed to make you feel truly at home.
+              every shelter is designed to make you feel truly at home.
             </p>
             <p>
               Send us a message, and we'll help you find your perfect stay.
@@ -2214,7 +2214,7 @@ const ModernRefuge: React.FC = () => {
       <section className="villas-section" id="villas">
         <div className="section-header reveal" style={{ marginBottom: "40px" }}>
           <div className="section-tag">Accommodation</div>
-          <h2 className="section-title">The Modern <em style={{color:"#c9a84c",fontStyle:"italic"}}>Refuge</em></h2>
+          <h2 className="section-title">The Modern <em style={{color:"#c9a84c",fontStyle:"italic"}}>Shelter</em></h2>
         </div>
 
         <div className="villas-grid">
@@ -2233,7 +2233,7 @@ const ModernRefuge: React.FC = () => {
             <div className="location-label">Find Us</div>
             <h2 className="location-title">Our Location</h2>
             <p className="location-desc">
-              The Modern Refuge properties are nestled across Strasbourg, France — each one a quiet escape from the everyday.
+              The Modern Shelter properties are nestled across Strasbourg, France — each one a quiet escape from the everyday.
             </p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
@@ -2249,7 +2249,7 @@ const ModernRefuge: React.FC = () => {
       <footer id="contact">
         <div className="footer-main">
           <div className="footer-logo">
-            The Modern <span>Refuge</span>
+            The Modern <span>Shelter</span>
           </div>
           <div className="social-links">
             <a
@@ -2268,7 +2268,7 @@ const ModernRefuge: React.FC = () => {
 
         <div className="footer-bottom">
           <span className="copyright">
-            © 2026 The Modern Refuge. All rights reserved.
+            © 2026 The Modern Shelter. All rights reserved.
           </span>
           <div className="footer-legal">
             <a href="#">Privacy Policy</a>

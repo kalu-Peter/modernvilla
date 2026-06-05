@@ -1,4 +1,4 @@
-import { cors } from "./_lib/helpers.js";
+﻿import { cors } from "./_lib/helpers.js";
 
 const PESAPAL_BASE = process.env.PESAPAL_SANDBOX === "true"
   ? "https://cybqa.pesapal.com/pesapalv3"
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
           id: merchantRef,
           currency: "KES",
           amount: Math.ceil(amount),
-          description: description || "Villa Reservation – The Modern Refuge",
+          description: description || "Villa Reservation – The Modern Shelter",
           callback_url: callbackUrl,
           ...(ipnId ? { notification_id: ipnId } : {}),
           billing_address: {
