@@ -347,7 +347,7 @@ const ModernRefuge: React.FC = () => {
           align-items: center;
           justify-content: center;
           overflow: hidden;
-          background: url('/images/The Aloe Refuge/IMG_20201002_165212.jpg') center center / cover no-repeat;
+          background: url('/images/hero.jpg') center center / cover no-repeat;
         }
 
         .hero-gate-overlay {
@@ -2066,7 +2066,7 @@ const ModernRefuge: React.FC = () => {
         }
 
         @media (max-width: 600px) {
-          .hero { background-image: url('/images/The Aloe Refuge/IMG_20201002_165212.jpg'); }
+          .hero { background-image: url('/images/hero.jpg'); }
           .amenities-grid, .amenities-row2 { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: 1fr; }
           .hero-stats { display: none; }
