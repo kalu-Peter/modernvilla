@@ -9,9 +9,10 @@ function nightsBetween(a: string, b: string) {
 }
 
 const MIN_NIGHTS: Record<string, number> = {
-  "the-aloe-shelter": 2,
-  "the-modern-house": 2,
-  "the-pine-marten-shelter": 2,
+  "shelter-a": 2,
+  "shelter-b": 2,
+  "la-maison-modern": 2,
+  "refuge-de-la-martre": 2,
 };
 
 function getMinNights(villaId: string) { return MIN_NIGHTS[villaId] ?? 1; }
