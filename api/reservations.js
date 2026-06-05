@@ -1,4 +1,4 @@
-﻿import supabase from "./_lib/supabase.js";
+import supabase from "./_lib/supabase.js";
 import { cors, sendEmail } from "./_lib/helpers.js";
 
 export default async function handler(req, res) {

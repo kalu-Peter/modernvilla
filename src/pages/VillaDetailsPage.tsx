@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { VILLAS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";

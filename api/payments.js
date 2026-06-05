@@ -1,4 +1,4 @@
-﻿import { cors } from "./_lib/helpers.js";
+import { cors } from "./_lib/helpers.js";
 
 const PESAPAL_BASE = process.env.PESAPAL_SANDBOX === "true"
   ? "https://cybqa.pesapal.com/pesapalv3"

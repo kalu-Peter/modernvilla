@@ -1,4 +1,4 @@
-﻿/** Set CORS headers and handle preflight OPTIONS requests.
+/** Set CORS headers and handle preflight OPTIONS requests.
  *  Returns true if the request was a preflight (caller should return early). */
 export function cors(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");

@@ -1,4 +1,4 @@
-﻿// Villa Types and Constants
+// Villa Types and Constants
 export interface PricingTier {
   baseGuests: number;     // guests included in the base price
   basePrice: number;      // flat nightly rate for up to baseGuests
