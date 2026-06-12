@@ -230,7 +230,7 @@ const SearchResultsPage: React.FC = () => {
         ) : visibleVillas.length === 0 ? (
           <div className="sr-loading">
             No villas available for the selected dates. Try different dates or{" "}
-            <a href="https://wa.me/254715510119" style={{ color: "#c9a84c" }}>
+            <a href="https://wa.me/33601943348" style={{ color: "#c9a84c" }}>
               contact us
             </a>
             .
@@ -305,7 +305,7 @@ const SearchResultsPage: React.FC = () => {
                       </Link>
                       {villa.contactOnly ? (
                         <a
-                          href={`https://wa.me/254715510119?text=${encodeURIComponent(`Hi, I'd like to book ${villa.name} from ${checkin} to ${checkout} for ${guests} guest${guests !== 1 ? "s" : ""}.`)}`}
+                          href={`https://wa.me/33601943348?text=${encodeURIComponent(`Hi, I'd like to book ${villa.name} from ${checkin} to ${checkout} for ${guests} guest${guests !== 1 ? "s" : ""}.`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{

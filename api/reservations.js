@@ -128,7 +128,7 @@ export default async function handler(req, res) {
             <div style="background:#fffbf0;border:1.5px solid #f5e4a8;border-radius:10px;padding:18px 20px;margin-bottom:28px;">
               <p style="font-size:0.82rem;color:#92400e;margin:0;line-height:1.65;">
                 <strong>Next steps:</strong> Our team will review your request and send you a formal invoice.
-                For the quickest confirmation, contact us on WhatsApp at <strong>+254 715 510 119</strong>.
+                For the quickest confirmation, contact us on WhatsApp at <strong>+33 6 01 94 33 48</strong>.
               </p>
             </div>
 

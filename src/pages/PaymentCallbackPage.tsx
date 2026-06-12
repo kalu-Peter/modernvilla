@@ -180,7 +180,7 @@ export default function PaymentCallbackPage() {
               Try Again
             </button>
             <a
-              href="https://wa.me/254700000000"
+              href="https://wa.me/33601943348"
               target="_blank"
               rel="noopener noreferrer"
               style={{
