@@ -2000,6 +2000,24 @@ const ModernRefuge: React.FC = () => {
           color: rgba(10,10,10,0.6);
           line-height: 1;
         }
+        .contact-text strong {
+          display: block;
+          font-weight: 600;
+          color: rgba(10,10,10,0.8);
+          margin-bottom: 4px;
+        }
+        .contact-text p {
+          margin: 0;
+          color: rgba(10,10,10,0.6);
+        }
+        .contact-text p a {
+          color: rgba(10,10,10,0.6);
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+        .contact-text p a:hover {
+          color: var(--croc-deep);
+        }
 
         .social-links { display: flex; gap: 10px; }
         .social-link {
@@ -2087,9 +2105,11 @@ const ModernRefuge: React.FC = () => {
 
       {/* TOP BAR */}
       <div className="topbar">
-        <span className="topbar-item topbar-addr">
-          📍 Strasbourg, France
-        </span>
+        <span className="topbar-item topbar-addr">📍 Strasbourg, France</span>
+        <span className="topbar-divider"></span>
+        <a href="tel:+33601943348" className="topbar-item">
+          ☎ +33 6 01 94 33 48
+        </a>
       </div>
 
       {/* NAV */}
@@ -2197,15 +2217,14 @@ const ModernRefuge: React.FC = () => {
           <div className="hero-tagline">
             <p>
               Discover our handpicked collection of exceptional properties
-              across Strasbourg, France — each a sanctuary of calm, comfort, and character.
+              across Strasbourg, France — each a sanctuary of calm, comfort, and
+              character.
             </p>
             <p>
               From secluded countryside retreats to elegant woodland escapes,
               every shelter is designed to make you feel truly at home.
             </p>
-            <p>
-              Send us a message, and we'll help you find your perfect stay.
-            </p>
+            <p>Send us a message, and we'll help you find your perfect stay.</p>
           </div>
         </div>
       </section>
@@ -2214,12 +2233,19 @@ const ModernRefuge: React.FC = () => {
       <section className="villas-section" id="villas">
         <div className="section-header reveal" style={{ marginBottom: "40px" }}>
           <div className="section-tag">Accommodation</div>
-          <h2 className="section-title">The Modern <em style={{color:"#c9a84c",fontStyle:"italic"}}>Shelter</em></h2>
+          <h2 className="section-title">
+            The Modern{" "}
+            <em style={{ color: "#c9a84c", fontStyle: "italic" }}>Shelter</em>
+          </h2>
         </div>
 
         <div className="villas-grid">
           {VILLAS.map((villa, index) => (
-            <div key={villa.id} className="reveal" style={{ transitionDelay: `${index * 0.1}s` }}>
+            <div
+              key={villa.id}
+              className="reveal"
+              style={{ transitionDelay: `${index * 0.1}s` }}
+            >
               <VillaCard villa={villa} onSelectVilla={handleSelectVilla} />
             </div>
           ))}
@@ -2233,13 +2259,12 @@ const ModernRefuge: React.FC = () => {
             <div className="location-label">Find Us</div>
             <h2 className="location-title">Our Location</h2>
             <p className="location-desc">
-              The Modern Shelter properties are nestled across Strasbourg, France — each one a quiet escape from the everyday.
+              The Modern Shelter properties are nestled across Strasbourg,
+              France — each one a quiet escape from the everyday.
             </p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
-              <span className="location-detail-text">
-                Strasbourg, France
-              </span>
+              <span className="location-detail-text">Strasbourg, France</span>
             </div>
           </div>
         </div>
@@ -2251,6 +2276,29 @@ const ModernRefuge: React.FC = () => {
           <div className="footer-logo">
             The Modern <span>Shelter</span>
           </div>
+          <div className="footer-contact-row">
+            <div className="footer-contact-item">
+              <span className="contact-icon">📍</span>
+              <div className="contact-text">
+                <strong>Location</strong>
+                <p>Griesheim-près-Molsheim, France</p>
+              </div>
+            </div>
+            <div className="footer-contact-item">
+              <span className="contact-icon">☎</span>
+              <div className="contact-text">
+                <strong>Phone</strong>
+                <p>
+                  <a
+                    href="tel:+33601943348"
+                    style={{ color: "inherit", textDecoration: "none" }}
+                  >
+                    +33 6 01 94 33 48
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
           <div className="social-links">
             <a
               href="https://www.facebook.com/share/1CWQwy8KEX/"
@@ -2259,7 +2307,12 @@ const ModernRefuge: React.FC = () => {
               rel="noopener noreferrer"
               aria-label="Facebook"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <svg
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                width="18"
+                height="18"
+              >
                 <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
               </svg>
             </a>
