@@ -467,7 +467,6 @@ const VillaDetailsPage: React.FC = () => {
           <div className="vdp-section">
             {/* Name + stats header */}
             <div className="vdp-info-header">
-              <h2 className="vdp-info-name">{villa.name}</h2>
               <div className="vdp-info-stats">
                 {villa.bedrooms && (
                   <span className="vdp-info-stat">

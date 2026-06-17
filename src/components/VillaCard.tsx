@@ -95,6 +95,12 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
 
       <div className="villa-card-header">
         <h3>{villa.name}</h3>
+        <div className="villa-amenity-chips">
+          <span className="villa-amenity-chip">AC</span>
+          <span className="villa-amenity-chip">Kitchen</span>
+          <span className="villa-amenity-chip">WiFi</span>
+          <span className="villa-amenity-chip">Laundry</span>
+        </div>
       </div>
 
       <div className="villa-card-content">
@@ -110,13 +116,6 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
             <GuestIcon />
             Max {villa.maxGuests}
           </span>
-        </div>
-
-        <div className="villa-amenity-chips">
-          <span className="villa-amenity-chip">AC</span>
-          <span className="villa-amenity-chip">Kitchen</span>
-          <span className="villa-amenity-chip">WiFi</span>
-          <span className="villa-amenity-chip">Laundry</span>
         </div>
 
         <div className="villa-card-buttons">

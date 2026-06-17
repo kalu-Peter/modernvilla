@@ -48,7 +48,7 @@ export interface PaymentInfo {
 export const VILLAS: Villa[] = [
   {
     id: "shelter-a",
-    name: "Shelter A",
+    name: "Shelter A - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 3,
     bathrooms: 1,
@@ -104,7 +104,7 @@ export const VILLAS: Villa[] = [
   },
   {
     id: "shelter-b",
-    name: "Shelter B",
+    name: "Shelter B - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 3,
     bathrooms: 1,
@@ -174,7 +174,7 @@ export const VILLAS: Villa[] = [
   },
   {
     id: "la-maison-modern",
-    name: "La Maison Modern",
+    name: "La Maison Modern - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 5,
     bathrooms: 2,
@@ -264,7 +264,7 @@ export const VILLAS: Villa[] = [
   },
   {
     id: "refuge-de-la-martre",
-    name: "Refuge de la Martre",
+    name: "Refuge de la Martre - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 6,
     bathrooms: 2,
