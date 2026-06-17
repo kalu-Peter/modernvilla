@@ -40,6 +40,19 @@ const SearchResultsPage: React.FC = () => {
   const [statuses, setStatuses] = useState<Record<string, VillaStatus>>({});
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [navVisible, setNavVisible] = useState(true);
+
+  // Nav hide/show on scroll
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setNavVisible(y < lastY || y < 80);
+      lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (!checkin || !checkout) {
@@ -121,7 +134,9 @@ const SearchResultsPage: React.FC = () => {
           background:rgba(201,168,76,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
           border-bottom:1px solid rgba(255,255,255,0.18);
           box-shadow:0 2px 16px rgba(0,0,0,0.08);
+          transition: transform 0.35s ease;
         }
+        .sr-nav.nav-hidden { transform: translateY(-100%); }
         .sr-nav-logo { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#fff; text-decoration:none; display:flex; align-items:center; gap:10px; }
         .sr-nav-logo span { color:rgba(255,255,255,0.65); }
         .sr-nav-logo-img { height:36px; width:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); flex-shrink:0; }
@@ -176,7 +191,7 @@ const SearchResultsPage: React.FC = () => {
       `}</style>
 
       {/* NAV */}
-      <nav className="sr-nav">
+      <nav className={`sr-nav ${!navVisible ? "nav-hidden" : ""}`}>
         <Link to="/" className="sr-nav-logo">
           The Modern <span>Shelter</span>
         </Link>

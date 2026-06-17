@@ -1127,7 +1127,7 @@ const ModernRefuge: React.FC = () => {
 
         .villas-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, 1fr);
           grid-auto-rows: 1fr;
           gap: 30px;
           max-width: 1200px;
@@ -2219,7 +2219,7 @@ const ModernRefuge: React.FC = () => {
 
         <div className="villas-grid">
           {VILLAS.map((villa, index) => (
-            <div key={villa.id} style={{ transitionDelay: `${index * 0.1}s` }}>
+            <div key={villa.id} className="reveal" style={{ transitionDelay: `${index * 0.1}s` }}>
               <VillaCard villa={villa} onSelectVilla={handleSelectVilla} />
             </div>
           ))}

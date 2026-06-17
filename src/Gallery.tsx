@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SEO from "./components/SEO";
 
@@ -7,7 +7,20 @@ const Gallery: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerIndex, setViewerIndex] = useState(0);
+  const [navVisible, setNavVisible] = useState(true);
   const touchStartX = useRef<number | null>(null);
+
+  // Nav hide/show on scroll
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setNavVisible(y < lastY || y < 80);
+      lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -230,7 +243,9 @@ const Gallery: React.FC = () => {
           -webkit-backdrop-filter: blur(12px);
           border-bottom: 1px solid rgba(255,255,255,0.18);
           box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+          transition: transform 0.35s ease;
         }
+        nav.nav-hidden { transform: translateY(-100%); }
 
         .nav-logo {
           font-family: 'Playfair Display', serif;
@@ -628,7 +643,7 @@ const Gallery: React.FC = () => {
       `}</style>
 
       {/* NAV */}
-      <nav>
+      <nav className={!navVisible ? "nav-hidden" : ""}>
         <Link to="/" className="nav-logo">
           The Modern <span>Shelter</span>
         </Link>

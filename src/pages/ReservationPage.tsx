@@ -46,6 +46,19 @@ const ReservationPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmationId, setConfirmationId] = useState("");
+  const [navVisible, setNavVisible] = useState(true);
+
+  // Nav hide/show on scroll
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      setNavVisible(y < lastY || y < 80);
+      lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const [seasonalPrice, setSeasonalPrice] = useState<number | null>(null);
 
   useEffect(() => { if (!villaId) navigate("/"); }, [villaId, navigate]);
@@ -191,7 +204,8 @@ const ReservationPage: React.FC = () => {
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Cormorant Garamond',serif; background:#f5f6fa; color:#1a1a2e; }
 
-        .rp-nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:22px 60px; display:flex; align-items:center; gap:20px; background:rgba(201,168,76,0.97); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.18); box-shadow:0 2px 16px rgba(0,0,0,0.08); }
+        .rp-nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:22px 60px; display:flex; align-items:center; gap:20px; background:rgba(201,168,76,0.97); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.18); box-shadow:0 2px 16px rgba(0,0,0,0.08); transition: transform 0.35s ease; }
+        .rp-nav.nav-hidden { transform: translateY(-100%); }
         .rp-nav-logo { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#fff; text-decoration:none; cursor:pointer; }
         .rp-nav-logo span { color:rgba(255,255,255,0.65); }
 
@@ -250,7 +264,7 @@ const ReservationPage: React.FC = () => {
       `}</style>
 
       {/* Nav */}
-      <div className="rp-nav">
+      <div className={`rp-nav ${!navVisible ? "nav-hidden" : ""}`}>
         <div className="rp-nav-logo" onClick={() => navigate("/")}>
           The Modern <span>Shelter</span>
         </div>
