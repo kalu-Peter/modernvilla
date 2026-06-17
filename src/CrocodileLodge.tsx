@@ -395,20 +395,20 @@ const ModernRefuge: React.FC = () => {
         }
         .hero-tagline p {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.1rem, 1.9vw, 1.4rem);
+          font-size: clamp(1.3rem, 2.3vw, 1.7rem);
           font-style: italic;
           color: rgba(255,255,255,0.82);
-          line-height: 1.7;
+          line-height: 1.4;
           margin: 0;
           text-shadow: 0 1px 8px rgba(0,0,0,0.45);
         }
-        .hero-tagline p + p { margin-top: 10px; }
+        .hero-tagline p + p { margin-top: 6px; }
         @media (max-width: 768px) {
           .hero-tagline { padding: 0 20px; }
-          .hero-tagline p { font-size: 1.05rem; line-height: 1.65; }
+          .hero-tagline p { font-size: 1.2rem; line-height: 1.4; }
         }
         @media (max-width: 480px) {
-          .hero-tagline p { font-size: 0.98rem; }
+          .hero-tagline p { font-size: 1.05rem; line-height: 1.4; }
         }
 
         .hero-eyebrow {
@@ -2217,7 +2217,7 @@ const ModernRefuge: React.FC = () => {
           <div className="hero-tagline">
             <p>
               Discover our handpicked collection of exceptional properties
-              across Strasbourg, France — each a sanctuary of calm, comfort, and
+              across Strasbourg, France each a sanctuary of calm, comfort, and
               character.
             </p>
             <p>
@@ -2260,7 +2260,7 @@ const ModernRefuge: React.FC = () => {
             <h2 className="location-title">Our Location</h2>
             <p className="location-desc">
               The Modern Shelter properties are nestled across Strasbourg,
-              France — each one a quiet escape from the everyday.
+              France each one a quiet escape from the everyday.
             </p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
