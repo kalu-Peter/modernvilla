@@ -54,7 +54,7 @@ export const VILLAS: Villa[] = [
     bathrooms: 1,
     maxGuests: 8,
     description:
-      "Shelter A – Entire Rental Unit in Griesheim-près-Molsheim, France\n\nA peaceful and elegant rental unit nestled in lush surroundings, perfect for families and groups of up to 8 guests.\n\nHighlights:\n• 3 spacious bedrooms with 7 beds and comfortable furnishings.\n• Warm, inviting living spaces.\n• Fully equipped modern kitchen.\n• Free WiFi, heating, and air conditioning.\n• Beautiful natural surroundings.\n\nThe perfect retreat in the Alsace region of France.",
+      "Shelter A - Premium Rental Unit\n\nA 4-room apartment ideal for professional trips or family stays with accommodation suitable for 7 adults and children.\n\nOnly available for 30-day rentals.\n\nThe Space\n• 3 spacious bedrooms\n• 1 equipped kitchen\n• 1 bright living room\n• 1 shower room\n• 1 separate toilet\n• Single-story main accommodation with easy access\n• Basement converted into a leisure room or additional bedroom\n\nOutdoor Features\n• 2 private parking spaces\n• Private fenced garden\n\nGuest Access\n• 2 parking spaces for both homes included\n\nPerfect for extended stays in the Griesheim-près-Molsheim area.",
     isAvailable: true,
     color: "#3b82f6",
     image: "/images/Shelter A/204ef77b-b7e7-4cce-a4c7-2e735b3a30bf.avif",
@@ -97,7 +97,7 @@ export const VILLAS: Villa[] = [
     bathrooms: 1,
     maxGuests: 7,
     description:
-      "Shelter B – Entire Rental Unit in Griesheim-près-Molsheim, France\n\nA beautifully appointed rental unit offering comfort and character for families and groups of up to 7 guests.\n\nHighlights:\n• 3 bedrooms with 7 beds and comfortable furnishings.\n• Warm, inviting living spaces.\n• Fully equipped modern kitchen.\n• Free WiFi, flat-screen TV, and all linen included.\n• Beautiful surroundings and outdoor spaces in the Alsace region.",
+      "Shelter B - The Agaves Refuge\n\nA vacation cottage consisting of an 80 m2 accommodation spanning the ground floor, basement and 1st floor, with a small fenced garden.\n\nThe Space\nThe place is great for 4 to 7 people. Spacious and comfortable apartment located 25 minutes from Strasbourg, 1 hour from Colmar, and 50 minutes from Europa Park.\n\nAccommodation Features\n• 2 spacious and comfortable bedrooms\n• 1 equipped and functional kitchen\n• 1 bright and pleasant living room\n• 1 shower room and 1 separate toilet\n• A basement converted into a leisure room or additional bedroom\n• 2 private and secure parking spaces\n• A private fenced garden to enjoy the outdoors\n\nAdvantages\n• Ideal for business or family stays\n• 30-day rental possible for extended stays\n• Single-story accommodation for easy access\n• Quiet and residential environment in Griesheim near Molsheim\n• Two private parking spaces included",
     isAvailable: true,
     color: "#eab308",
     image: "/images/Shelter B/076d893a-eb66-4d47-a942-e771f585ad9c.avif",
@@ -153,7 +153,7 @@ export const VILLAS: Villa[] = [
     bathrooms: 2,
     maxGuests: 15,
     description:
-      "La Maison Modern – Entire Home in Griesheim-près-Molsheim, France\n\nA beautifully designed contemporary property offering premium comfort and refined living spaces for up to 15 guests.\n\nHighlights:\n• 5 spacious bedrooms with 13 beds and elegant bathrooms.\n• Large open-plan living area with designer furnishings.\n• Fully equipped modern kitchen.\n• Free WiFi, flat-screen TV, and all linen provided.\n• Stunning outdoor spaces and landscaped garden.\n\nPerfect for families and groups seeking luxury and comfort in the Alsace region of France.",
+      "La Maison Modern - A Beautiful Modern House\n\nA beautiful modern house with low energy consumption and comfortable underfloor heating. Everything you need for a pleasant stay with family or friends to discover Alsace.\n\nIdeal for 10 adults and 5 children.\n\nLocation\nLocated in Griesheim near Molsheim in the heart of Alsace:\n• 20 minutes from Strasbourg and Colmar\n• 50 minutes from Europa Park\n• Obernai is only 5 km away\n\nThe Space\nAccommodates 15 people with 5 bedrooms:\n• Upstairs: 4 bedrooms with 10 beds (for 10 people)\n• Basement: 2 large beds and 2 sofas\n• Ground floor: Large dining room with kitchen (seats up to 15 people) overlooking partially covered outdoor terrace\n\nOutdoor Amenities\n• Private fenced and grassy garden with semi-covered terrace\n• Outdoor table, chairs, 2 benches and table\n• Two electric grills\n• Parking for 3 cars\n\nServices & Features\n• Fiber optics WiFi internet\n• Comfortable underfloor heating\n• Three parking spaces included\n\nGuest Information\n• Warning: During hot summer weather, remember to close the shutters on the garden side to prevent overheating\n• Bed linen rental: €10/person\n• Towels: €2/person or €12 for both bed linen and towel options",
     isAvailable: true,
     color: "#10b981",
     image: "/images/LA MAISON MODERN/040b83f5-da2a-4eaf-a9f3-b06ff18eb617.avif",
@@ -220,7 +220,7 @@ export const VILLAS: Villa[] = [
     bathrooms: 2,
     maxGuests: 15,
     description:
-      "Refuge de la Martre – Entire Home in Griesheim-près-Molsheim, France\n\nA beautifully appointed property set in a natural woodland setting, perfect for larger groups and families seeking luxury and comfort.\n\nHighlights:\n• 6 spacious bedrooms with 14 beds and elegant bathrooms.\n• Warm, inviting living spaces.\n• Fully equipped modern kitchen.\n• Free WiFi, flat-screen TV, and all linen included.\n• Beautiful natural surroundings and outdoor spaces.\n\nAn idyllic retreat for groups seeking tranquility and a connection with nature in the Alsace region of France.",
+      "Refuge de la Martre - Charming Old Farmhouse Renovated\n\nType of Accommodation\nA charming old farmhouse renovated with 8 main rooms + a contemporary extension of 30 m².\n\nCapacity & Beds\n15 single beds in 6 rooms (rooms or suites), perfect for large groups without having to share beds. Ideal for 12 adults with 4 extra beds available for children.\n\nThe Space\nA 120m² house composed of 7 rooms in total:\n• 5 bedrooms with single beds\n• 1 room with 2 sofa beds\n• A 30 m² gathering room that overlooks the kitchen and terrace, equipped with an electric griddle\n\nOutdoor Features\n• Beautiful terrace for barbecue evenings (social barbecue)\n• 3 to 4 secure private parking spaces in the courtyard\n\nStrategic Location in the Heart of Alsace\n• Close to Europa Park, a large entertainment park\n• Near Obernai\n• Perfect for family and friends visiting Alsace\n\nGuest Information\n• Access to the house requires climbing a staircase\n• Bed linen rental available at €12/person\n• Guests are requested to bring their own towels",
     isAvailable: true,
     color: "#f59e0b",
     image: "/images/REFUGE DE LA MARtRE/015c3131-ead9-4952-baae-c32c96465618.avif",
