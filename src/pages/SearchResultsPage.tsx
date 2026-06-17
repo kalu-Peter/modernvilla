@@ -280,15 +280,18 @@ const SearchResultsPage: React.FC = () => {
                       <span>Up to {villa.maxGuests} guests</span>
                     </div>
                     <div className="sr-card-amenities">
-                      <span className="sr-card-amenity">Pool</span>
                       <span className="sr-card-amenity">AC</span>
                       <span className="sr-card-amenity">Kitchen</span>
                       <span className="sr-card-amenity">WiFi</span>
                       <span className="sr-card-amenity">Laundry</span>
                     </div>
                     <div className="sr-card-price">
-                      <div className="sr-card-price-total">{formatPrice(totalBase)}</div>
-                      <div className="sr-card-price-sub">{formatPrice(pricePerNight)} / night</div>
+                      <div className="sr-card-price-total">
+                        {formatPrice(totalBase)}
+                      </div>
+                      <div className="sr-card-price-sub">
+                        {formatPrice(pricePerNight)} / night
+                      </div>
                     </div>
                     <div
                       style={{
