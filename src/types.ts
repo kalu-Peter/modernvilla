@@ -221,11 +221,11 @@ export const VILLAS: Villa[] = [
     id: "refuge-de-la-martre",
     name: "Refuge de la Martre",
     type: "Villa",
-    bedrooms: 3,
+    bedrooms: 6,
     bathrooms: 2,
-    maxGuests: 8,
+    maxGuests: 15,
     description:
-      "Refuge de la Martre – A Woodland Sanctuary\n\nA charming and characterful property set in a natural woodland setting, perfect for couples, families, and nature lovers.\n\nHighlights:\n• 3 cosy bedrooms with quality furnishings.\n• Warm, inviting living spaces.\n• Fully equipped kitchen.\n• Free WiFi, flat-screen TV, and all linen included.\n• Beautiful natural surroundings and outdoor spaces.\n\nAn idyllic retreat for those seeking tranquility and a connection with nature.",
+      "Refuge de la Martre – Entire Home in Griesheim-près-Molsheim, France\n\nA beautifully appointed property set in a natural woodland setting, perfect for larger groups and families seeking luxury and comfort.\n\nHighlights:\n• 6 spacious bedrooms with 14 beds and elegant bathrooms.\n• Warm, inviting living spaces.\n• Fully equipped modern kitchen.\n• Free WiFi, flat-screen TV, and all linen included.\n• Beautiful natural surroundings and outdoor spaces.\n\nAn idyllic retreat for groups seeking tranquility and a connection with nature in the Alsace region of France.",
     isAvailable: true,
     color: "#f59e0b",
     image: "/images/REFUGE DE LA MARtRE/015c3131-ead9-4952-baae-c32c96465618.avif",
@@ -281,7 +281,8 @@ export const VILLAS: Villa[] = [
       "/images/REFUGE DE LA MARtRE/fc4b157b-b34c-4c50-a4a2-9c3083bd0470.avif",
     ],
     amenities: [
-      "3 Bedrooms",
+      "6 Bedrooms",
+      "14 Beds",
       "2 Bathrooms",
       "Woodland Setting",
       "Outdoor Spaces",
@@ -290,7 +291,7 @@ export const VILLAS: Villa[] = [
       "Flat-screen TV",
       "Bed Linen & Towels",
     ],
-    pricing: [{ baseGuests: 4, basePrice: 6000, extraPersonFee: 2000 }],
+    pricing: [{ baseGuests: 5, basePrice: 8000, extraPersonFee: 2000 }],
   },
 ];
 
