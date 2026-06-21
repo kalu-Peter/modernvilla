@@ -114,3 +114,46 @@ INSERT INTO pricing (property_name, min_guests, max_guests, price) VALUES
   ('Mango Villa 1st Floor', 1, 4, 6000),
   ('Paradise Villa',        1, 8, 6000)
 ON CONFLICT DO NOTHING;
+
+
+-- ── New Modern Villa Properties ─────────────────────────────────
+INSERT INTO properties (name, description, max_guests) VALUES
+  ('La Maison Modern',       'Modern luxury villa with premium amenities',  12),
+  ('La Refuge de la Martre', 'Charming retreat in the hills',              12),
+  ('Shelter A',              'Cosy shelter accommodation',                   6),
+  ('Shelter B',              'Cosy shelter accommodation',                   6)
+ON CONFLICT (name) DO NOTHING;
+
+
+-- ── Property Rates (detailed pricing configuration) ─────────────────────────────────
+-- This table stores detailed pricing for each property including base rate, weekend rate,
+-- cleaning fee, tax percentage, monetary fee, and guest tier pricing
+CREATE TABLE IF NOT EXISTS property_rates (
+  id                      SERIAL PRIMARY KEY,
+  property_name           TEXT NOT NULL UNIQUE REFERENCES properties(name) ON DELETE CASCADE,
+  base_price_per_night    NUMERIC(10,2) NOT NULL,
+  weekend_price_per_night NUMERIC(10,2) NOT NULL,
+  cleaning_fee            NUMERIC(10,2) NOT NULL DEFAULT 0,
+  tax_percentage          NUMERIC(5,2) NOT NULL DEFAULT 0,
+  monetary_fee            NUMERIC(10,2) NOT NULL DEFAULT 0,
+  base_guest_count        INT NOT NULL DEFAULT 6,
+  additional_guest_charge NUMERIC(10,2) NOT NULL DEFAULT 0,
+  created_at              TIMESTAMPTZ DEFAULT NOW(),
+  updated_at              TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO property_rates (
+  property_name,
+  base_price_per_night,
+  weekend_price_per_night,
+  cleaning_fee,
+  tax_percentage,
+  monetary_fee,
+  base_guest_count,
+  additional_guest_charge
+) VALUES
+  ('La Maison Modern',       235, 310, 40, 5.5, 40, 6, 15),
+  ('La Refuge de la Martre', 195, 308, 40, 5.5, 40, 6, 15),
+  ('Shelter A',               76, 135, 80, 5.5, 40, 6, 15),
+  ('Shelter B',               76, 135, 80, 5.5, 40, 6, 15)
+ON CONFLICT (property_name) DO NOTHING;

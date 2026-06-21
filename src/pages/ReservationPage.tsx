@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { VILLAS, getVillaPrice } from "../types";
-import { useCurrency } from "../context/CurrencyContext";
+import { VILLAS, getPropertyNameForVilla } from "../types";
 
 function nightsBetween(a: string, b: string) {
   if (!a || !b) return 0;
-  return Math.max(0, Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000));
+  return Math.max(
+    0,
+    Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000),
+  );
 }
 
 const MIN_NIGHTS: Record<string, number> = {
@@ -15,7 +17,9 @@ const MIN_NIGHTS: Record<string, number> = {
   "refuge-de-la-martre": 2,
 };
 
-function getMinNights(villaId: string) { return MIN_NIGHTS[villaId] ?? 1; }
+function getMinNights(villaId: string) {
+  return MIN_NIGHTS[villaId] ?? 1;
+}
 
 function minCheckout(checkin: string, villaId: string) {
   if (!checkin) return "";
@@ -26,22 +30,133 @@ function minCheckout(checkin: string, villaId: string) {
 
 function formatDate(d: string) {
   if (!d) return "";
-  return new Date(d + "T00:00:00").toLocaleDateString("en-GB", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+// Property rates - hardcoded for instant calculation
+const PROPERTY_RATES: Record<string, any> = {
+  "La Maison Modern": {
+    basePrice: 235,
+    weekendPrice: 195,
+    cleaningFee: 40,
+    taxPercentage: 5.5,
+    monetaryFee: 40,
+    baseGuestCount: 6,
+    additionalGuestCharge: 15,
+  },
+  "La Refuge de la Martre": {
+    basePrice: 195,
+    weekendPrice: 308,
+    cleaningFee: 40,
+    taxPercentage: 5.5,
+    monetaryFee: 40,
+    baseGuestCount: 6,
+    additionalGuestCharge: 15,
+  },
+  "Shelter A": {
+    basePrice: 76,
+    weekendPrice: 135,
+    cleaningFee: 40,
+    taxPercentage: 5.5,
+    monetaryFee: 40,
+    baseGuestCount: 6,
+    additionalGuestCharge: 15,
+  },
+  "Shelter B": {
+    basePrice: 76,
+    weekendPrice: 135,
+    cleaningFee: 40,
+    taxPercentage: 5.5,
+    monetaryFee: 40,
+    baseGuestCount: 6,
+    additionalGuestCharge: 15,
+  },
+};
+
+function isWeekend(dateString: string): boolean {
+  const d = new Date(dateString + "T00:00:00");
+  const day = d.getDay();
+  return day === 5 || day === 6; // Friday=5, Saturday=6
+}
+
+function calculateDetailedPrice(
+  propertyName: string,
+  checkin: string,
+  checkout: string,
+  guests: number,
+) {
+  const rates = PROPERTY_RATES[propertyName];
+  if (!rates) return null;
+
+  let roomCharges = 0;
+  const currentDate = new Date(checkin + "T00:00:00");
+  const endDate = new Date(checkout + "T00:00:00");
+
+  while (currentDate < endDate) {
+    const dateStr = currentDate.toISOString().split("T")[0];
+    const price = isWeekend(dateStr) ? rates.weekendPrice : rates.basePrice;
+    roomCharges += price;
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  const nights = nightsBetween(checkin, checkout);
+  const guestCharges =
+    guests > rates.baseGuestCount
+      ? (guests - rates.baseGuestCount) * rates.additionalGuestCharge * nights
+      : 0;
+
+  const cleaningFee = rates.cleaningFee;
+  const monetaryFee = rates.monetaryFee;
+  const subtotal = roomCharges + guestCharges + cleaningFee + monetaryFee;
+  const taxAmount =
+    Math.round(subtotal * (rates.taxPercentage / 100) * 100) / 100;
+  const totalPrice = Math.round((subtotal + taxAmount) * 100) / 100;
+
+  return {
+    breakdown: {
+      roomCharges,
+      guestCharges,
+      cleaningFee,
+      monetaryFee,
+      taxAmount,
+      taxPercentage: rates.taxPercentage,
+    },
+    totalPrice,
+  };
 }
 
 const ReservationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const { formatPrice } = useCurrency();
+
+  // Format EUR prices (these are already in EUR, not KES)
+  const formatEURPrice = (eur: number): string => {
+    return `€ ${eur.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   const villaId = queryParams.get("villaId") ?? "";
   const villa = VILLAS.find((v) => v.id === villaId);
 
-  const [checkin, setCheckin] = useState(queryParams.get("checkin") ?? queryParams.get("checkIn") ?? "");
-  const [checkout, setCheckout] = useState(queryParams.get("checkout") ?? queryParams.get("checkOut") ?? "");
-  const [guestCount, setGuestCount] = useState(Number(queryParams.get("guestCount") ?? 1));
-  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", phone: "" });
+  const [checkin, setCheckin] = useState(
+    queryParams.get("checkin") ?? queryParams.get("checkIn") ?? "",
+  );
+  const [checkout, setCheckout] = useState(
+    queryParams.get("checkout") ?? queryParams.get("checkOut") ?? "",
+  );
+  const [guestCount, setGuestCount] = useState(
+    Number(queryParams.get("guestCount") ?? 1),
+  );
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -59,27 +174,38 @@ const ReservationPage: React.FC = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const [seasonalPrice, setSeasonalPrice] = useState<number | null>(null);
-
-  useEffect(() => { if (!villaId) navigate("/"); }, [villaId, navigate]);
 
   useEffect(() => {
-    if (!checkin || !villa) { setSeasonalPrice(null); return; }
-    fetch(`/api/seasonal-price?villaId=${encodeURIComponent(villa.id)}&checkin=${checkin}`)
-      .then((r) => r.json())
-      .then((data) => setSeasonalPrice(data.price ?? null))
-      .catch(() => setSeasonalPrice(null));
-  }, [checkin, villa]);
+    if (!villaId) navigate("/");
+  }, [villaId, navigate]);
 
   if (!villa) return null;
 
-  const minNights     = getMinNights(villa.id);
-  const pricePerNight = seasonalPrice ?? (getVillaPrice(villa.id, guestCount) ?? 0);
-  const nights        = nightsBetween(checkin, checkout);
-  const accommodationTotal = pricePerNight * nights;
-  const laundryFee    = nights > 0 ? Math.ceil(nights / 3) * 600 : 0;
-  const acFee         = nights > 0 ? nights * 1000 * (villa.bedrooms ?? 1) : 0;
-  const total         = accommodationTotal + laundryFee + acFee;
+  // Fetch pricing from new API
+  const [priceBreakdown, setPriceBreakdown] = React.useState<any>(null);
+
+  const minNights = getMinNights(villa.id);
+  const nights = nightsBetween(checkin, checkout);
+
+  React.useEffect(() => {
+    if (checkin && checkout && villa && guestCount > 0) {
+      const propertyName = getPropertyNameForVilla(villa.id);
+      if (!propertyName) {
+        setPriceBreakdown(null);
+        return;
+      }
+      // Calculate pricing locally for instant display
+      const breakdown = calculateDetailedPrice(
+        propertyName,
+        checkin,
+        checkout,
+        guestCount,
+      );
+      setPriceBreakdown(breakdown);
+    }
+  }, [checkin, checkout, villa, guestCount]);
+
+  const total = priceBreakdown?.totalPrice ?? 0;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -87,11 +213,31 @@ const ReservationPage: React.FC = () => {
   };
 
   const validate = () => {
-    if (!checkin || !checkout || nights <= 0) { setSubmitError("Please select valid check-in and check-out dates."); return false; }
-    if (nights < minNights) { setSubmitError(`${villa.name} requires a minimum stay of ${minNights} nights.`); return false; }
-    if (!formData.firstName.trim() || !formData.lastName.trim()) { setSubmitError("Please enter your full name."); return false; }
-    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) { setSubmitError("Please enter a valid email address."); return false; }
-    if (!formData.phone.trim()) { setSubmitError("Please enter your phone number."); return false; }
+    if (!checkin || !checkout || nights <= 0) {
+      setSubmitError("Please select valid check-in and check-out dates.");
+      return false;
+    }
+    if (nights < minNights) {
+      setSubmitError(
+        `${villa.name} requires a minimum stay of ${minNights} nights.`,
+      );
+      return false;
+    }
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setSubmitError("Please enter your full name.");
+      return false;
+    }
+    if (
+      !formData.email.trim() ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+    ) {
+      setSubmitError("Please enter a valid email address.");
+      return false;
+    }
+    if (!formData.phone.trim()) {
+      setSubmitError("Please enter your phone number.");
+      return false;
+    }
     return true;
   };
 
@@ -101,28 +247,39 @@ const ReservationPage: React.FC = () => {
     if (!validate()) return;
     setSubmitting(true);
     try {
+      const propertyName = getPropertyNameForVilla(villa.id);
+      if (!propertyName) {
+        setSubmitError("Property not found");
+        setSubmitting(false);
+        return;
+      }
       const res = await fetch("/api/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          property_name: villa.name,
+          property_name: propertyName,
           guests: guestCount,
           checkin,
           checkout,
           name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
           phone: formData.phone.trim(),
           email: formData.email.trim().toLowerCase(),
-          total_price: total,
-          payment_method: "invoice",
-          payment_status: "pending",
         }),
       });
-      const data = await res.json() as { reservation?: { id: string }; error?: string };
-      if (!res.ok) { setSubmitError(data.error ?? "Something went wrong. Please try again."); return; }
+      const data = (await res.json()) as {
+        reservation?: { id: string };
+        error?: string;
+      };
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Something went wrong. Please try again.");
+        return;
+      }
       setConfirmationId(data.reservation?.id ?? "");
       setSubmitted(true);
     } catch {
-      setSubmitError("Network error. Please check your connection and try again.");
+      setSubmitError(
+        "Network error. Please check your connection and try again.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -132,13 +289,13 @@ const ReservationPage: React.FC = () => {
   if (submitted) {
     const waMessage = encodeURIComponent(
       `Hi! I just submitted a booking request to The Modern Shelter.\n\n` +
-      `Property: ${villa.name}\n` +
-      `Check-in: ${formatDate(checkin)}\n` +
-      `Check-out: ${formatDate(checkout)}\n` +
-      `Guests: ${guestCount}\n` +
-      `Name: ${formData.firstName} ${formData.lastName}\n` +
-      `Total: ${formatPrice(total)}\n\n` +
-      `Please confirm my reservation. Thank you!`
+        `Property: ${getPropertyNameForVilla(villa.id) ?? villa.name}\n` +
+        `Check-in: ${formatDate(checkin)}\n` +
+        `Check-out: ${formatDate(checkout)}\n` +
+        `Guests: ${guestCount}\n` +
+        `Name: ${formData.firstName} ${formData.lastName}\n` +
+        `Total: ${formatEURPrice(total)}\n\n` +
+        `Please confirm my reservation. Thank you!`,
     );
 
     return (
@@ -166,29 +323,49 @@ const ReservationPage: React.FC = () => {
             <div className="success-check">✓</div>
             <h1>Booking Request Sent</h1>
             <p>
-              Thank you, <strong>{formData.firstName}</strong>! Your booking request for <strong>{villa.name}</strong> has been received.
-              A confirmation email is on its way to <strong>{formData.email}</strong>.
+              Thank you, <strong>{formData.firstName}</strong>! Your booking
+              request for <strong>{villa.name}</strong> has been received. A
+              confirmation email is on its way to{" "}
+              <strong>{formData.email}</strong>.
             </p>
             {confirmationId && (
-              <div className="success-id">Reference # {confirmationId.substring(0, 8).toUpperCase()}</div>
+              <div className="success-id">
+                Reference # {confirmationId.substring(0, 8).toUpperCase()}
+              </div>
             )}
             <hr className="success-divider" />
             <p className="success-note">
-              For the quickest response and to confirm your reservation, reach out to us on WhatsApp. We'll send you an invoice and finalise the details.
+              For the quickest response and to confirm your reservation, reach
+              out to us on WhatsApp. We'll send you an invoice and finalise the
+              details.
             </p>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
               <a
                 href={`https://wa.me/?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="wa-btn"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
                 Contact us on WhatsApp
               </a>
-              <button className="btn-home" onClick={() => navigate("/")}>Back to Home</button>
+              <button className="btn-home" onClick={() => navigate("/")}>
+                Back to Home
+              </button>
             </div>
           </div>
         </div>
@@ -274,7 +451,9 @@ const ReservationPage: React.FC = () => {
         {/* ── Left: form ── */}
         <div className="rp-left">
           <h1>Complete Your Booking</h1>
-          <p className="rp-subtitle">Fill in your details and we'll send you an invoice via email.</p>
+          <p className="rp-subtitle">
+            Fill in your details and we'll send you an invoice via email.
+          </p>
 
           <form onSubmit={handleSubmit}>
             {/* Trip dates */}
@@ -299,16 +478,27 @@ const ReservationPage: React.FC = () => {
                   <input
                     type="date"
                     value={checkout}
-                    min={minCheckout(checkin, villa.id) || new Date().toISOString().split("T")[0]}
+                    min={
+                      minCheckout(checkin, villa.id) ||
+                      new Date().toISOString().split("T")[0]
+                    }
                     onChange={(e) => setCheckout(e.target.value)}
                   />
                 </div>
               </div>
               <div className="rp-field">
                 <label>Guests</label>
-                <select value={guestCount} onChange={(e) => setGuestCount(Number(e.target.value))}>
-                  {Array.from({ length: villa.maxGuests ?? 10 }, (_, i) => i + 1).map((n) => (
-                    <option key={n} value={n}>{n} Guest{n > 1 ? "s" : ""}</option>
+                <select
+                  value={guestCount}
+                  onChange={(e) => setGuestCount(Number(e.target.value))}
+                >
+                  {Array.from(
+                    { length: villa.maxGuests ?? 10 },
+                    (_, i) => i + 1,
+                  ).map((n) => (
+                    <option key={n} value={n}>
+                      {n} Guest{n > 1 ? "s" : ""}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -376,8 +566,10 @@ const ReservationPage: React.FC = () => {
 
             <div className="rp-invoice-note">
               <p>
-                <strong>How it works:</strong> Once you submit, we'll send an invoice to your email and our team will confirm your reservation.
-                For the fastest response, contact us on WhatsApp at <strong>+33 6 01 94 33 48</strong>.
+                <strong>How it works:</strong> Once you submit, we'll send an
+                invoice to your email and our team will confirm your
+                reservation. For the fastest response, contact us on WhatsApp at{" "}
+                <strong>+33 6 01 94 33 48</strong>.
               </p>
             </div>
           </form>
@@ -386,7 +578,10 @@ const ReservationPage: React.FC = () => {
         {/* ── Right: summary card ── */}
         <div className="rp-card">
           <div className="rp-card-villa">{villa.name}</div>
-          <div className="rp-card-loc">Diani Beach, Kwale County · {villa.bedrooms ?? 1} bed{(villa.bedrooms ?? 1) > 1 ? "s" : ""}</div>
+          <div className="rp-card-loc">
+            Diani Beach, Kwale County · {villa.bedrooms ?? 1} bed
+            {(villa.bedrooms ?? 1) > 1 ? "s" : ""}
+          </div>
 
           {checkin && checkout && nights > 0 ? (
             <>
@@ -405,26 +600,60 @@ const ReservationPage: React.FC = () => {
 
               <div className="rp-card-line">
                 <span>
-                  {formatPrice(pricePerNight)} × {nights} night{nights !== 1 ? "s" : ""}
-                  <span className="rp-card-nights-badge">{nights}n</span>
+                  Room charges{" "}
+                  {nights > 0 && (
+                    <span className="rp-card-nights-badge">{nights}n</span>
+                  )}
                 </span>
-                <span>{formatPrice(accommodationTotal)}</span>
+                <span>
+                  {formatEURPrice(priceBreakdown?.breakdown?.roomCharges ?? 0)}
+                </span>
+              </div>
+              {priceBreakdown?.breakdown?.guestCharges > 0 && (
+                <div className="rp-card-line">
+                  <span>Extra guests</span>
+                  <span>
+                    {formatEURPrice(
+                      priceBreakdown?.breakdown?.guestCharges ?? 0,
+                    )}
+                  </span>
+                </div>
+              )}
+              <div className="rp-card-line">
+                <span>Cleaning fee</span>
+                <span>
+                  {formatEURPrice(priceBreakdown?.breakdown?.cleaningFee ?? 0)}
+                </span>
               </div>
               <div className="rp-card-line">
-                <span>Laundry fee</span>
-                <span>{formatPrice(laundryFee)}</span>
+                <span>Monetary fee</span>
+                <span>
+                  {formatEURPrice(priceBreakdown?.breakdown?.monetaryFee ?? 0)}
+                </span>
               </div>
               <div className="rp-card-line">
-                <span>A/C ({villa.bedrooms ?? 1} unit{(villa.bedrooms ?? 1) > 1 ? "s" : ""})</span>
-                <span>{formatPrice(acFee)}</span>
+                <span>
+                  Tax ({priceBreakdown?.breakdown?.taxPercentage ?? 0}%)
+                </span>
+                <span>
+                  {formatEURPrice(priceBreakdown?.breakdown?.taxAmount ?? 0)}
+                </span>
               </div>
 
               <div className="rp-card-line total">
                 <span>Total</span>
-                <span>{formatPrice(total)}</span>
+                <span>{formatEURPrice(total)}</span>
               </div>
 
-              <p style={{ fontFamily: "'Inter',sans-serif", fontSize: "0.68rem", color: "#9098a9", marginTop: 10, lineHeight: 1.5 }}>
+              <p
+                style={{
+                  fontFamily: "'Inter',sans-serif",
+                  fontSize: "0.68rem",
+                  color: "#9098a9",
+                  marginTop: 10,
+                  lineHeight: 1.5,
+                }}
+              >
                 Invoice will be sent to your email after booking.
               </p>
             </>
@@ -434,7 +663,7 @@ const ReservationPage: React.FC = () => {
 
           <div className="rp-wa-pill">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
             </svg>
             Quick reply: +33 6 01 94 33 48
           </div>

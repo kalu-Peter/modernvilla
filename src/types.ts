@@ -100,7 +100,7 @@ export const VILLAS: Villa[] = [
       "Self check-in",
       "Lockbox",
     ],
-    pricing: [{ baseGuests: 4, basePrice: 6000, extraPersonFee: 2000 }],
+    pricing: [{ baseGuests: 6, basePrice: 76, extraPersonFee: 15 }],
   },
   {
     id: "shelter-b",
@@ -170,7 +170,7 @@ export const VILLAS: Villa[] = [
       "Self check-in",
       "Lockbox",
     ],
-    pricing: [{ baseGuests: 4, basePrice: 6000, extraPersonFee: 2000 }],
+    pricing: [{ baseGuests: 6, basePrice: 76, extraPersonFee: 15 }],
   },
   {
     id: "la-maison-modern",
@@ -260,7 +260,7 @@ export const VILLAS: Villa[] = [
       "Self check-in",
       "Lockbox",
     ],
-    pricing: [{ baseGuests: 5, basePrice: 8000, extraPersonFee: 2000 }],
+    pricing: [{ baseGuests: 6, basePrice: 235, extraPersonFee: 15 }],
   },
   {
     id: "refuge-de-la-martre",
@@ -359,7 +359,7 @@ export const VILLAS: Villa[] = [
       "Self check-in",
       "Lockbox",
     ],
-    pricing: [{ baseGuests: 5, basePrice: 8000, extraPersonFee: 2000 }],
+    pricing: [{ baseGuests: 6, basePrice: 195, extraPersonFee: 15 }],
   },
 ];
 
@@ -374,6 +374,17 @@ export const getVillaPrice = (villaId: string, guestCount: number): number | nul
 
   if (guestCount <= tier.baseGuests) return tier.basePrice;
   return tier.basePrice + (guestCount - tier.baseGuests) * tier.extraPersonFee;
+};
+
+// Mapping from villa ID to property name in database
+export const getPropertyNameForVilla = (villaId: string): string | null => {
+  const mapping: Record<string, string> = {
+    "shelter-a": "Shelter A",
+    "shelter-b": "Shelter B",
+    "la-maison-modern": "La Maison Modern",
+    "refuge-de-la-martre": "La Refuge de la Martre",
+  };
+  return mapping[villaId] ?? null;
 };
 
 // ─── Admin Types ───────────────────────────────────────────────────────────────
