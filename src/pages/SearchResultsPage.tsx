@@ -87,7 +87,7 @@ const SearchResultsPage: React.FC = () => {
           let price: number | null = null;
           try {
             const res = await fetch(
-              `/api/seasonal-price?villaId=${encodeURIComponent(villa.id)}&checkin=${checkin}`,
+              `/api/pricing?action=seasonal&villaId=${encodeURIComponent(villa.id)}&checkin=${checkin}`,
             );
             if (res.ok) {
               const data = await res.json();

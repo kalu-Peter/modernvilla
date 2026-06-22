@@ -23,7 +23,7 @@ const AdminLoginPage: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/login", {
+      const res = await fetch("/api/admin/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim(), password }),
@@ -183,7 +183,9 @@ const AdminLoginPage: React.FC = () => {
         <div className="al-card">
           <div className="al-brand">
             <div className="al-brand-dot"></div>
-            <div className="al-logo">Croc<span>odile</span> Lodge</div>
+            <div className="al-logo">
+              Croc<span>odile</span> Lodge
+            </div>
           </div>
           <div className="al-subtitle">Admin Portal</div>
 
@@ -219,7 +221,9 @@ const AdminLoginPage: React.FC = () => {
             </button>
           </form>
 
-          <a className="al-back" href="/">← Back to site</a>
+          <a className="al-back" href="/">
+            ← Back to site
+          </a>
         </div>
       </div>
     </>

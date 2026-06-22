@@ -39,6 +39,15 @@ export default async function handler(req, res) {
   if (cors(req, res)) return;
   if (!adminAuth(req, res)) return;
 
+  const { id } = req.query;
+
+  // DELETE /api/admin/blocked-dates?id=xxx - Delete a blocked date
+  if (req.method === "DELETE" && id) {
+    const { error } = await supabase.from("blocked_dates").delete().eq("id", id);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ message: "Date unblocked successfully" });
+  }
+
   // ── GET: list blocked dates OR get saved iCal URLs
   if (req.method === "GET") {
     if (req.query.action === "ical-urls") {

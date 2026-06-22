@@ -1,10 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { VILLAS } from "../types";
-import type { AdminReservation, BlockedDate, SeasonalPricingRule } from "../types";
+import type {
+  AdminReservation,
+  BlockedDate,
+  SeasonalPricingRule,
+} from "../types";
 import { useCurrency, SUPPORTED_CURRENCIES } from "../context/CurrencyContext";
 
-type Tab = "reservations" | "blocked-dates" | "seasonal-pricing" | "currencies" | "users";
+type Tab =
+  | "reservations"
+  | "blocked-dates"
+  | "seasonal-pricing"
+  | "currencies"
+  | "users";
 type ResFilter = "all" | "pending" | "confirmed" | "cancelled";
 
 const PROPERTY_NAMES = VILLAS.map((v) => v.name);
@@ -37,7 +46,7 @@ const AdminDashboardPage: React.FC = () => {
 
   // ── Notifications ─────────────────────────────────────────────────────────
   const [lastSeenAt, setLastSeenAt] = useState<string>(
-    () => localStorage.getItem("adminLastSeenAt") ?? new Date(0).toISOString()
+    () => localStorage.getItem("adminLastSeenAt") ?? new Date(0).toISOString(),
   );
 
   const markReservationsSeen = () => {
@@ -53,24 +62,29 @@ const AdminDashboardPage: React.FC = () => {
   const [resPropFilter, setResPropFilter] = useState("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchReservations = useCallback(async (markSeen = false) => {
-    setResLoading(true);
-    try {
-      const res = await api("/reservations");
-      if (res.ok) {
-        setReservations(await res.json());
-        if (markSeen) markReservationsSeen();
+  const fetchReservations = useCallback(
+    async (markSeen = false) => {
+      setResLoading(true);
+      try {
+        const res = await api("/reservations");
+        if (res.ok) {
+          setReservations(await res.json());
+          if (markSeen) markReservationsSeen();
+        }
+      } finally {
+        setResLoading(false);
       }
-    } finally {
-      setResLoading(false);
-    }
-  }, [api]); // eslint-disable-line
+    },
+    [api],
+  ); // eslint-disable-line
 
   // ── Blocked Dates ─────────────────────────────────────────────────────────
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [blockLoading, setBlockLoading] = useState(false);
   const [blockPropFilter, setBlockPropFilter] = useState("all");
-  const [blockMode, setBlockMode] = useState<"single" | "range" | "month">("single");
+  const [blockMode, setBlockMode] = useState<"single" | "range" | "month">(
+    "single",
+  );
   const [blockForm, setBlockForm] = useState({
     property_name: PROPERTY_NAMES[0] ?? "",
     single_date: "",
@@ -85,7 +99,10 @@ const AdminDashboardPage: React.FC = () => {
 
   // ── iCal Sync ─────────────────────────────────────────────────────────────
   const [icalUrls, setIcalUrls] = useState<Record<string, string>>({});
-  const [icalForm, setIcalForm] = useState({ property_name: PROPERTY_NAMES[0] ?? "", ical_url: "" });
+  const [icalForm, setIcalForm] = useState({
+    property_name: PROPERTY_NAMES[0] ?? "",
+    ical_url: "",
+  });
   const [icalSyncing, setIcalSyncing] = useState(false);
   const [icalError, setIcalError] = useState("");
   const [icalSuccess, setIcalSuccess] = useState("");
@@ -97,16 +114,27 @@ const AdminDashboardPage: React.FC = () => {
 
   const syncIcal = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIcalError(""); setIcalSuccess("");
-    if (!icalForm.ical_url.trim()) { setIcalError("Please enter an iCal URL."); return; }
+    setIcalError("");
+    setIcalSuccess("");
+    if (!icalForm.ical_url.trim()) {
+      setIcalError("Please enter an iCal URL.");
+      return;
+    }
     setIcalSyncing(true);
     try {
       const res = await api("/blocked-dates", {
         method: "POST",
-        body: JSON.stringify({ action: "sync-ical", property_name: icalForm.property_name, ical_url: icalForm.ical_url.trim() }),
+        body: JSON.stringify({
+          action: "sync-ical",
+          property_name: icalForm.property_name,
+          ical_url: icalForm.ical_url.trim(),
+        }),
       });
       const data = await res.json();
-      if (!res.ok) { setIcalError(data.error ?? "Sync failed."); return; }
+      if (!res.ok) {
+        setIcalError(data.error ?? "Sync failed.");
+        return;
+      }
       setIcalSuccess(data.message ?? "Sync complete.");
       await fetchIcalUrls();
       await fetchBlockedDates();
@@ -118,7 +146,10 @@ const AdminDashboardPage: React.FC = () => {
   const fetchBlockedDates = useCallback(async () => {
     setBlockLoading(true);
     try {
-      const param = blockPropFilter !== "all" ? `?property=${encodeURIComponent(blockPropFilter)}` : "";
+      const param =
+        blockPropFilter !== "all"
+          ? `?property=${encodeURIComponent(blockPropFilter)}`
+          : "";
       const res = await api(`/blocked-dates${param}`);
       if (res.ok) setBlockedDates(await res.json());
     } finally {
@@ -126,42 +157,50 @@ const AdminDashboardPage: React.FC = () => {
     }
   }, [api, blockPropFilter]);
 
-
   // ── Seasonal Pricing ──────────────────────────────────────────────────────
   const [seasonalRules, setSeasonalRules] = useState<SeasonalPricingRule[]>([]);
 
   const [seasonalVilla, setSeasonalVilla] = useState(VILLAS[0].id);
-  const [calEditRule, setCalEditRule] = useState<SeasonalPricingRule | null>(null);
+  const [calEditRule, setCalEditRule] = useState<SeasonalPricingRule | null>(
+    null,
+  );
 
   // ── Calendar pricing UI ───────────────────────────────────────────────────
   const now = new Date();
-  const [calYear,  setCalYear]  = useState(now.getFullYear());
+  const [calYear, setCalYear] = useState(now.getFullYear());
   const [calMonth, setCalMonth] = useState(now.getMonth()); // 0-indexed
   type CalMode = "single" | "range" | "weekends" | "fullmonth";
-  const [calMode,       setCalMode]       = useState<CalMode>("range");
+  const [calMode, setCalMode] = useState<CalMode>("range");
   const [calRangeStart, setCalRangeStart] = useState<string | null>(null);
-  const [calRangeEnd,   setCalRangeEnd]   = useState<string | null>(null);
-  const [calHover,      setCalHover]      = useState<string | null>(null);
-  const [calLabel,      setCalLabel]      = useState("");
-  const [calPrice,      setCalPrice]      = useState("");
-  const [calSaving,     setCalSaving]     = useState(false);
-  const [calError,      setCalError]      = useState("");
-  const [calSuccess,    setCalSuccess]    = useState("");
+  const [calRangeEnd, setCalRangeEnd] = useState<string | null>(null);
+  const [calHover, setCalHover] = useState<string | null>(null);
+  const [calLabel, setCalLabel] = useState("");
+  const [calPrice, setCalPrice] = useState("");
+  const [calSaving, setCalSaving] = useState(false);
+  const [calError, setCalError] = useState("");
+  const [calSuccess, setCalSuccess] = useState("");
 
   const calDateStr = (y: number, m: number, d: number) =>
     `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
   const calPriceForDate = (dateStr: string): SeasonalPricingRule | null =>
-    seasonalRules.find(r =>
-      r.villa_id === seasonalVilla &&
-      dateStr >= r.start_date.slice(0, 10) &&
-      dateStr <= r.end_date.slice(0, 10)
+    seasonalRules.find(
+      (r) =>
+        r.villa_id === seasonalVilla &&
+        dateStr >= r.start_date.slice(0, 10) &&
+        dateStr <= r.end_date.slice(0, 10),
     ) ?? null;
 
   const isInCalSelection = (dateStr: string): boolean => {
     if (!calRangeStart) return false;
-    const tentativeEnd = calRangeEnd ?? (calMode === "range" && !calRangeEnd ? calHover : null) ?? calRangeStart;
-    const [s, e] = calRangeStart <= tentativeEnd ? [calRangeStart, tentativeEnd] : [tentativeEnd, calRangeStart];
+    const tentativeEnd =
+      calRangeEnd ??
+      (calMode === "range" && !calRangeEnd ? calHover : null) ??
+      calRangeStart;
+    const [s, e] =
+      calRangeStart <= tentativeEnd
+        ? [calRangeStart, tentativeEnd]
+        : [tentativeEnd, calRangeStart];
     return dateStr >= s && dateStr <= e;
   };
 
@@ -193,113 +232,263 @@ const AdminDashboardPage: React.FC = () => {
   };
 
   const isWeekendSelected = (dateStr: string) =>
-    calMode === "weekends" && weekendDatesInMonth(calYear, calMonth).includes(dateStr);
+    calMode === "weekends" &&
+    weekendDatesInMonth(calYear, calMonth).includes(dateStr);
 
   const isFullMonthSelected = (dateStr: string) => {
     if (calMode !== "fullmonth") return false;
     const start = calDateStr(calYear, calMonth, 1);
-    const end   = calDateStr(calYear, calMonth, new Date(calYear, calMonth + 1, 0).getDate());
+    const end = calDateStr(
+      calYear,
+      calMonth,
+      new Date(calYear, calMonth + 1, 0).getDate(),
+    );
     return dateStr >= start && dateStr <= end;
   };
 
   const handleCalDayClick = (dateStr: string) => {
-    setCalError(""); setCalSuccess("");
+    setCalError("");
+    setCalSuccess("");
     if (calMode === "single") {
-      setCalRangeStart(dateStr); setCalRangeEnd(dateStr);
+      setCalRangeStart(dateStr);
+      setCalRangeEnd(dateStr);
       const rule = calPriceForDate(dateStr);
       if (rule) {
         setCalEditRule(rule);
         setCalLabel(rule.label);
         const rate = rates[currency.code] ?? 1;
-        setCalPrice(String(Math.round(Number(rule.price_per_night) * rate * 100) / 100));
+        setCalPrice(
+          String(Math.round(Number(rule.price_per_night) * rate * 100) / 100),
+        );
       } else {
         setCalEditRule(null);
-        setCalLabel(""); setCalPrice("");
+        setCalLabel("");
+        setCalPrice("");
       }
     } else if (calMode === "range") {
       setCalEditRule(null);
       if (!calRangeStart || calRangeEnd) {
-        setCalRangeStart(dateStr); setCalRangeEnd(null);
+        setCalRangeStart(dateStr);
+        setCalRangeEnd(null);
       } else {
-        const [s, e] = dateStr >= calRangeStart ? [calRangeStart, dateStr] : [dateStr, calRangeStart];
-        setCalRangeStart(s); setCalRangeEnd(e);
+        const [s, e] =
+          dateStr >= calRangeStart
+            ? [calRangeStart, dateStr]
+            : [dateStr, calRangeStart];
+        setCalRangeStart(s);
+        setCalRangeEnd(e);
       }
     }
   };
 
   const panelVisible =
-    (calMode === "single"    && calRangeStart !== null) ||
-    (calMode === "range"     && calRangeStart !== null && calRangeEnd !== null) ||
-    (calMode === "weekends"  ) ||
-    (calMode === "fullmonth" );
+    (calMode === "single" && calRangeStart !== null) ||
+    (calMode === "range" && calRangeStart !== null && calRangeEnd !== null) ||
+    calMode === "weekends" ||
+    calMode === "fullmonth";
 
   const saveCalendarRule = async () => {
     const priceInCurrency = parseFloat(calPrice);
-    if (isNaN(priceInCurrency) || priceInCurrency <= 0) { setCalError("Enter a valid price per night."); return; }
+    if (isNaN(priceInCurrency) || priceInCurrency <= 0) {
+      setCalError("Enter a valid price per night.");
+      return;
+    }
     // Always store in KES (base currency); convert from selected currency
     const rate = rates[currency.code] ?? 1;
     const price = Math.round(priceInCurrency / rate);
-    setCalSaving(true); setCalError(""); setCalSuccess("");
+    setCalSaving(true);
+    setCalError("");
+    setCalSuccess("");
     try {
       if (calMode === "single" && calEditRule) {
         // Update existing rule
-        const res  = await api(`/seasonal-pricing/${calEditRule.id}`, { method: "PUT", body: JSON.stringify({ label: calLabel || calEditRule.label, price_per_night: price }) });
+        const res = await api(`/seasonal-pricing?id=${calEditRule.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            label: calLabel || calEditRule.label,
+            price_per_night: price,
+          }),
+        });
         const data = await res.json();
-        if (!res.ok) { setCalError(data.error ?? "Failed to update."); return; }
-        setSeasonalRules(prev => prev.map(r => r.id === calEditRule.id ? { ...r, label: data.label, price_per_night: data.price_per_night } : r));
+        if (!res.ok) {
+          setCalError(data.error ?? "Failed to update.");
+          return;
+        }
+        setSeasonalRules((prev) =>
+          prev.map((r) =>
+            r.id === calEditRule.id
+              ? {
+                  ...r,
+                  label: data.label,
+                  price_per_night: data.price_per_night,
+                }
+              : r,
+          ),
+        );
       } else if (calMode === "weekends") {
         const weekends = getWeekendsInMonth(calYear, calMonth);
-        if (weekends.length === 0) { setCalError("No weekends found in this month."); return; }
+        if (weekends.length === 0) {
+          setCalError("No weekends found in this month.");
+          return;
+        }
         const updatedRules = [...seasonalRules];
         for (const { start, end } of weekends) {
-          const existing = seasonalRules.find(r => r.start_date.slice(0, 10) === start && r.end_date.slice(0, 10) === end);
+          const existing = seasonalRules.find(
+            (r) =>
+              r.start_date.slice(0, 10) === start &&
+              r.end_date.slice(0, 10) === end,
+          );
           if (existing) {
-            const res  = await api(`/seasonal-pricing/${existing.id}`, { method: "PUT", body: JSON.stringify({ label: calLabel || "Weekend Rate", price_per_night: price }) });
+            const res = await api(`/seasonal-pricing?id=${existing.id}`, {
+              method: "PUT",
+              body: JSON.stringify({
+                label: calLabel || "Weekend Rate",
+                price_per_night: price,
+              }),
+            });
             const data = await res.json();
-            if (!res.ok) { setCalError(data.error ?? "Failed to update weekend rule."); return; }
-            const idx = updatedRules.findIndex(r => r.id === existing.id);
-            if (idx !== -1) updatedRules[idx] = { ...updatedRules[idx], label: data.label, price_per_night: data.price_per_night };
+            if (!res.ok) {
+              setCalError(data.error ?? "Failed to update weekend rule.");
+              return;
+            }
+            const idx = updatedRules.findIndex((r) => r.id === existing.id);
+            if (idx !== -1)
+              updatedRules[idx] = {
+                ...updatedRules[idx],
+                label: data.label,
+                price_per_night: data.price_per_night,
+              };
           } else {
-            const res  = await api("/seasonal-pricing", { method: "POST", body: JSON.stringify({ villa_id: seasonalVilla, label: calLabel || "Weekend Rate", start_date: start, end_date: end, price_per_night: price }) });
+            const res = await api("/seasonal-pricing", {
+              method: "POST",
+              body: JSON.stringify({
+                villa_id: seasonalVilla,
+                label: calLabel || "Weekend Rate",
+                start_date: start,
+                end_date: end,
+                price_per_night: price,
+              }),
+            });
             const data = await res.json();
-            if (!res.ok) { setCalError(data.error ?? "Failed to save weekend rule."); return; }
+            if (!res.ok) {
+              setCalError(data.error ?? "Failed to save weekend rule.");
+              return;
+            }
             updatedRules.push(data);
           }
         }
         setSeasonalRules(updatedRules);
       } else if (calMode === "fullmonth") {
         const start = calDateStr(calYear, calMonth, 1);
-        const end   = calDateStr(calYear, calMonth, new Date(calYear, calMonth + 1, 0).getDate());
-        const existing = seasonalRules.find(r => r.start_date.slice(0, 10) === start && r.end_date.slice(0, 10) === end);
+        const end = calDateStr(
+          calYear,
+          calMonth,
+          new Date(calYear, calMonth + 1, 0).getDate(),
+        );
+        const existing = seasonalRules.find(
+          (r) =>
+            r.start_date.slice(0, 10) === start &&
+            r.end_date.slice(0, 10) === end,
+        );
         if (existing) {
-          const res  = await api(`/seasonal-pricing/${existing.id}`, { method: "PUT", body: JSON.stringify({ label: calLabel || "Monthly Rate", price_per_night: price }) });
+          const res = await api(`/seasonal-pricing?id=${existing.id}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              label: calLabel || "Monthly Rate",
+              price_per_night: price,
+            }),
+          });
           const data = await res.json();
-          if (!res.ok) { setCalError(data.error ?? "Failed to update."); return; }
-          setSeasonalRules(prev => prev.map(r => r.id === existing.id ? { ...r, label: data.label, price_per_night: data.price_per_night } : r));
+          if (!res.ok) {
+            setCalError(data.error ?? "Failed to update.");
+            return;
+          }
+          setSeasonalRules((prev) =>
+            prev.map((r) =>
+              r.id === existing.id
+                ? {
+                    ...r,
+                    label: data.label,
+                    price_per_night: data.price_per_night,
+                  }
+                : r,
+            ),
+          );
         } else {
-          const res  = await api("/seasonal-pricing", { method: "POST", body: JSON.stringify({ villa_id: seasonalVilla, label: calLabel || "Monthly Rate", start_date: start, end_date: end, price_per_night: price }) });
+          const res = await api("/seasonal-pricing", {
+            method: "POST",
+            body: JSON.stringify({
+              villa_id: seasonalVilla,
+              label: calLabel || "Monthly Rate",
+              start_date: start,
+              end_date: end,
+              price_per_night: price,
+            }),
+          });
           const data = await res.json();
-          if (!res.ok) { setCalError(data.error ?? "Failed to save."); return; }
-          setSeasonalRules(prev => [...prev, data]);
+          if (!res.ok) {
+            setCalError(data.error ?? "Failed to save.");
+            return;
+          }
+          setSeasonalRules((prev) => [...prev, data]);
         }
       } else {
         // range or new single day
         const end = calRangeEnd ?? calRangeStart!;
-        const existing = seasonalRules.find(r => r.start_date.slice(0, 10) === calRangeStart! && r.end_date.slice(0, 10) === end);
+        const existing = seasonalRules.find(
+          (r) =>
+            r.start_date.slice(0, 10) === calRangeStart! &&
+            r.end_date.slice(0, 10) === end,
+        );
         if (existing) {
-          const res  = await api(`/seasonal-pricing/${existing.id}`, { method: "PUT", body: JSON.stringify({ label: calLabel || existing.label, price_per_night: price }) });
+          const res = await api(`/seasonal-pricing?id=${existing.id}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              label: calLabel || existing.label,
+              price_per_night: price,
+            }),
+          });
           const data = await res.json();
-          if (!res.ok) { setCalError(data.error ?? "Failed to update."); return; }
-          setSeasonalRules(prev => prev.map(r => r.id === existing.id ? { ...r, label: data.label, price_per_night: data.price_per_night } : r));
+          if (!res.ok) {
+            setCalError(data.error ?? "Failed to update.");
+            return;
+          }
+          setSeasonalRules((prev) =>
+            prev.map((r) =>
+              r.id === existing.id
+                ? {
+                    ...r,
+                    label: data.label,
+                    price_per_night: data.price_per_night,
+                  }
+                : r,
+            ),
+          );
         } else {
-          const res  = await api("/seasonal-pricing", { method: "POST", body: JSON.stringify({ villa_id: seasonalVilla, label: calLabel || "Custom Rate", start_date: calRangeStart!, end_date: end, price_per_night: price }) });
+          const res = await api("/seasonal-pricing", {
+            method: "POST",
+            body: JSON.stringify({
+              villa_id: seasonalVilla,
+              label: calLabel || "Custom Rate",
+              start_date: calRangeStart!,
+              end_date: end,
+              price_per_night: price,
+            }),
+          });
           const data = await res.json();
-          if (!res.ok) { setCalError(data.error ?? "Failed to save."); return; }
-          setSeasonalRules(prev => [...prev, data]);
+          if (!res.ok) {
+            setCalError(data.error ?? "Failed to save.");
+            return;
+          }
+          setSeasonalRules((prev) => [...prev, data]);
         }
       }
       setCalSuccess(calEditRule ? "Rule updated." : "Pricing rule saved.");
-      setCalRangeStart(null); setCalRangeEnd(null); setCalPrice(""); setCalLabel(""); setCalEditRule(null);
+      setCalRangeStart(null);
+      setCalRangeEnd(null);
+      setCalPrice("");
+      setCalLabel("");
+      setCalEditRule(null);
     } finally {
       setCalSaving(false);
     }
@@ -307,22 +496,34 @@ const AdminDashboardPage: React.FC = () => {
 
   const deleteCalRule = async (id: number) => {
     if (!window.confirm("Delete this pricing rule?")) return;
-    await api(`/seasonal-pricing/${id}`, { method: "DELETE" });
-    setSeasonalRules(prev => prev.filter(r => r.id !== id));
-    setCalRangeStart(null); setCalRangeEnd(null); setCalPrice(""); setCalLabel(""); setCalEditRule(null);
+    await api(`/seasonal-pricing?id=${id}`, { method: "DELETE" });
+    setSeasonalRules((prev) => prev.filter((r) => r.id !== id));
+    setCalRangeStart(null);
+    setCalRangeEnd(null);
+    setCalPrice("");
+    setCalLabel("");
+    setCalEditRule(null);
   };
 
   const abbrevPrice = (kes: number) => {
     const rate = rates[currency.code] ?? 1;
     const n = kes * rate;
-    const num = n >= 1000 ? `${(n / 1000 % 1 === 0 ? (n / 1000).toFixed(0) : (n / 1000).toFixed(1))}k` : String(Math.round(n));
+    const num =
+      n >= 1000
+        ? `${(n / 1000) % 1 === 0 ? (n / 1000).toFixed(0) : (n / 1000).toFixed(1)}k`
+        : String(Math.round(n));
     return `${currency.symbol}${num}`;
   };
 
-  const fetchSeasonalPricing = useCallback(async (villaId: string) => {
-    const res = await api(`/seasonal-pricing?villa_id=${encodeURIComponent(villaId)}`);
-    if (res.ok) setSeasonalRules(await res.json());
-  }, [api]);
+  const fetchSeasonalPricing = useCallback(
+    async (villaId: string) => {
+      const res = await api(
+        `/seasonal-pricing?villa_id=${encodeURIComponent(villaId)}`,
+      );
+      if (res.ok) setSeasonalRules(await res.json());
+    },
+    [api],
+  );
 
   // ── Users ─────────────────────────────────────────────────────────────────
   type AdminUser = { id: string; username: string; created_at: string };
@@ -336,7 +537,7 @@ const AdminDashboardPage: React.FC = () => {
   const fetchUsers = useCallback(async () => {
     setUsersLoading(true);
     try {
-      const res = await api("/users");
+      const res = await api("/auth");
       if (res.ok) setUsers(await res.json());
     } finally {
       setUsersLoading(false);
@@ -345,13 +546,23 @@ const AdminDashboardPage: React.FC = () => {
 
   const createUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUserError(""); setUserSuccess("");
-    if (!userForm.username || !userForm.password) { setUserError("Both fields are required."); return; }
+    setUserError("");
+    setUserSuccess("");
+    if (!userForm.username || !userForm.password) {
+      setUserError("Both fields are required.");
+      return;
+    }
     setUserSaving(true);
     try {
-      const res = await api("/users", { method: "POST", body: JSON.stringify(userForm) });
+      const res = await api("/auth?action=create", {
+        method: "POST",
+        body: JSON.stringify(userForm),
+      });
       const data = await res.json();
-      if (!res.ok) { setUserError(data.error ?? "Failed to create user."); return; }
+      if (!res.ok) {
+        setUserError(data.error ?? "Failed to create user.");
+        return;
+      }
       setUserSuccess(`User "${data.user.username}" created.`);
       setUserForm({ username: "", password: "" });
       await fetchUsers();
@@ -362,17 +573,28 @@ const AdminDashboardPage: React.FC = () => {
 
   const deleteUser = async (id: string, username: string) => {
     if (!window.confirm(`Delete user "${username}"?`)) return;
-    await api(`/users?id=${id}`, { method: "DELETE" });
+    await api(`/auth?id=${id}`, { method: "DELETE" });
     await fetchUsers();
   };
 
   // ── Load on tab switch ────────────────────────────────────────────────────
   useEffect(() => {
     if (activeTab === "reservations") fetchReservations(true);
-    if (activeTab === "blocked-dates") { fetchBlockedDates(); fetchIcalUrls(); }
+    if (activeTab === "blocked-dates") {
+      fetchBlockedDates();
+      fetchIcalUrls();
+    }
     if (activeTab === "seasonal-pricing") fetchSeasonalPricing(seasonalVilla);
     if (activeTab === "users") fetchUsers();
-  }, [activeTab, fetchReservations, fetchBlockedDates, fetchIcalUrls, fetchSeasonalPricing, fetchUsers, seasonalVilla]);
+  }, [
+    activeTab,
+    fetchReservations,
+    fetchBlockedDates,
+    fetchIcalUrls,
+    fetchSeasonalPricing,
+    fetchUsers,
+    seasonalVilla,
+  ]);
 
   useEffect(() => {
     if (activeTab === "blocked-dates") fetchBlockedDates();
@@ -382,7 +604,10 @@ const AdminDashboardPage: React.FC = () => {
   const confirmReservation = async (id: string) => {
     setActionLoading(id + "-confirm");
     try {
-      await api(`/reservations/${id}`, { method: "PUT", body: JSON.stringify({ action: "confirm" }) });
+      await api(`/reservations?id=${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ action: "confirm" }),
+      });
       await fetchReservations();
     } finally {
       setActionLoading(null);
@@ -393,7 +618,10 @@ const AdminDashboardPage: React.FC = () => {
     if (!window.confirm("Cancel this reservation?")) return;
     setActionLoading(id + "-cancel");
     try {
-      await api(`/reservations/${id}`, { method: "PUT", body: JSON.stringify({ action: "cancel" }) });
+      await api(`/reservations?id=${id}`, {
+        method: "PUT",
+        body: JSON.stringify({ action: "cancel" }),
+      });
       await fetchReservations();
     } finally {
       setActionLoading(null);
@@ -402,27 +630,41 @@ const AdminDashboardPage: React.FC = () => {
 
   const unblockDate = async (id: number) => {
     if (!window.confirm("Unblock this date?")) return;
-    await api(`/blocked-dates/${id}`, { method: "DELETE" });
+    await api(`/blocked-dates?id=${id}`, { method: "DELETE" });
     await fetchBlockedDates();
   };
 
   const submitBlockDate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBlockError(""); setBlockSuccess("");
+    setBlockError("");
+    setBlockSuccess("");
 
-    let start_date = "", end_date = "";
+    let start_date = "",
+      end_date = "";
 
     if (blockMode === "single") {
-      if (!blockForm.single_date) { setBlockError("Please select a date."); return; }
+      if (!blockForm.single_date) {
+        setBlockError("Please select a date.");
+        return;
+      }
       start_date = blockForm.single_date;
       end_date = blockForm.single_date;
     } else if (blockMode === "range") {
-      if (!blockForm.start_date || !blockForm.end_date) { setBlockError("Please select both start and end dates."); return; }
-      if (blockForm.end_date < blockForm.start_date) { setBlockError("End date must be after start date."); return; }
+      if (!blockForm.start_date || !blockForm.end_date) {
+        setBlockError("Please select both start and end dates.");
+        return;
+      }
+      if (blockForm.end_date < blockForm.start_date) {
+        setBlockError("End date must be after start date.");
+        return;
+      }
       start_date = blockForm.start_date;
       end_date = blockForm.end_date;
     } else {
-      if (!blockForm.month) { setBlockError("Please select a month."); return; }
+      if (!blockForm.month) {
+        setBlockError("Please select a month.");
+        return;
+      }
       const [y, m] = blockForm.month.split("-").map(Number);
       const firstDay = new Date(y, m - 1, 1);
       const lastDay = new Date(y, m, 0);
@@ -434,12 +676,26 @@ const AdminDashboardPage: React.FC = () => {
     try {
       const res = await api("/blocked-dates", {
         method: "POST",
-        body: JSON.stringify({ property_name: blockForm.property_name, start_date, end_date, reason: blockForm.reason }),
+        body: JSON.stringify({
+          property_name: blockForm.property_name,
+          start_date,
+          end_date,
+          reason: blockForm.reason,
+        }),
       });
       const data = await res.json();
-      if (!res.ok) { setBlockError(data.error ?? "Failed to block dates."); return; }
+      if (!res.ok) {
+        setBlockError(data.error ?? "Failed to block dates.");
+        return;
+      }
       setBlockSuccess(data.message ?? "Dates blocked successfully.");
-      setBlockForm((f) => ({ ...f, single_date: "", start_date: "", end_date: "", month: "" }));
+      setBlockForm((f) => ({
+        ...f,
+        single_date: "",
+        start_date: "",
+        end_date: "",
+        month: "",
+      }));
       await fetchBlockedDates();
     } finally {
       setBlockSaving(false);
@@ -448,7 +704,8 @@ const AdminDashboardPage: React.FC = () => {
 
   // ── Derived ───────────────────────────────────────────────────────────────
   const filteredReservations = reservations.filter((r) => {
-    const matchProp = resPropFilter === "all" || r.property_name === resPropFilter;
+    const matchProp =
+      resPropFilter === "all" || r.property_name === resPropFilter;
     const matchStatus =
       resFilter === "all" ||
       (resFilter === "confirmed" && r.confirmed && !r.cancelled) ||
@@ -458,7 +715,7 @@ const AdminDashboardPage: React.FC = () => {
   });
 
   const newCount = reservations.filter(
-    (r) => new Date(r.created_at) > new Date(lastSeenAt)
+    (r) => new Date(r.created_at) > new Date(lastSeenAt),
   ).length;
 
   const stats = {
@@ -477,7 +734,12 @@ const AdminDashboardPage: React.FC = () => {
     navigate("/admin", { replace: true });
   };
 
-  const fmt = (d: string) => new Date(d).toLocaleDateString("en-KE", { day: "2-digit", month: "short", year: "numeric" });
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString("en-KE", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
   if (!secret) return null;
 
@@ -873,7 +1135,9 @@ const AdminDashboardPage: React.FC = () => {
       <div className="adm-root">
         {/* Top bar */}
         <div className="adm-topbar">
-          <div className="adm-topbar-logo">Croc<span>odile</span> Lodge</div>
+          <div className="adm-topbar-logo">
+            Croc<span>odile</span> Lodge
+          </div>
           <div className="adm-topbar-right">
             <div className="adm-topbar-user">
               Signed in as <strong>{adminUser}</strong>
@@ -882,16 +1146,22 @@ const AdminDashboardPage: React.FC = () => {
               className="adm-currency-select"
               value={currency.code}
               onChange={(e) => {
-                const found = SUPPORTED_CURRENCIES.find((c) => c.code === e.target.value);
+                const found = SUPPORTED_CURRENCIES.find(
+                  (c) => c.code === e.target.value,
+                );
                 if (found) setCurrency(found);
               }}
               aria-label="Select currency"
             >
               {SUPPORTED_CURRENCIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.symbol} {c.code}</option>
+                <option key={c.code} value={c.code}>
+                  {c.symbol} {c.code}
+                </option>
               ))}
             </select>
-            <button className="adm-logout" onClick={logout}>Sign Out</button>
+            <button className="adm-logout" onClick={logout}>
+              Sign Out
+            </button>
           </div>
         </div>
 
@@ -903,15 +1173,21 @@ const AdminDashboardPage: React.FC = () => {
           </div>
           <div className="adm-stat">
             <div className="adm-stat-label">Confirmed</div>
-            <div className="adm-stat-value" style={{ color: "#10b981" }}>{stats.confirmed}</div>
+            <div className="adm-stat-value" style={{ color: "#10b981" }}>
+              {stats.confirmed}
+            </div>
           </div>
           <div className="adm-stat">
             <div className="adm-stat-label">Pending</div>
-            <div className="adm-stat-value" style={{ color: "#eab308" }}>{stats.pending}</div>
+            <div className="adm-stat-value" style={{ color: "#eab308" }}>
+              {stats.pending}
+            </div>
           </div>
           <div className="adm-stat">
             <div className="adm-stat-label">Cancelled</div>
-            <div className="adm-stat-value" style={{ color: "#ef4444" }}>{stats.cancelled}</div>
+            <div className="adm-stat-value" style={{ color: "#ef4444" }}>
+              {stats.cancelled}
+            </div>
           </div>
           <div className="adm-stat">
             <div className="adm-stat-label">Confirmed Revenue</div>
@@ -923,7 +1199,14 @@ const AdminDashboardPage: React.FC = () => {
 
         {/* Tabs */}
         <div className="adm-tabs">
-          {(["reservations", "blocked-dates", "seasonal-pricing", "users"] as Tab[]).map((t) => (
+          {(
+            [
+              "reservations",
+              "blocked-dates",
+              "seasonal-pricing",
+              "users",
+            ] as Tab[]
+          ).map((t) => (
             <button
               key={t}
               className={`adm-tab${activeTab === t ? " active" : ""}`}
@@ -933,10 +1216,13 @@ const AdminDashboardPage: React.FC = () => {
               }}
             >
               <span className="adm-tab-wrap">
-                {t === "reservations" ? "Reservations"
-                  : t === "blocked-dates" ? "Blocked Dates"
-                  : t === "seasonal-pricing" ? "Pricing"
-                  : "Users"}
+                {t === "reservations"
+                  ? "Reservations"
+                  : t === "blocked-dates"
+                    ? "Blocked Dates"
+                    : t === "seasonal-pricing"
+                      ? "Pricing"
+                      : "Users"}
                 {t === "reservations" && newCount > 0 && (
                   <span className="adm-badge">{newCount}</span>
                 )}
@@ -946,7 +1232,6 @@ const AdminDashboardPage: React.FC = () => {
         </div>
 
         <div className="adm-body">
-
           {/* ── RESERVATIONS ──────────────────────────────── */}
           {activeTab === "reservations" && (
             <>
@@ -959,9 +1244,15 @@ const AdminDashboardPage: React.FC = () => {
                     onChange={(e) => setResPropFilter(e.target.value)}
                   >
                     <option value="all">All Properties</option>
-                    {PROPERTY_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+                    {PROPERTY_NAMES.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
                   </select>
-                  {(["all", "pending", "confirmed", "cancelled"] as ResFilter[]).map((f) => (
+                  {(
+                    ["all", "pending", "confirmed", "cancelled"] as ResFilter[]
+                  ).map((f) => (
                     <button
                       key={f}
                       className={`adm-filter-btn${resFilter === f ? " active" : ""}`}
@@ -970,7 +1261,12 @@ const AdminDashboardPage: React.FC = () => {
                       {f.charAt(0).toUpperCase() + f.slice(1)}
                     </button>
                   ))}
-                  <button className="adm-filter-btn" onClick={() => fetchReservations()}>↺ Refresh</button>
+                  <button
+                    className="adm-filter-btn"
+                    onClick={() => fetchReservations()}
+                  >
+                    ↺ Refresh
+                  </button>
                 </div>
               </div>
 
@@ -999,16 +1295,33 @@ const AdminDashboardPage: React.FC = () => {
                     </thead>
                     <tbody>
                       {filteredReservations.map((r) => {
-                        const status = r.cancelled ? "cancelled" : r.confirmed ? "confirmed" : "pending";
+                        const status = r.cancelled
+                          ? "cancelled"
+                          : r.confirmed
+                            ? "confirmed"
+                            : "pending";
                         return (
                           <tr key={r.id}>
-                            <td style={{ fontFamily: "monospace", fontSize: "0.7rem", color: "#aaaaaa" }}>
+                            <td
+                              style={{
+                                fontFamily: "monospace",
+                                fontSize: "0.7rem",
+                                color: "#aaaaaa",
+                              }}
+                            >
                               {r.id.slice(0, 8)}…
                             </td>
                             <td>{r.property_name}</td>
                             <td>
                               <div>{r.name}</div>
-                              <div style={{ fontSize: "0.65rem", color: "#aaaaaa" }}>{r.email}</div>
+                              <div
+                                style={{
+                                  fontSize: "0.65rem",
+                                  color: "#aaaaaa",
+                                }}
+                              >
+                                {r.email}
+                              </div>
                             </td>
                             <td>{r.phone}</td>
                             <td style={{ textAlign: "center" }}>{r.guests}</td>
@@ -1016,36 +1329,60 @@ const AdminDashboardPage: React.FC = () => {
                             <td>{fmt(r.checkout)}</td>
                             <td>{formatPrice(Number(r.total_price))}</td>
                             <td>
-                              <span className={`badge badge-${r.payment_status === "paid" ? "paid" : r.payment_status === "failed" ? "failed" : "default"}`}>
+                              <span
+                                className={`badge badge-${r.payment_status === "paid" ? "paid" : r.payment_status === "failed" ? "failed" : "default"}`}
+                              >
                                 {r.payment_status}
                               </span>
                               {r.amount_paid != null && (
-                                <div style={{ fontSize: "0.7rem", color: "#059669", marginTop: 3, fontWeight: 600 }}>
+                                <div
+                                  style={{
+                                    fontSize: "0.7rem",
+                                    color: "#059669",
+                                    marginTop: 3,
+                                    fontWeight: 600,
+                                  }}
+                                >
                                   {formatPrice(Number(r.amount_paid))} deposited
                                 </div>
                               )}
                             </td>
                             <td>
-                              <span className={`badge badge-${status}`}>{status}</span>
+                              <span className={`badge badge-${status}`}>
+                                {status}
+                              </span>
                             </td>
-                            <td style={{ fontSize: "0.68rem", color: "#aaaaaa" }}>
+                            <td
+                              style={{ fontSize: "0.68rem", color: "#aaaaaa" }}
+                            >
                               {fmt(r.created_at)}
                             </td>
                             <td>
                               <div style={{ display: "flex", gap: 8 }}>
                                 <button
                                   className="adm-btn adm-btn-confirm"
-                                  disabled={r.confirmed || r.cancelled || actionLoading === r.id + "-confirm"}
+                                  disabled={
+                                    r.confirmed ||
+                                    r.cancelled ||
+                                    actionLoading === r.id + "-confirm"
+                                  }
                                   onClick={() => confirmReservation(r.id)}
                                 >
-                                  {actionLoading === r.id + "-confirm" ? "…" : "Confirm"}
+                                  {actionLoading === r.id + "-confirm"
+                                    ? "…"
+                                    : "Confirm"}
                                 </button>
                                 <button
                                   className="adm-btn adm-btn-cancel"
-                                  disabled={r.cancelled || actionLoading === r.id + "-cancel"}
+                                  disabled={
+                                    r.cancelled ||
+                                    actionLoading === r.id + "-cancel"
+                                  }
                                   onClick={() => cancelReservation(r.id)}
                                 >
-                                  {actionLoading === r.id + "-cancel" ? "…" : "Cancel"}
+                                  {actionLoading === r.id + "-cancel"
+                                    ? "…"
+                                    : "Cancel"}
                                 </button>
                               </div>
                             </td>
@@ -1086,7 +1423,11 @@ const AdminDashboardPage: React.FC = () => {
                         cursor: "pointer",
                       }}
                     >
-                      {m === "single" ? "Single Day" : m === "range" ? "Date Range" : "Whole Month"}
+                      {m === "single"
+                        ? "Single Day"
+                        : m === "range"
+                          ? "Date Range"
+                          : "Whole Month"}
                     </button>
                   ))}
                 </div>
@@ -1098,9 +1439,18 @@ const AdminDashboardPage: React.FC = () => {
                       <select
                         className="adm-select"
                         value={blockForm.property_name}
-                        onChange={(e) => setBlockForm((f) => ({ ...f, property_name: e.target.value }))}
+                        onChange={(e) =>
+                          setBlockForm((f) => ({
+                            ...f,
+                            property_name: e.target.value,
+                          }))
+                        }
                       >
-                        {PROPERTY_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+                        {PROPERTY_NAMES.map((n) => (
+                          <option key={n} value={n}>
+                            {n}
+                          </option>
+                        ))}
                       </select>
                     </div>
 
@@ -1111,7 +1461,12 @@ const AdminDashboardPage: React.FC = () => {
                           type="date"
                           value={blockForm.single_date}
                           min={new Date().toISOString().split("T")[0]}
-                          onChange={(e) => setBlockForm((f) => ({ ...f, single_date: e.target.value }))}
+                          onChange={(e) =>
+                            setBlockForm((f) => ({
+                              ...f,
+                              single_date: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                     )}
@@ -1124,7 +1479,12 @@ const AdminDashboardPage: React.FC = () => {
                             type="date"
                             value={blockForm.start_date}
                             min={new Date().toISOString().split("T")[0]}
-                            onChange={(e) => setBlockForm((f) => ({ ...f, start_date: e.target.value }))}
+                            onChange={(e) =>
+                              setBlockForm((f) => ({
+                                ...f,
+                                start_date: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                         <div className="adm-form-field">
@@ -1132,8 +1492,16 @@ const AdminDashboardPage: React.FC = () => {
                           <input
                             type="date"
                             value={blockForm.end_date}
-                            min={blockForm.start_date || new Date().toISOString().split("T")[0]}
-                            onChange={(e) => setBlockForm((f) => ({ ...f, end_date: e.target.value }))}
+                            min={
+                              blockForm.start_date ||
+                              new Date().toISOString().split("T")[0]
+                            }
+                            onChange={(e) =>
+                              setBlockForm((f) => ({
+                                ...f,
+                                end_date: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                       </>
@@ -1146,7 +1514,12 @@ const AdminDashboardPage: React.FC = () => {
                           type="month"
                           value={blockForm.month}
                           min={new Date().toISOString().slice(0, 7)}
-                          onChange={(e) => setBlockForm((f) => ({ ...f, month: e.target.value }))}
+                          onChange={(e) =>
+                            setBlockForm((f) => ({
+                              ...f,
+                              month: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                     )}
@@ -1155,8 +1528,22 @@ const AdminDashboardPage: React.FC = () => {
                       <label>Reason</label>
                       <select
                         value={blockForm.reason}
-                        onChange={(e) => setBlockForm((f) => ({ ...f, reason: e.target.value }))}
-                        style={{ background: "#ffffff", border: "1px solid #e0e0e0", color: "#1a1a1a", fontFamily: "'Josefin Sans', sans-serif", fontSize: "0.8rem", padding: "10px 14px", outline: "none", minWidth: 160 }}
+                        onChange={(e) =>
+                          setBlockForm((f) => ({
+                            ...f,
+                            reason: e.target.value,
+                          }))
+                        }
+                        style={{
+                          background: "#ffffff",
+                          border: "1px solid #e0e0e0",
+                          color: "#1a1a1a",
+                          fontFamily: "'Josefin Sans', sans-serif",
+                          fontSize: "0.8rem",
+                          padding: "10px 14px",
+                          outline: "none",
+                          minWidth: 160,
+                        }}
                       >
                         <option value="manual_block">Manual Block</option>
                         <option value="maintenance">Maintenance</option>
@@ -1164,12 +1551,27 @@ const AdminDashboardPage: React.FC = () => {
                       </select>
                     </div>
 
-                    <button className="adm-btn adm-btn-save" type="submit" disabled={blockSaving} style={{ padding: "10px 24px", alignSelf: "flex-end" }}>
-                      {blockSaving ? "Blocking…" : blockMode === "single" ? "Block Day" : blockMode === "range" ? "Block Range" : "Block Month"}
+                    <button
+                      className="adm-btn adm-btn-save"
+                      type="submit"
+                      disabled={blockSaving}
+                      style={{ padding: "10px 24px", alignSelf: "flex-end" }}
+                    >
+                      {blockSaving
+                        ? "Blocking…"
+                        : blockMode === "single"
+                          ? "Block Day"
+                          : blockMode === "range"
+                            ? "Block Range"
+                            : "Block Month"}
                     </button>
                   </div>
-                  {blockError   && <div className="adm-form-msg error">{blockError}</div>}
-                  {blockSuccess && <div className="adm-form-msg success">{blockSuccess}</div>}
+                  {blockError && (
+                    <div className="adm-form-msg error">{blockError}</div>
+                  )}
+                  {blockSuccess && (
+                    <div className="adm-form-msg success">{blockSuccess}</div>
+                  )}
                 </form>
               </div>
 
@@ -1183,18 +1585,35 @@ const AdminDashboardPage: React.FC = () => {
                       <select
                         className="adm-select"
                         value={icalForm.property_name}
-                        onChange={(e) => setIcalForm((f) => ({ ...f, property_name: e.target.value }))}
+                        onChange={(e) =>
+                          setIcalForm((f) => ({
+                            ...f,
+                            property_name: e.target.value,
+                          }))
+                        }
                       >
-                        {PROPERTY_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+                        {PROPERTY_NAMES.map((n) => (
+                          <option key={n} value={n}>
+                            {n}
+                          </option>
+                        ))}
                       </select>
                     </div>
-                    <div className="adm-form-field" style={{ flex: 1, minWidth: 280 }}>
+                    <div
+                      className="adm-form-field"
+                      style={{ flex: 1, minWidth: 280 }}
+                    >
                       <label>Airbnb iCal URL (.ics)</label>
                       <input
                         type="url"
                         placeholder="https://www.airbnb.com/calendar/ical/…"
                         value={icalForm.ical_url}
-                        onChange={(e) => setIcalForm((f) => ({ ...f, ical_url: e.target.value }))}
+                        onChange={(e) =>
+                          setIcalForm((f) => ({
+                            ...f,
+                            ical_url: e.target.value,
+                          }))
+                        }
                         style={{ width: "100%" }}
                       />
                     </div>
@@ -1202,41 +1621,106 @@ const AdminDashboardPage: React.FC = () => {
                       className="adm-btn adm-btn-save"
                       type="submit"
                       disabled={icalSyncing}
-                      style={{ padding: "10px 24px", alignSelf: "flex-end", background: "#c9a84c", color: "#fff" }}
+                      style={{
+                        padding: "10px 24px",
+                        alignSelf: "flex-end",
+                        background: "#c9a84c",
+                        color: "#fff",
+                      }}
                     >
                       {icalSyncing ? "Syncing…" : "Sync Now"}
                     </button>
                   </div>
-                  {icalError   && <div className="adm-form-msg error">{icalError}</div>}
-                  {icalSuccess && <div className="adm-form-msg success">{icalSuccess}</div>}
+                  {icalError && (
+                    <div className="adm-form-msg error">{icalError}</div>
+                  )}
+                  {icalSuccess && (
+                    <div className="adm-form-msg success">{icalSuccess}</div>
+                  )}
                 </form>
 
                 {/* Saved iCal URLs */}
                 {Object.keys(icalUrls).length > 0 && (
                   <div style={{ marginTop: 20 }}>
-                    <div style={{ fontSize: "0.65rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "#9098a9", marginBottom: 10 }}>
+                    <div
+                      style={{
+                        fontSize: "0.65rem",
+                        fontWeight: 600,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        color: "#9098a9",
+                        marginBottom: 10,
+                      }}
+                    >
                       Saved iCal URLs
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 8,
+                      }}
+                    >
                       {Object.entries(icalUrls).map(([prop, url]) => (
-                        <div key={prop} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: "#f9fafb", borderRadius: 8, border: "1px solid #eef0f4" }}>
-                          <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#1a1a2e", minWidth: 140 }}>{prop}</span>
-                          <span style={{ fontSize: "0.7rem", color: "#6b7280", wordBreak: "break-all", flex: 1 }}>{url}</span>
+                        <div
+                          key={prop}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 12,
+                            padding: "10px 14px",
+                            background: "#f9fafb",
+                            borderRadius: 8,
+                            border: "1px solid #eef0f4",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "0.75rem",
+                              fontWeight: 600,
+                              color: "#1a1a2e",
+                              minWidth: 140,
+                            }}
+                          >
+                            {prop}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "0.7rem",
+                              color: "#6b7280",
+                              wordBreak: "break-all",
+                              flex: 1,
+                            }}
+                          >
+                            {url}
+                          </span>
                           <button
                             type="button"
                             className="adm-btn adm-btn-save"
-                            style={{ padding: "6px 16px", whiteSpace: "nowrap", background: "#c9a84c" }}
+                            style={{
+                              padding: "6px 16px",
+                              whiteSpace: "nowrap",
+                              background: "#c9a84c",
+                            }}
                             disabled={icalSyncing}
                             onClick={async () => {
-                              setIcalError(""); setIcalSuccess("");
+                              setIcalError("");
+                              setIcalSuccess("");
                               setIcalSyncing(true);
                               try {
                                 const r = await api("/blocked-dates", {
                                   method: "POST",
-                                  body: JSON.stringify({ action: "sync-ical", property_name: prop, ical_url: url }),
+                                  body: JSON.stringify({
+                                    action: "sync-ical",
+                                    property_name: prop,
+                                    ical_url: url,
+                                  }),
                                 });
                                 const d = await r.json();
-                                if (!r.ok) { setIcalError(d.error ?? "Sync failed."); return; }
+                                if (!r.ok) {
+                                  setIcalError(d.error ?? "Sync failed.");
+                                  return;
+                                }
                                 setIcalSuccess(d.message ?? "Sync complete.");
                                 await fetchBlockedDates();
                               } finally {
@@ -1262,9 +1746,18 @@ const AdminDashboardPage: React.FC = () => {
                     onChange={(e) => setBlockPropFilter(e.target.value)}
                   >
                     <option value="all">All Properties</option>
-                    {PROPERTY_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+                    {PROPERTY_NAMES.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
                   </select>
-                  <button className="adm-filter-btn" onClick={fetchBlockedDates}>↺ Refresh</button>
+                  <button
+                    className="adm-filter-btn"
+                    onClick={fetchBlockedDates}
+                  >
+                    ↺ Refresh
+                  </button>
                 </div>
               </div>
 
@@ -1294,7 +1787,9 @@ const AdminDashboardPage: React.FC = () => {
                               {b.reason.replace("_", " ")}
                             </span>
                           </td>
-                          <td style={{ fontSize: "0.68rem", color: "#aaaaaa" }}>{fmt(b.created_at)}</td>
+                          <td style={{ fontSize: "0.68rem", color: "#aaaaaa" }}>
+                            {fmt(b.created_at)}
+                          </td>
                           <td>
                             <button
                               className="adm-btn adm-btn-remove"
@@ -1313,45 +1808,64 @@ const AdminDashboardPage: React.FC = () => {
           )}
 
           {/* ── SEASONAL PRICING CALENDAR ─────────────────── */}
-          {activeTab === "seasonal-pricing" && (() => {
-            const daysInMonth  = new Date(calYear, calMonth + 1, 0).getDate();
-            const firstDow     = new Date(calYear, calMonth, 1).getDay();
-            const firstDowMon  = firstDow === 0 ? 6 : firstDow - 1; // Mon=0
-            const monthLabel   = new Date(calYear, calMonth, 1).toLocaleString("en-GB", { month: "long", year: "numeric" });
-            const todayStr     = new Date().toISOString().split("T")[0];
-            const DAYS         = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+          {activeTab === "seasonal-pricing" &&
+            (() => {
+              const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+              const firstDow = new Date(calYear, calMonth, 1).getDay();
+              const firstDowMon = firstDow === 0 ? 6 : firstDow - 1; // Mon=0
+              const monthLabel = new Date(calYear, calMonth, 1).toLocaleString(
+                "en-GB",
+                { month: "long", year: "numeric" },
+              );
+              const todayStr = new Date().toISOString().split("T")[0];
+              const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-            const cells: Array<string | null> = [
-              ...Array(firstDowMon).fill(null),
-              ...Array.from({ length: daysInMonth }, (_, i) => calDateStr(calYear, calMonth, i + 1)),
-            ];
+              const cells: Array<string | null> = [
+                ...Array(firstDowMon).fill(null),
+                ...Array.from({ length: daysInMonth }, (_, i) =>
+                  calDateStr(calYear, calMonth, i + 1),
+                ),
+              ];
 
-            const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); } else setCalMonth(m => m - 1); };
-            const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); } else setCalMonth(m => m + 1); };
+              const prevMonth = () => {
+                if (calMonth === 0) {
+                  setCalYear((y) => y - 1);
+                  setCalMonth(11);
+                } else setCalMonth((m) => m - 1);
+              };
+              const nextMonth = () => {
+                if (calMonth === 11) {
+                  setCalYear((y) => y + 1);
+                  setCalMonth(0);
+                } else setCalMonth((m) => m + 1);
+              };
 
-            const getDayState = (dateStr: string) => {
-              const dow = new Date(dateStr).getDay();
-              const isWeekend = dow === 0 || dow === 6;
-              const rule = calPriceForDate(dateStr);
-              const selected =
-                (calMode === "single" || calMode === "range") ? isInCalSelection(dateStr) :
-                calMode === "weekends" ? isWeekendSelected(dateStr) :
-                isFullMonthSelected(dateStr);
-              return { isWeekend, rule, selected };
-            };
+              const getDayState = (dateStr: string) => {
+                const dow = new Date(dateStr).getDay();
+                const isWeekend = dow === 0 || dow === 6;
+                const rule = calPriceForDate(dateStr);
+                const selected =
+                  calMode === "single" || calMode === "range"
+                    ? isInCalSelection(dateStr)
+                    : calMode === "weekends"
+                      ? isWeekendSelected(dateStr)
+                      : isFullMonthSelected(dateStr);
+                return { isWeekend, rule, selected };
+              };
 
-            const selectionLabel = () => {
-              if (calMode === "weekends") return `All Weekends in ${new Date(calYear, calMonth).toLocaleString("en-GB", { month: "long", year: "numeric" })}`;
-              if (calMode === "fullmonth") return monthLabel;
-              if (!calRangeStart) return null;
-              const end = calRangeEnd ?? calRangeStart;
-              if (calRangeStart === end) return fmt(calRangeStart);
-              return `${fmt(calRangeStart)} – ${fmt(end)}`;
-            };
+              const selectionLabel = () => {
+                if (calMode === "weekends")
+                  return `All Weekends in ${new Date(calYear, calMonth).toLocaleString("en-GB", { month: "long", year: "numeric" })}`;
+                if (calMode === "fullmonth") return monthLabel;
+                if (!calRangeStart) return null;
+                const end = calRangeEnd ?? calRangeStart;
+                if (calRangeStart === end) return fmt(calRangeStart);
+                return `${fmt(calRangeStart)} – ${fmt(end)}`;
+              };
 
-            return (
-              <>
-                <style>{`
+              return (
+                <>
+                  <style>{`
                   .cal-wrap { background:#fff; border:1px solid #eef0f4; border-radius:16px; padding:28px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:24px; }
                   .cal-topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:22px; }
                   .cal-nav { display:flex; align-items:center; gap:10px; }
@@ -1390,173 +1904,336 @@ const AdminDashboardPage: React.FC = () => {
                   .cal-legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
                 `}</style>
 
-                {/* ── Toolbar ── */}
-                <div className="cal-wrap">
-                  <div className="cal-topbar">
-                    <div style={{ display:"flex", alignItems:"center", gap:16, flexWrap:"wrap" }}>
-                      <select
-                        className="adm-select"
-                        value={seasonalVilla}
-                        onChange={(e) => { setSeasonalVilla(e.target.value); fetchSeasonalPricing(e.target.value); setCalRangeStart(null); setCalRangeEnd(null); }}
+                  {/* ── Toolbar ── */}
+                  <div className="cal-wrap">
+                    <div className="cal-topbar">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 16,
+                          flexWrap: "wrap",
+                        }}
                       >
-                        {VILLAS.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-                      </select>
-                      <div className="cal-nav">
-                        <button className="cal-nav-btn" onClick={prevMonth}>‹</button>
-                        <div className="cal-month-label">{monthLabel}</div>
-                        <button className="cal-nav-btn" onClick={nextMonth}>›</button>
-                      </div>
-                    </div>
-                    <div className="cal-mode-bar">
-                      {([
-                        { key: "single",    label: "Single Day" },
-                        { key: "range",     label: "Date Range" },
-                        { key: "weekends",  label: "All Weekends" },
-                        { key: "fullmonth", label: "Full Month" },
-                      ] as const).map(({ key, label }) => (
-                        <button
-                          key={key}
-                          className={`cal-mode-btn${calMode === key ? " active" : ""}`}
-                          onClick={() => {
-                            setCalMode(key); setCalRangeStart(null); setCalRangeEnd(null);
-                            setCalError(""); setCalSuccess(""); setCalEditRule(null);
-                            // Pre-fill price from first existing rule for weekends/fullmonth
-                            if (key === "weekends") {
-                              const wDates = weekendDatesInMonth(calYear, calMonth);
-                              const existing = seasonalRules.find(r => wDates.includes(r.start_date.slice(0, 10)));
-                              if (existing) {
-                                const rate = rates[currency.code] ?? 1;
-                                setCalPrice(String(Math.round(Number(existing.price_per_night) * rate * 100) / 100));
-                                setCalLabel(existing.label);
-                              } else { setCalPrice(""); setCalLabel(""); }
-                            } else if (key === "fullmonth") {
-                              const start = calDateStr(calYear, calMonth, 1);
-                              const end   = calDateStr(calYear, calMonth, new Date(calYear, calMonth + 1, 0).getDate());
-                              const existing = seasonalRules.find(r => r.start_date.slice(0, 10) === start && r.end_date.slice(0, 10) === end);
-                              if (existing) {
-                                const rate = rates[currency.code] ?? 1;
-                                setCalPrice(String(Math.round(Number(existing.price_per_night) * rate * 100) / 100));
-                                setCalLabel(existing.label);
-                              }
-                              else { setCalPrice(""); setCalLabel(""); }
-                            } else {
-                              setCalPrice(""); setCalLabel("");
-                            }
+                        <select
+                          className="adm-select"
+                          value={seasonalVilla}
+                          onChange={(e) => {
+                            setSeasonalVilla(e.target.value);
+                            fetchSeasonalPricing(e.target.value);
+                            setCalRangeStart(null);
+                            setCalRangeEnd(null);
                           }}
-                        >{label}</button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* ── Calendar grid ── */}
-                  <div className="cal-grid">
-                    {DAYS.map((d, i) => (
-                      <div key={d} className={`cal-header-cell${i >= 5 ? " weekend-col" : ""}`}>{d}</div>
-                    ))}
-                    {cells.map((dateStr, idx) => {
-                      if (!dateStr) return <div key={`blank-${idx}`} />;
-                      const { isWeekend, rule, selected } = getDayState(dateStr);
-                      const inRange = !selected && (
-                        (calMode === "range" && isInCalSelection(dateStr)) ||
-                        (calMode === "weekends" && isWeekendSelected(dateStr)) ||
-                        (calMode === "fullmonth" && isFullMonthSelected(dateStr))
-                      );
-                      const cls = [
-                        "cal-day",
-                        isWeekend        ? "weekend-day" : "",
-                        rule && !selected && !inRange ? "has-rule" : "",
-                        inRange          ? "in-range"   : "",
-                        selected         ? "selected"   : "",
-                        dateStr === todayStr ? "today" : "",
-                      ].filter(Boolean).join(" ");
-
-                      return (
-                        <div
-                          key={dateStr}
-                          className={cls}
-                          onClick={() => handleCalDayClick(dateStr)}
-                          onMouseEnter={() => calMode === "range" && calRangeStart && !calRangeEnd && setCalHover(dateStr)}
-                          onMouseLeave={() => setCalHover(null)}
-                          title={rule ? `${rule.label}: ${formatPrice(Number(rule.price_per_night))}/night` : ""}
                         >
-                          <span className="cal-day-num">{Number(dateStr.split("-")[2])}</span>
-                          {rule && <span className="cal-day-price">{abbrevPrice(Number(rule.price_per_night))}</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* ── Legend ── */}
-                  <div className="cal-legend">
-                    <div className="cal-legend-item"><div className="cal-legend-dot" style={{ background:"#fffdf5", border:"1.5px solid #f0d882" }} /> Weekend</div>
-                    <div className="cal-legend-item"><div className="cal-legend-dot" style={{ background:"#fef9ee", border:"1.5px solid #f0d882" }} /> Has price rule</div>
-                    <div className="cal-legend-item"><div className="cal-legend-dot" style={{ background:"#eef1ff", border:"1.5px solid #c7cde8" }} /> In selection</div>
-                    <div className="cal-legend-item"><div className="cal-legend-dot" style={{ background:"#1a1a2e" }} /> Selected</div>
-                  </div>
-
-                  {/* ── Price panel ── */}
-                  {panelVisible && (
-                    <div className="cal-panel">
-                      <div className="cal-panel-title">{calEditRule ? "Edit Price Rule" : "Set Price"}</div>
-                      <div className="cal-panel-sel">📅 {selectionLabel()}</div>
-                      <div className="cal-panel-row">
-                        <div className="cal-panel-field">
-                          <label>Label</label>
-                          <input
-                            type="text"
-                            placeholder={
-                              calMode === "weekends"  ? "Weekend Rate" :
-                              calMode === "fullmonth" ? "Monthly Rate" : "e.g. High Season"
-                            }
-                            value={calLabel}
-                            onChange={(e) => setCalLabel(e.target.value)}
-                          />
-                        </div>
-                        <div className="cal-panel-field">
-                          <label>Price / Night ({currency.code})</label>
-                          <input
-                            type="number"
-                            min="1"
-                            placeholder="e.g. 12000"
-                            value={calPrice}
-                            onChange={(e) => setCalPrice(e.target.value)}
-                            autoFocus
-                          />
-                        </div>
-                        <button
-                          className="adm-btn adm-btn-save"
-                          style={{ padding:"10px 24px", alignSelf:"flex-end", background:"#c9a84c" }}
-                          disabled={calSaving}
-                          onClick={saveCalendarRule}
-                        >
-                          {calSaving ? "Saving…" : calEditRule ? "Update Rule" : "Save Rule"}
-                        </button>
-                        {calEditRule && (
-                          <button
-                            className="adm-btn adm-btn-remove"
-                            style={{ padding:"10px 18px", alignSelf:"flex-end" }}
-                            onClick={() => deleteCalRule(calEditRule.id)}
-                          >
-                            Delete
+                          {VILLAS.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="cal-nav">
+                          <button className="cal-nav-btn" onClick={prevMonth}>
+                            ‹
                           </button>
-                        )}
-                        <button
-                          className="adm-btn adm-btn-cancel"
-                          style={{ padding:"10px 18px", alignSelf:"flex-end" }}
-                          onClick={() => { setCalRangeStart(null); setCalRangeEnd(null); setCalPrice(""); setCalLabel(""); setCalError(""); setCalSuccess(""); setCalEditRule(null); }}
-                        >
-                          Clear
-                        </button>
+                          <div className="cal-month-label">{monthLabel}</div>
+                          <button className="cal-nav-btn" onClick={nextMonth}>
+                            ›
+                          </button>
+                        </div>
                       </div>
-                      {calError   && <div className="adm-form-msg error"   style={{ marginTop:12 }}>{calError}</div>}
-                      {calSuccess && <div className="adm-form-msg success" style={{ marginTop:12 }}>{calSuccess}</div>}
+                      <div className="cal-mode-bar">
+                        {(
+                          [
+                            { key: "single", label: "Single Day" },
+                            { key: "range", label: "Date Range" },
+                            { key: "weekends", label: "All Weekends" },
+                            { key: "fullmonth", label: "Full Month" },
+                          ] as const
+                        ).map(({ key, label }) => (
+                          <button
+                            key={key}
+                            className={`cal-mode-btn${calMode === key ? " active" : ""}`}
+                            onClick={() => {
+                              setCalMode(key);
+                              setCalRangeStart(null);
+                              setCalRangeEnd(null);
+                              setCalError("");
+                              setCalSuccess("");
+                              setCalEditRule(null);
+                              // Pre-fill price from first existing rule for weekends/fullmonth
+                              if (key === "weekends") {
+                                const wDates = weekendDatesInMonth(
+                                  calYear,
+                                  calMonth,
+                                );
+                                const existing = seasonalRules.find((r) =>
+                                  wDates.includes(r.start_date.slice(0, 10)),
+                                );
+                                if (existing) {
+                                  const rate = rates[currency.code] ?? 1;
+                                  setCalPrice(
+                                    String(
+                                      Math.round(
+                                        Number(existing.price_per_night) *
+                                          rate *
+                                          100,
+                                      ) / 100,
+                                    ),
+                                  );
+                                  setCalLabel(existing.label);
+                                } else {
+                                  setCalPrice("");
+                                  setCalLabel("");
+                                }
+                              } else if (key === "fullmonth") {
+                                const start = calDateStr(calYear, calMonth, 1);
+                                const end = calDateStr(
+                                  calYear,
+                                  calMonth,
+                                  new Date(calYear, calMonth + 1, 0).getDate(),
+                                );
+                                const existing = seasonalRules.find(
+                                  (r) =>
+                                    r.start_date.slice(0, 10) === start &&
+                                    r.end_date.slice(0, 10) === end,
+                                );
+                                if (existing) {
+                                  const rate = rates[currency.code] ?? 1;
+                                  setCalPrice(
+                                    String(
+                                      Math.round(
+                                        Number(existing.price_per_night) *
+                                          rate *
+                                          100,
+                                      ) / 100,
+                                    ),
+                                  );
+                                  setCalLabel(existing.label);
+                                } else {
+                                  setCalPrice("");
+                                  setCalLabel("");
+                                }
+                              } else {
+                                setCalPrice("");
+                                setCalLabel("");
+                              }
+                            }}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  )}
-                </div>
 
-              </>
-            );
-          })()}
+                    {/* ── Calendar grid ── */}
+                    <div className="cal-grid">
+                      {DAYS.map((d, i) => (
+                        <div
+                          key={d}
+                          className={`cal-header-cell${i >= 5 ? " weekend-col" : ""}`}
+                        >
+                          {d}
+                        </div>
+                      ))}
+                      {cells.map((dateStr, idx) => {
+                        if (!dateStr) return <div key={`blank-${idx}`} />;
+                        const { isWeekend, rule, selected } =
+                          getDayState(dateStr);
+                        const inRange =
+                          !selected &&
+                          ((calMode === "range" && isInCalSelection(dateStr)) ||
+                            (calMode === "weekends" &&
+                              isWeekendSelected(dateStr)) ||
+                            (calMode === "fullmonth" &&
+                              isFullMonthSelected(dateStr)));
+                        const cls = [
+                          "cal-day",
+                          isWeekend ? "weekend-day" : "",
+                          rule && !selected && !inRange ? "has-rule" : "",
+                          inRange ? "in-range" : "",
+                          selected ? "selected" : "",
+                          dateStr === todayStr ? "today" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ");
+
+                        return (
+                          <div
+                            key={dateStr}
+                            className={cls}
+                            onClick={() => handleCalDayClick(dateStr)}
+                            onMouseEnter={() =>
+                              calMode === "range" &&
+                              calRangeStart &&
+                              !calRangeEnd &&
+                              setCalHover(dateStr)
+                            }
+                            onMouseLeave={() => setCalHover(null)}
+                            title={
+                              rule
+                                ? `${rule.label}: ${formatPrice(Number(rule.price_per_night))}/night`
+                                : ""
+                            }
+                          >
+                            <span className="cal-day-num">
+                              {Number(dateStr.split("-")[2])}
+                            </span>
+                            {rule && (
+                              <span className="cal-day-price">
+                                {abbrevPrice(Number(rule.price_per_night))}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* ── Legend ── */}
+                    <div className="cal-legend">
+                      <div className="cal-legend-item">
+                        <div
+                          className="cal-legend-dot"
+                          style={{
+                            background: "#fffdf5",
+                            border: "1.5px solid #f0d882",
+                          }}
+                        />{" "}
+                        Weekend
+                      </div>
+                      <div className="cal-legend-item">
+                        <div
+                          className="cal-legend-dot"
+                          style={{
+                            background: "#fef9ee",
+                            border: "1.5px solid #f0d882",
+                          }}
+                        />{" "}
+                        Has price rule
+                      </div>
+                      <div className="cal-legend-item">
+                        <div
+                          className="cal-legend-dot"
+                          style={{
+                            background: "#eef1ff",
+                            border: "1.5px solid #c7cde8",
+                          }}
+                        />{" "}
+                        In selection
+                      </div>
+                      <div className="cal-legend-item">
+                        <div
+                          className="cal-legend-dot"
+                          style={{ background: "#1a1a2e" }}
+                        />{" "}
+                        Selected
+                      </div>
+                    </div>
+
+                    {/* ── Price panel ── */}
+                    {panelVisible && (
+                      <div className="cal-panel">
+                        <div className="cal-panel-title">
+                          {calEditRule ? "Edit Price Rule" : "Set Price"}
+                        </div>
+                        <div className="cal-panel-sel">
+                          📅 {selectionLabel()}
+                        </div>
+                        <div className="cal-panel-row">
+                          <div className="cal-panel-field">
+                            <label>Label</label>
+                            <input
+                              type="text"
+                              placeholder={
+                                calMode === "weekends"
+                                  ? "Weekend Rate"
+                                  : calMode === "fullmonth"
+                                    ? "Monthly Rate"
+                                    : "e.g. High Season"
+                              }
+                              value={calLabel}
+                              onChange={(e) => setCalLabel(e.target.value)}
+                            />
+                          </div>
+                          <div className="cal-panel-field">
+                            <label>Price / Night ({currency.code})</label>
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="e.g. 12000"
+                              value={calPrice}
+                              onChange={(e) => setCalPrice(e.target.value)}
+                              autoFocus
+                            />
+                          </div>
+                          <button
+                            className="adm-btn adm-btn-save"
+                            style={{
+                              padding: "10px 24px",
+                              alignSelf: "flex-end",
+                              background: "#c9a84c",
+                            }}
+                            disabled={calSaving}
+                            onClick={saveCalendarRule}
+                          >
+                            {calSaving
+                              ? "Saving…"
+                              : calEditRule
+                                ? "Update Rule"
+                                : "Save Rule"}
+                          </button>
+                          {calEditRule && (
+                            <button
+                              className="adm-btn adm-btn-remove"
+                              style={{
+                                padding: "10px 18px",
+                                alignSelf: "flex-end",
+                              }}
+                              onClick={() => deleteCalRule(calEditRule.id)}
+                            >
+                              Delete
+                            </button>
+                          )}
+                          <button
+                            className="adm-btn adm-btn-cancel"
+                            style={{
+                              padding: "10px 18px",
+                              alignSelf: "flex-end",
+                            }}
+                            onClick={() => {
+                              setCalRangeStart(null);
+                              setCalRangeEnd(null);
+                              setCalPrice("");
+                              setCalLabel("");
+                              setCalError("");
+                              setCalSuccess("");
+                              setCalEditRule(null);
+                            }}
+                          >
+                            Clear
+                          </button>
+                        </div>
+                        {calError && (
+                          <div
+                            className="adm-form-msg error"
+                            style={{ marginTop: 12 }}
+                          >
+                            {calError}
+                          </div>
+                        )}
+                        {calSuccess && (
+                          <div
+                            className="adm-form-msg success"
+                            style={{ marginTop: 12 }}
+                          >
+                            {calSuccess}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
 
           {activeTab === "users" && (
             <>
@@ -1570,7 +2247,12 @@ const AdminDashboardPage: React.FC = () => {
                         type="text"
                         placeholder="e.g. manager"
                         value={userForm.username}
-                        onChange={(e) => setUserForm((f) => ({ ...f, username: e.target.value }))}
+                        onChange={(e) =>
+                          setUserForm((f) => ({
+                            ...f,
+                            username: e.target.value,
+                          }))
+                        }
                         required
                       />
                     </div>
@@ -1580,16 +2262,30 @@ const AdminDashboardPage: React.FC = () => {
                         type="password"
                         placeholder="••••••••"
                         value={userForm.password}
-                        onChange={(e) => setUserForm((f) => ({ ...f, password: e.target.value }))}
+                        onChange={(e) =>
+                          setUserForm((f) => ({
+                            ...f,
+                            password: e.target.value,
+                          }))
+                        }
                         required
                       />
                     </div>
-                    <button className="adm-btn adm-btn-save" type="submit" disabled={userSaving} style={{ padding: "10px 24px", alignSelf: "flex-end" }}>
+                    <button
+                      className="adm-btn adm-btn-save"
+                      type="submit"
+                      disabled={userSaving}
+                      style={{ padding: "10px 24px", alignSelf: "flex-end" }}
+                    >
                       {userSaving ? "…" : "Create User"}
                     </button>
                   </div>
-                  {userError   && <div className="adm-form-msg error">{userError}</div>}
-                  {userSuccess && <div className="adm-form-msg success">{userSuccess}</div>}
+                  {userError && (
+                    <div className="adm-form-msg error">{userError}</div>
+                  )}
+                  {userSuccess && (
+                    <div className="adm-form-msg success">{userSuccess}</div>
+                  )}
                 </form>
               </div>
 
@@ -1631,7 +2327,6 @@ const AdminDashboardPage: React.FC = () => {
               </div>
             </>
           )}
-
         </div>
       </div>
     </>

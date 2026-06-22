@@ -1,5 +1,5 @@
-import { cors } from "./_lib/helpers.js";
 import supabase from "./_lib/supabase.js";
+import { cors } from "./_lib/helpers.js";
 
 function isWeekend(dateString) {
   const date = new Date(dateString);
@@ -72,61 +72,47 @@ async function calculateDetailedPrice(propertyName, checkin, checkout, guests) {
 
 export default async function handler(req, res) {
   if (cors(req, res)) return;
-
-  if (req.method === "GET") {
-    const { property, checkin, checkout, guests } = req.query;
-
-    if (!property || !checkin || !checkout || !guests) {
-      return res.status(400).json({
-        error: "property, checkin, checkout, and guests are required",
-      });
-    }
-
-    try {
-      const result = await calculateDetailedPrice(property, checkin, checkout, parseInt(guests));
-      return res.json(result);
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (req.method === "POST") {
-    const { property_name, guests, checkin, checkout, name, phone, email } = req.body;
+  const { property, checkin, checkout, guests, villaId, action } = req.query;
 
-    if (!property_name || !guests || !checkin || !checkout || !name || !phone || !email) {
-      return res.status(400).json({
-        error: "Missing required fields: property_name, guests, checkin, checkout, name, phone, email",
-      });
+  // GET /api/pricing?action=seasonal&villaId=xxx&checkin=xxx
+  if (action === "seasonal") {
+    if (!villaId || !checkin) {
+      return res.status(400).json({ error: "villaId and checkin are required" });
     }
 
-    try {
-      // Calculate total price using the detailed pricing function
-      const priceResult = await calculateDetailedPrice(property_name, checkin, checkout, guests);
-      const total_price = priceResult.totalPrice;
+    const { data, error } = await supabase
+      .from("seasonal_pricing")
+      .select("price_per_night, label")
+      .eq("villa_id", villaId)
+      .lte("start_date", checkin)
+      .gte("end_date", checkin)
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-      const { data, error } = await supabase.from("reservations").insert([
-        {
-          property_name,
-          guests,
-          checkin,
-          checkout,
-          name,
-          phone,
-          email,
-          total_price,
-          payment_status: "pending",
-        },
-      ]);
+    if (error) return res.status(500).json({ error: error.message });
 
-      if (error) {
-        return res.status(500).json({ error: error.message });
-      }
-
-      return res.json({ success: true, data, priceBreakdown: priceResult.breakdown });
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
+    if (data && data.length > 0) {
+      return res.json({ price: data[0].price_per_night, label: data[0].label, source: "seasonal" });
     }
+
+    return res.json({ price: null, source: "none" });
   }
 
-  return res.status(405).json({ error: "Method not allowed" });
+  // GET /api/pricing?property=xxx&checkin=xxx&checkout=xxx&guests=xxx
+  if (!property || !checkin || !checkout || !guests) {
+    return res.status(400).json({
+      error: "property, checkin, checkout, and guests are required",
+    });
+  }
+
+  try {
+    const result = await calculateDetailedPrice(property, checkin, checkout, parseInt(guests));
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 }
