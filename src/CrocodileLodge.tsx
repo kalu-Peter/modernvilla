@@ -145,9 +145,9 @@ const ModernRefuge: React.FC = () => {
         .topbar-item:hover { color: #1a1a2e; }
         .topbar-divider { width: 1px; height: 14px; background: rgba(0,0,0,0.15); }
         @media (max-width: 768px) {
-          .topbar { gap: 14px; padding: 0 16px; }
+          .topbar { gap: 8px; padding: 12px 16px; flex-direction: column; }
           .topbar-item { font-size: 0.65rem; }
-          .topbar-item.topbar-addr { display: none; }
+          .topbar-divider { display: none; }
         }
         @media (max-width: 480px) {
           .topbar-item.topbar-maps { display: none; }
