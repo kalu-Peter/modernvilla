@@ -11,14 +11,24 @@ interface SEOProps {
 const BASE_URL = "https://themodernrefuge.co.ke";
 const DEFAULT_IMAGE = `${BASE_URL}/images/The Aloe Refuge/IMG_20201002_165212.jpg`;
 
-export default function SEO({ title, description, image, url, type = "website" }: SEOProps) {
+export default function SEO({
+  title,
+  description,
+  image,
+  url,
+  type = "website",
+}: SEOProps) {
   const fullTitle = title
-    ? `${title} — The Modern Shelter, Strasbourg, France`
-    : "The Modern Shelter — Luxury Holiday Rentals in Strasbourg, France";
+    ? `${title} — Alsace Hideaways, Strasbourg, France`
+    : "Alsace Hideaways — Luxury Holiday Rentals in Strasbourg, France";
   const metaDesc =
     description ??
-    "Discover exceptional holiday properties across Strasbourg, France. The Modern Shelter offers handpicked retreats — from serene countryside villas to elegant woodland escapes.";
-  const metaImage = image ? (image.startsWith("http") ? image : `${BASE_URL}${image}`) : DEFAULT_IMAGE;
+    "Discover exceptional holiday properties across Strasbourg, France. Alsace Hideaways offers handpicked retreats — from serene countryside villas to elegant woodland escapes.";
+  const metaImage = image
+    ? image.startsWith("http")
+      ? image
+      : `${BASE_URL}${image}`
+    : DEFAULT_IMAGE;
   const canonical = url ? `${BASE_URL}${url}` : BASE_URL;
 
   return (

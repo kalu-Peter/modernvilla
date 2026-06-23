@@ -1,5 +1,5 @@
 -- ============================================================
--- Modern Shelter – PostgreSQL Schema
+-- Alsace Hideaways – PostgreSQL Schema
 -- Run this in the Supabase SQL editor
 -- ============================================================
 

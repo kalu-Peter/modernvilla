@@ -2117,7 +2117,7 @@ const ModernRefuge: React.FC = () => {
         className={`${navScrolled ? "nav-scrolled" : ""} ${!navVisible ? "nav-hidden" : ""}`}
       >
         <Link to="/" className="nav-logo">
-          The Modern <span>Shelter</span>
+          Alsace<span> Hideaways</span>
         </Link>
         <ul className="nav-links">
           <li>
@@ -2174,7 +2174,7 @@ const ModernRefuge: React.FC = () => {
             <h1 className="hero-title">
               Welcome to
               <br />
-              <em>The Modern Shelter</em>
+              <em>Alsace Hideaways</em>
             </h1>
           </div>
 
@@ -2234,8 +2234,8 @@ const ModernRefuge: React.FC = () => {
         <div className="section-header reveal" style={{ marginBottom: "40px" }}>
           <div className="section-tag">Accommodation</div>
           <h2 className="section-title">
-            The Modern{" "}
-            <em style={{ color: "#c9a84c", fontStyle: "italic" }}>Shelter</em>
+            Alsace{" "}
+            <em style={{ color: "#c9a84c", fontStyle: "italic" }}>Hideaways</em>
           </h2>
         </div>
 
@@ -2259,8 +2259,8 @@ const ModernRefuge: React.FC = () => {
             <div className="location-label">Find Us</div>
             <h2 className="location-title">Our Location</h2>
             <p className="location-desc">
-              The Modern Shelter properties are nestled across Strasbourg,
-              France each one a quiet escape from the everyday.
+              Alsace Hideaways properties are nestled across Strasbourg, France
+              each one a quiet escape from the everyday.
             </p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
@@ -2274,7 +2274,7 @@ const ModernRefuge: React.FC = () => {
       <footer id="contact">
         <div className="footer-main">
           <div className="footer-logo">
-            The Modern <span>Shelter</span>
+            Alsace<span> Hideaways</span>
           </div>
           <div className="footer-contact-row">
             <div className="footer-contact-item">
@@ -2321,7 +2321,7 @@ const ModernRefuge: React.FC = () => {
 
         <div className="footer-bottom">
           <span className="copyright">
-            © 2026 The Modern Shelter. All rights reserved.
+            © 2026 Alsace Hideaways. All rights reserved.
           </span>
           <div className="footer-legal">
             <a href="#">Privacy Policy</a>

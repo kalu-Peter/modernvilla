@@ -97,7 +97,7 @@ const VillaDetailsPage: React.FC = () => {
     <>
       <SEO
         title={villa.name}
-        description={`${villa.name} at The Modern Shelter, Diani Beach — sleeps up to ${villa.maxGuests} guests. Private pool, tropical garden, steps from the Indian Ocean.`}
+        description={`${villa.name} at Alsace Hideaways, Alsace — sleeps up to ${villa.maxGuests} guests. Luxury vacation rental in France.`}
         image={villa.image}
         url={`/villa/${villa.id}`}
         type="article"

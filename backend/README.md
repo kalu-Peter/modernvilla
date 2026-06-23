@@ -1,6 +1,6 @@
-# Modern Shelter Backend - PHP API
+# Alsace Hideaways Backend - PHP API
 
-Clean and modern PHP backend for the Modern Shelter booking system.
+Clean and modern PHP backend for the Alsace Hideaways booking system.
 
 ## Setup
 

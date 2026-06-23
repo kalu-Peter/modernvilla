@@ -72,12 +72,12 @@ export default async function handler(req, res) {
     // ── Guest confirmation email ─────────────────────────────────────────────
     await sendEmail({
       to: email.trim().toLowerCase(),
-      subject: `Booking Request Received – ${property_name} | The Modern Shelter`,
+      subject: `Booking Request Received – ${property_name} | Alsace Hideaways`,
       html: `
         <div style="font-family:Georgia,serif;max-width:620px;margin:0 auto;color:#1a1a1a;background:#fff;">
           <div style="background:#1a1a2e;padding:36px 44px;display:flex;align-items:center;justify-content:space-between;">
             <div>
-              <h1 style="font-family:Georgia,serif;color:#f0f0f0;font-size:1.3rem;margin:0;letter-spacing:0.03em;">The Modern Shelter</h1>
+              <h1 style="font-family:Georgia,serif;color:#f0f0f0;font-size:1.3rem;margin:0;letter-spacing:0.03em;">Alsace Hideaways</h1>
               <p style="color:#c9a84c;font-size:0.68rem;letter-spacing:0.22em;text-transform:uppercase;margin:5px 0 0;">Diani Beach, Kenya</p>
             </div>
             <div style="text-align:right;">
@@ -89,7 +89,7 @@ export default async function handler(req, res) {
           <div style="padding:40px 44px;">
             <p style="font-size:1rem;margin:0 0 6px;">Dear <strong>${name.trim()}</strong>,</p>
             <p style="color:#6b7280;line-height:1.7;margin:0 0 32px;font-size:0.92rem;">
-              Thank you for choosing The Modern Shelter. We have received your booking request and will confirm it shortly.
+              Thank you for choosing Alsace Hideaways. We have received your booking request and will confirm it shortly.
               Our team will be in touch to finalise your stay.
             </p>
 
@@ -133,12 +133,12 @@ export default async function handler(req, res) {
             </div>
 
             <p style="color:#9098a9;font-size:0.78rem;line-height:1.7;margin:0;">
-              For inquiries, email us at <a href="mailto:info@themodernrefuge.co.ke" style="color:#1a1a2e;">info@themodernrefuge.co.ke</a>
+              For inquiries, email us at <a href="mailto:info@alsacehideaways.fr" style="color:#1a1a2e;">info@alsacehideaways.fr</a>
             </p>
           </div>
 
           <div style="background:#f5f6fa;border-top:1px solid #eef0f4;padding:20px 44px;text-align:center;">
-            <p style="font-size:0.68rem;color:#9098a9;letter-spacing:0.1em;margin:0;">The Modern Shelter · Diani Beach, Kwale County, Kenya</p>
+            <p style="font-size:0.68rem;color:#9098a9;letter-spacing:0.1em;margin:0;">Alsace Hideaways · Griesheim-près-Molsheim, France</p>
           </div>
         </div>
       `,
@@ -154,7 +154,7 @@ export default async function handler(req, res) {
           <div style="font-family:Georgia,serif;max-width:620px;margin:0 auto;color:#1a1a1a;background:#fff;">
             <div style="background:#1a1a2e;padding:28px 36px;">
               <h1 style="font-family:Georgia,serif;color:#f0f0f0;font-size:1.1rem;margin:0;">New Booking Request</h1>
-              <p style="color:#c9a84c;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;margin:5px 0 0;">The Modern Shelter · Ref #${refNum}</p>
+              <p style="color:#c9a84c;font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;margin:5px 0 0;">Alsace Hideaways · Ref #${refNum}</p>
             </div>
 
             <div style="padding:32px 36px;">

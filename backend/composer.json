@@ -1,6 +1,6 @@
 {
   "name": "modern-shelter/backend",
-  "description": "PHP Backend API for The Modern Shelter booking system",
+  "description": "PHP Backend API for Alsace Hideaways booking system",
   "type": "project",
   "require": {
     "php": ">=8.1",

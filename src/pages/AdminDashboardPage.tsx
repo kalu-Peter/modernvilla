@@ -1136,7 +1136,7 @@ const AdminDashboardPage: React.FC = () => {
         {/* Top bar */}
         <div className="adm-topbar">
           <div className="adm-topbar-logo">
-            Croc<span>odile</span> Lodge
+            Alsace<span> Hideaways</span>
           </div>
           <div className="adm-topbar-right">
             <div className="adm-topbar-user">

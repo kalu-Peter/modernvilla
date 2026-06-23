@@ -184,7 +184,7 @@ const AdminLoginPage: React.FC = () => {
           <div className="al-brand">
             <div className="al-brand-dot"></div>
             <div className="al-logo">
-              Croc<span>odile</span> Lodge
+              Alsace<span> Hideaways</span>
             </div>
           </div>
           <div className="al-subtitle">Admin Portal</div>

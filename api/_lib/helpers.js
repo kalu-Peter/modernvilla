@@ -33,7 +33,7 @@ export async function sendEmail({ to, subject, html }) {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM || "The Modern Shelter <noreply@themodernrefuge.co.ke>",
+      from: process.env.RESEND_FROM || "Alsace Hideaways <noreply@alsacehideaways.fr>",
       to,
       subject,
       html,
