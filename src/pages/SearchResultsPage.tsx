@@ -193,7 +193,7 @@ const SearchResultsPage: React.FC = () => {
       {/* NAV */}
       <nav className={`sr-nav ${!navVisible ? "nav-hidden" : ""}`}>
         <Link to="/" className="sr-nav-logo">
-          The Modern <span>Shelter</span>
+          Alsace <span>Hideaways</span>
         </Link>
         <ul className="sr-nav-links">
           <li>
