@@ -304,25 +304,39 @@ const ModernRefuge: React.FC = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(13, 26, 15, 0.98);
+          background: #fff;
           z-index: 102;
           padding-top: 100px;
           flex-direction: column;
           align-items: center;
           gap: 30px;
-          backdrop-filter: blur(4px);
         }
 
         .mobile-menu.active {
           display: flex;
         }
 
-        .mobile-menu a, .mobile-menu button {
+        .mobile-menu-close {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 1.6rem;
+          color: rgba(10,10,10,0.5);
+          line-height: 1;
+          padding: 4px 8px;
+          transition: color 0.2s;
+        }
+        .mobile-menu-close:hover { color: var(--croc-deep); }
+
+        .mobile-menu a, .mobile-menu button:not(.mobile-menu-close) {
           font-family: 'Inter', sans-serif;
           font-size: 1rem;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: var(--croc-cream);
+          color: var(--croc-deep);
           text-decoration: none;
           background: none;
           border: none;
@@ -331,14 +345,15 @@ const ModernRefuge: React.FC = () => {
           transition: color 0.3s;
         }
 
-        .mobile-menu a:hover, .mobile-menu button:hover {
-          color: var(--croc-gold);
+        .mobile-menu a:hover, .mobile-menu button:not(.mobile-menu-close):hover {
+          color: var(--croc-moss);
         }
 
         .mobile-menu .nav-book {
           display: inline-block;
           margin-top: 20px;
           font-size: 0.75rem;
+          color: var(--croc-forest) !important;
         }
 
         /* HERO */
@@ -2150,6 +2165,13 @@ const ModernRefuge: React.FC = () => {
 
       {/* MOBILE MENU */}
       <div className={`mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
+        <button
+          className="mobile-menu-close"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-label="Close menu"
+        >
+          ✕
+        </button>
         <a href="#villas" onClick={() => setMobileMenuOpen(false)}>
           Villas
         </a>
