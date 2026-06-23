@@ -145,7 +145,7 @@ const ModernRefuge: React.FC = () => {
         .topbar-item:hover { color: #1a1a2e; }
         .topbar-divider { width: 1px; height: 14px; background: rgba(0,0,0,0.15); }
         @media (max-width: 768px) {
-          .topbar { gap: 8px; padding: 12px 16px; flex-direction: column; align-items: flex-start; height: auto; }
+          .topbar { gap: 4px; padding: 8px 16px; flex-direction: column; align-items: flex-start; height: 64px; justify-content: center; }
           .topbar-item { font-size: 0.65rem; }
           .topbar-divider { display: none; }
         }
@@ -177,7 +177,7 @@ const ModernRefuge: React.FC = () => {
           box-shadow: 0 2px 24px rgba(0,0,0,0.4);
         }
         @media (max-width: 768px) {
-          nav { position: static; top: auto; padding: 16px; margin-top: 50px; }
+          nav { position: fixed; top: 64px; padding: 16px 24px; }
         }
 
         .nav-logo {
@@ -2101,8 +2101,7 @@ const ModernRefuge: React.FC = () => {
           .hamburger { display: flex; }
           .nav-links { display: none; }
           .nav-book { display: none; }
-          nav { padding: 20px 24px; position: static; top: auto; margin-top: 50px; }
-          nav.nav-hidden { transform: none; }
+          nav { padding: 16px 24px; position: fixed; top: 64px; }
           .hero-content { align-items: center; padding: 0 16px; }
           .booking-bar-hero { width: 100%; display: flex; justify-content: center; }
           .booking-bar { grid-template-columns: 1fr; width: 100%; }
