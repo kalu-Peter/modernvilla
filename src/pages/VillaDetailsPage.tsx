@@ -348,7 +348,7 @@ const VillaDetailsPage: React.FC = () => {
       {/* NAV */}
       <nav className={!navVisible ? "nav-hidden" : ""}>
         <Link to="/" className="nav-logo">
-          The Modern <span>Shelter</span>
+          Alsace <span>Hideaways</span>
         </Link>
         <ul className="nav-links">
           <li>

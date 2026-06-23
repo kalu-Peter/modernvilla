@@ -443,7 +443,7 @@ const ReservationPage: React.FC = () => {
       {/* Nav */}
       <div className={`rp-nav ${!navVisible ? "nav-hidden" : ""}`}>
         <div className="rp-nav-logo" onClick={() => navigate("/")}>
-          The Modern <span>Shelter</span>
+          Alsace <span>Hideaways</span>
         </div>
       </div>
 
