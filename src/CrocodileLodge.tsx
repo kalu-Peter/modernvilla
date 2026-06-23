@@ -145,7 +145,7 @@ const ModernRefuge: React.FC = () => {
         .topbar-item:hover { color: #1a1a2e; }
         .topbar-divider { width: 1px; height: 14px; background: rgba(0,0,0,0.15); }
         @media (max-width: 768px) {
-          .topbar { gap: 4px; padding: 8px 16px; flex-direction: column; align-items: flex-start; height: 64px; justify-content: center; }
+          .topbar { gap: 4px; padding: 8px 16px; flex-direction: column; align-items: center; height: 64px; justify-content: center; }
           .topbar-item { font-size: 0.65rem; }
           .topbar-divider { display: none; }
         }
