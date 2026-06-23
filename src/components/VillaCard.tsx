@@ -126,7 +126,7 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
           {villa.bedrooms && (
             <span className="villa-chip">
               <BedIcon />
-              {villa.bedrooms} Bed{villa.bedrooms > 1 ? "s" : ""}
+              {villa.bedrooms} Bedroom{villa.bedrooms > 1 ? "s" : ""}
             </span>
           )}
           {villa.beds && (
