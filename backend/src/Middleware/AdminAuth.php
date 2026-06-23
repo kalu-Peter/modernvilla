@@ -9,7 +9,7 @@ class AdminAuth
 {
     public static function verify(): bool
     {
-        $token = $this->getAdminToken();
+        $token = self::getAdminToken();
         $expectedSecret = Config::get('ADMIN_SECRET');
 
         if (!$token || $token !== $expectedSecret) {
