@@ -1,13 +1,22 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
-const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PageTransition: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const location = useLocation();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Only animate on actual navigation (not initial mount)
+    if (el.dataset.mounted !== "1") {
+      el.dataset.mounted = "1";
+      el.style.opacity = "1";
+      el.style.transform = "translateY(0)";
+      return;
+    }
     el.style.opacity = "0";
     el.style.transform = "translateY(12px)";
     const raf = requestAnimationFrame(() => {
