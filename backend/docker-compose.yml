@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/api
+    networks:
+      - modern-shelter
+
+networks:
+  modern-shelter:
+    driver: bridge

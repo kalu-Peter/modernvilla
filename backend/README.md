@@ -1,89 +1,52 @@
-# Crocodile Villas – Backend API
+# Modern Shelter Backend - PHP API
 
-Node.js · Express · Supabase (PostgreSQL)
+Clean and modern PHP backend for the Modern Shelter booking system.
 
 ## Setup
 
-```bash
-cd backend
-npm install
-cp .env.example .env   # fill in your Supabase credentials
+1. Install PHP 8.1+
+2. Install Composer
+3. Copy `.env.example` to `.env` and configure
+4. Install dependencies: `composer install`
+5. Run migrations/setup schema in your database
+6. Start development server: `php -S localhost:4000 -t public`
+
+## Project Structure
+
+```
+backend/
+├── public/
+│   └── index.php          # API entry point
+├── src/
+│   ├── Config/            # Configuration classes
+│   ├── Controllers/       # API controllers
+│   ├── Database/          # Database connection & queries
+│   ├── Middleware/        # Authentication & validation
+│   └── Helpers/           # Utility functions
+├── schema.sql             # Database schema
+├── routes.php             # API route definitions
+├── composer.json          # PHP dependencies
+└── .env.example           # Environment variables template
 ```
 
-### Database
-Run `schema.sql` in the **Supabase SQL editor** (Dashboard → SQL Editor → New query).
+## API Endpoints
 
-### Start
-```bash
-npm run dev   # development (nodemon)
-npm start     # production
-```
+### Public
 
----
+- `GET /api/properties` - Get all properties
+- `GET /api/availability` - Check availability
+- `POST /api/reservations` - Create reservation
+- `GET /api/seasonal-price` - Get seasonal pricing
 
-## Environment variables
+### Payments
 
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | Your project URL from Supabase Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service-role key (keep secret – never expose to frontend) |
-| `ADMIN_SECRET` | Password for the admin panel |
-| `PORT` | Server port (default `4000`) |
-| `FRONTEND_URL` | Allowed CORS origin (default `http://localhost:5173`) |
+- `POST /api/payments/create` - Create payment
+- `POST /api/payments/callback` - Payment callback
 
----
+### Admin (requires authentication)
 
-## API Reference
-
-### Public endpoints
-
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/api/properties` | List all properties |
-| `GET` | `/api/pricing/:property` | Pricing tiers for a property |
-| `GET` | `/api/availability?property=&checkin=&checkout=` | Check availability |
-| `POST` | `/api/reservations` | Create a reservation |
-
-#### POST /api/reservations – body
-```json
-{
-  "property_name": "Blue Villa",
-  "guests": 4,
-  "checkin": "2026-04-10",
-  "checkout": "2026-04-15",
-  "name": "Jane Doe",
-  "phone": "+254712345678",
-  "email": "jane@example.com",
-  "total_price": 120000
-}
-```
-
----
-
-### Admin endpoints
-All admin routes require the header: `x-admin-secret: <ADMIN_SECRET>`
-
-| Method | Route | Description |
-|---|---|---|
-| `GET` | `/api/admin/reservations` | All reservations |
-| `PUT` | `/api/admin/reservations/:id/confirm` | Confirm a reservation |
-| `PUT` | `/api/admin/reservations/:id/cancel` | Cancel a reservation |
-| `POST` | `/api/admin/block-date` | Block a date |
-| `GET` | `/api/admin/blocked-dates` | List blocked dates |
-| `DELETE` | `/api/admin/block-date/:id` | Unblock a date |
-| `GET` | `/api/admin/pricing` | All pricing rows |
-| `PUT` | `/api/admin/pricing/:id` | Update a price |
-
-#### POST /api/admin/block-date – body
-```json
-{
-  "property_name": "Gold Lodge",
-  "blocked_date": "2026-04-20",
-  "reason": "maintenance"
-}
-```
-
-#### PUT /api/admin/pricing/:id – body
-```json
-{ "price": 7500 }
-```
+- `POST /api/admin/login` - Admin login
+- `GET /api/admin/reservations` - Get reservations
+- `PUT /api/admin/reservations/:id` - Update reservation
+- `POST /api/admin/blocked-dates` - Add blocked date
+- `PUT /api/admin/seasonal-pricing` - Update seasonal pricing

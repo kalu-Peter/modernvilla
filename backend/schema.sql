@@ -1,5 +1,5 @@
 -- ============================================================
--- Crocodile Villas – Supabase PostgreSQL Schema
+-- Modern Shelter – PostgreSQL Schema
 -- Run this in the Supabase SQL editor
 -- ============================================================
 
@@ -9,33 +9,35 @@ CREATE TABLE IF NOT EXISTS properties (
   name          TEXT NOT NULL UNIQUE,
   description   TEXT,
   max_guests    INT  NOT NULL DEFAULT 12,
+  bedrooms      INT,
+  bathrooms     INT,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
-INSERT INTO properties (name, description, max_guests) VALUES
-  ('Blue Villa',           'Oceanview villa with private pool',     8),
-  ('Green Villa',          'Garden retreat with forest views',      8),
-  ('Gold Lodge',           'Luxury lodge with premium amenities',  21),
-  ('Blue Baobab Apartment','Cosy apartment near the baobab grove',  4)
+INSERT INTO properties (name, description, max_guests, bedrooms, bathrooms) VALUES
+  ('Shelter A',             'Premium 3-bedroom rental unit in Griesheim-près-Molsheim, ideal for extended stays. 8 guests max.',                  8, 3, 1),
+  ('Shelter B',             'The Agaves Refuge - Charming 3-bedroom cottage in Griesheim-près-Molsheim with fenced garden. 7 guests max.',     7, 3, 1),
+  ('La Maison Modern',      'Beautiful modern 5-bedroom house with underfloor heating in Griesheim-près-Molsheim. 15 guests max.',           15, 5, 2),
+  ('La Refuge de la Martre','Charming renovated farmhouse with 6 bedrooms in Griesheim-près-Molsheim. 15 guests max.',                      15, 6, 2)
 ON CONFLICT (name) DO NOTHING;
 
 
--- 2. PRICING (per-property, per-guest-range, per-night in Ksh)
+-- 2. PRICING (per-property, per-night base price)
 CREATE TABLE IF NOT EXISTS pricing (
   id            SERIAL PRIMARY KEY,
   property_name TEXT NOT NULL REFERENCES properties(name) ON DELETE CASCADE,
-  min_guests    INT  NOT NULL,
-  max_guests    INT  NOT NULL,
-  price         NUMERIC(10,2) NOT NULL,
-  CONSTRAINT pricing_range_check CHECK (min_guests <= max_guests)
+  base_guests   INT  NOT NULL,
+  base_price    NUMERIC(10,2) NOT NULL,
+  extra_person_fee NUMERIC(10,2),
+  CONSTRAINT unique_property_pricing UNIQUE (property_name)
 );
 
--- Ksh 6,000 per guest per night for all properties
-INSERT INTO pricing (property_name, min_guests, max_guests, price) VALUES
-  ('Blue Villa',            1,  8,  6000),
-  ('Green Villa',           1,  8,  6000),
-  ('Gold Lodge',            1, 21,  6000),
-  ('Blue Baobab Apartment', 1,  4,  6000)
+-- Base pricing: up to base_guests included, extra person fee applies beyond that
+INSERT INTO pricing (property_name, base_guests, base_price, extra_person_fee) VALUES
+  ('Shelter A',             6,  76,  15),
+  ('Shelter B',             6,  76,  15),
+  ('La Maison Modern',      6, 235,  15),
+  ('La Refuge de la Martre',6, 195,  15)
 ON CONFLICT DO NOTHING;
 
 
@@ -77,20 +79,21 @@ CREATE INDEX IF NOT EXISTS idx_blocked_dates_property
   ON blocked_dates (property_name, blocked_date);
 
 
--- 5. SEASONAL PRICING (date-range price overrides per villa)
+-- 5. SEASONAL PRICING (date-range price overrides per property)
 CREATE TABLE IF NOT EXISTS seasonal_pricing (
   id               SERIAL PRIMARY KEY,
-  villa_id         TEXT NOT NULL,
+  property_name    TEXT NOT NULL REFERENCES properties(name) ON DELETE CASCADE,
   label            TEXT NOT NULL DEFAULT 'Custom Rate',
   start_date       DATE NOT NULL,
   end_date         DATE NOT NULL,
-  price_per_night  NUMERIC(10,2) NOT NULL CHECK (price_per_night > 0),
+  base_price       NUMERIC(10,2) NOT NULL CHECK (base_price > 0),
+  extra_person_fee NUMERIC(10,2),
   created_at       TIMESTAMPTZ DEFAULT NOW(),
   CONSTRAINT seasonal_end_after_start CHECK (end_date >= start_date)
 );
 
-CREATE INDEX IF NOT EXISTS idx_seasonal_pricing_villa_dates
-  ON seasonal_pricing (villa_id, start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_seasonal_pricing_property_dates
+  ON seasonal_pricing (property_name, start_date, end_date);
 
 
 -- 6. ADMIN USERS (username/password login for the admin panel)
@@ -101,59 +104,9 @@ CREATE TABLE IF NOT EXISTS admin_users (
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
-
--- ── Additional properties (Mango & Paradise) ─────────────────────────────────
-INSERT INTO properties (name, description, max_guests) VALUES
-  ('Mango Villa',           'Spacious mango park villa',              8),
-  ('Mango Villa 1st Floor', 'Upper-floor unit in the mango park',     4),
-  ('Paradise Villa',        'Premium beachside paradise villa',       8)
-ON CONFLICT (name) DO NOTHING;
-
-INSERT INTO pricing (property_name, min_guests, max_guests, price) VALUES
-  ('Mango Villa',           1, 8, 6000),
-  ('Mango Villa 1st Floor', 1, 4, 6000),
-  ('Paradise Villa',        1, 8, 6000)
-ON CONFLICT DO NOTHING;
-
-
--- ── New Modern Villa Properties ─────────────────────────────────
-INSERT INTO properties (name, description, max_guests) VALUES
-  ('La Maison Modern',       'Modern luxury villa with premium amenities',  12),
-  ('La Refuge de la Martre', 'Charming retreat in the hills',              12),
-  ('Shelter A',              'Cosy shelter accommodation',                   6),
-  ('Shelter B',              'Cosy shelter accommodation',                   6)
-ON CONFLICT (name) DO NOTHING;
-
-
--- ── Property Rates (detailed pricing configuration) ─────────────────────────────────
--- This table stores detailed pricing for each property including base rate, weekend rate,
--- cleaning fee, tax percentage, monetary fee, and guest tier pricing
-CREATE TABLE IF NOT EXISTS property_rates (
-  id                      SERIAL PRIMARY KEY,
-  property_name           TEXT NOT NULL UNIQUE REFERENCES properties(name) ON DELETE CASCADE,
-  base_price_per_night    NUMERIC(10,2) NOT NULL,
-  weekend_price_per_night NUMERIC(10,2) NOT NULL,
-  cleaning_fee            NUMERIC(10,2) NOT NULL DEFAULT 0,
-  tax_percentage          NUMERIC(5,2) NOT NULL DEFAULT 0,
-  monetary_fee            NUMERIC(10,2) NOT NULL DEFAULT 0,
-  base_guest_count        INT NOT NULL DEFAULT 6,
-  additional_guest_charge NUMERIC(10,2) NOT NULL DEFAULT 0,
-  created_at              TIMESTAMPTZ DEFAULT NOW(),
-  updated_at              TIMESTAMPTZ DEFAULT NOW()
-);
-
-INSERT INTO property_rates (
-  property_name,
-  base_price_per_night,
-  weekend_price_per_night,
-  cleaning_fee,
-  tax_percentage,
-  monetary_fee,
-  base_guest_count,
-  additional_guest_charge
-) VALUES
-  ('La Maison Modern',       235, 310, 40, 5.5, 40, 6, 15),
-  ('La Refuge de la Martre', 195, 308, 40, 5.5, 40, 6, 15),
-  ('Shelter A',               76, 135, 80, 5.5, 40, 6, 15),
-  ('Shelter B',               76, 135, 80, 5.5, 40, 6, 15)
-ON CONFLICT (property_name) DO NOTHING;
+-- Insert default admin user
+-- Username: admin
+-- Password: admin123 (bcrypt hash - change this in production!)
+INSERT INTO admin_users (username, password_hash) VALUES
+  ('admin', '$2y$10$YOixf7yqsz7sStoeckQH2OPST9/PgBkqquzi.Ee8KwFVF87.s6nm')
+ON CONFLICT (username) DO NOTHING;
