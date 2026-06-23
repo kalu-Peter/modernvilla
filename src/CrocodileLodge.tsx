@@ -2351,7 +2351,7 @@ const ModernRefuge: React.FC = () => {
             <h3>Le Refuge de la Martre</h3>
             <div className="location-map-wrapper">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2643.68553722379!2d7.531133499999999!3d48.5009217!2m3!1f0!2f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4796b31a5f28c639%3A0x52411ebfced48e89!2sLE%20REFUGE%20DE%20LA%20MARTRE!5e0!3m2!1sen!2ske!4v1782224971557!5m2!1sen!2ske"
+                src="https://www.google.com/maps?q=48.5009217,7.5311335&output=embed"
                 style={{ border: 0 }}
                 allowFullScreen={true}
                 loading="lazy"
