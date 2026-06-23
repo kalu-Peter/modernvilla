@@ -1952,14 +1952,50 @@ const ModernRefuge: React.FC = () => {
           border: none;
           display: block;
         }
+        .location-maps-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 40px;
+          margin-top: 60px;
+          max-width: 1200px;
+          margin-left: auto;
+          margin-right: auto;
+          padding: 0 60px;
+        }
+        .location-map-card {
+          text-align: center;
+        }
+        .location-map-card h3 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.4rem;
+          font-weight: 700;
+          color: var(--croc-deep);
+          margin-bottom: 20px;
+        }
+        .location-map-wrapper {
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+          height: 300px;
+        }
+        .location-map-wrapper iframe {
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
         @media (max-width: 1024px) {
           .location-section { padding: 80px 30px; }
           .location-inner { grid-template-columns: 1fr; gap: 40px; }
           .location-map { height: 320px; }
+          .location-maps-grid { grid-template-columns: 1fr; gap: 30px; padding: 0 30px; }
+          .location-map-wrapper { height: 280px; }
         }
         @media (max-width: 600px) {
           .location-section { padding: 60px 24px; }
           .location-map { height: 260px; border-radius: 10px; }
+          .location-maps-grid { gap: 24px; padding: 0 24px; }
+          .location-map-wrapper { height: 240px; }
+          .location-map-card h3 { font-size: 1.1rem; }
         }
 
         /* CONTACT/FOOTER */
@@ -2285,7 +2321,7 @@ const ModernRefuge: React.FC = () => {
         <div className="location-inner">
           <div>
             <div className="location-label">Find Us</div>
-            <h2 className="location-title">Our Location</h2>
+            <h2 className="location-title">Our Locations</h2>
             <p className="location-desc">
               Alsace Hideaways properties are nestled across Strasbourg, France
               each one a quiet escape from the everyday.
@@ -2293,6 +2329,34 @@ const ModernRefuge: React.FC = () => {
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
               <span className="location-detail-text">Strasbourg, France</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="location-maps-grid">
+          <div className="location-map-card">
+            <h3>La Maison Moderne</h3>
+            <div className="location-map-wrapper">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2643.491860694221!2d7.5354!3d48.504635099999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4796b36cf283bb3d%3A0xde1f010315d01e95!2sLA%20MAISON%20MODERNE!5e0!3m2!1sen!2ske!4v1782225070587!5m2!1sen!2ske"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
+          </div>
+
+          <div className="location-map-card">
+            <h3>Le Refuge de la Martre</h3>
+            <div className="location-map-wrapper">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2643.68553722379!2d7.531133499999999!3d48.5009217!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4796b31a5f28c639%3A0x52411ebfced48e89!2sLE%20REFUGE%20DE%20LA%20MARTRE!5e0!3m2!1sen!2ske!4v1782224971557!5m2!1sen!2ske"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
             </div>
           </div>
         </div>
