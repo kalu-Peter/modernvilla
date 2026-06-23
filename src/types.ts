@@ -18,6 +18,7 @@ export interface Villa {
   gallery?: string[];
   amenities?: string[];
   bedrooms?: number;
+  beds?: number;
   bathrooms?: number;
   contactOnly?: boolean; // if true, show WhatsApp contact instead of online reservation
   openingSoon?: boolean; // if true, show "Opening Soon" instead of Reserved/unavailable
@@ -51,6 +52,7 @@ export const VILLAS: Villa[] = [
     name: "Shelter A - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 3,
+    beds: 7,
     bathrooms: 1,
     maxGuests: 8,
     description:
@@ -107,8 +109,9 @@ export const VILLAS: Villa[] = [
     name: "Shelter B - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 3,
+    beds: 7,
     bathrooms: 1,
-    maxGuests: 7,
+    maxGuests: 8,
     description:
       "Shelter B - The Agaves Refuge\n\nA vacation cottage consisting of an 80 m2 accommodation spanning the ground floor, basement and 1st floor, with a small fenced garden.\n\nThe Space\nThe place is great for 4 to 7 people. Spacious and comfortable apartment located 25 minutes from Strasbourg, 1 hour from Colmar, and 50 minutes from Europa Park.\n\nAccommodation Features\n• 2 spacious and comfortable bedrooms\n• 1 equipped and functional kitchen\n• 1 bright and pleasant living room\n• 1 shower room and 1 separate toilet\n• A basement converted into a leisure room or additional bedroom\n• 2 private and secure parking spaces\n• A private fenced garden to enjoy the outdoors\n\nAdvantages\n• Ideal for business or family stays\n• 30-day rental possible for extended stays\n• Single-story accommodation for easy access\n• Quiet and residential environment in Griesheim near Molsheim\n• Two private parking spaces included",
     isAvailable: true,
@@ -177,6 +180,7 @@ export const VILLAS: Villa[] = [
     name: "La Maison Modern - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 5,
+    beds: 13,
     bathrooms: 2,
     maxGuests: 15,
     description:
@@ -267,6 +271,7 @@ export const VILLAS: Villa[] = [
     name: "Refuge de la Martre - Griesheim-près-Molsheim, France",
     type: "Villa",
     bedrooms: 6,
+    beds: 14,
     bathrooms: 2,
     maxGuests: 15,
     description:

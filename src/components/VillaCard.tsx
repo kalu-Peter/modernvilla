@@ -42,6 +42,23 @@ const GuestIcon = () => (
   </svg>
 );
 
+const BathIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 7h16M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
+    <circle cx="10" cy="13" r="1" fill="currentColor" />
+    <circle cx="14" cy="13" r="1" fill="currentColor" />
+  </svg>
+);
+
 const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
   const images =
     villa.gallery && villa.gallery.length > 0 ? villa.gallery : [villa.image];
@@ -110,6 +127,18 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
             <span className="villa-chip">
               <BedIcon />
               {villa.bedrooms} Bed{villa.bedrooms > 1 ? "s" : ""}
+            </span>
+          )}
+          {villa.beds && (
+            <span className="villa-chip">
+              <BedIcon />
+              {villa.beds} Bed{villa.beds > 1 ? "s" : ""}
+            </span>
+          )}
+          {villa.bathrooms && (
+            <span className="villa-chip">
+              <BathIcon />
+              {villa.bathrooms} Bath
             </span>
           )}
           <span className="villa-chip">

@@ -10,15 +10,16 @@ CREATE TABLE IF NOT EXISTS properties (
   description   TEXT,
   max_guests    INT  NOT NULL DEFAULT 12,
   bedrooms      INT,
+  beds          INT,
   bathrooms     INT,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
-INSERT INTO properties (name, description, max_guests, bedrooms, bathrooms) VALUES
-  ('Shelter A',             'Premium 3-bedroom rental unit in Griesheim-près-Molsheim, ideal for extended stays. 8 guests max.',                  8, 3, 1),
-  ('Shelter B',             'The Agaves Refuge - Charming 3-bedroom cottage in Griesheim-près-Molsheim with fenced garden. 7 guests max.',     7, 3, 1),
-  ('La Maison Modern',      'Beautiful modern 5-bedroom house with underfloor heating in Griesheim-près-Molsheim. 15 guests max.',           15, 5, 2),
-  ('La Refuge de la Martre','Charming renovated farmhouse with 6 bedrooms in Griesheim-près-Molsheim. 15 guests max.',                      15, 6, 2)
+INSERT INTO properties (name, description, max_guests, bedrooms, beds, bathrooms) VALUES
+  ('Shelter A',             'Premium 3-bedroom rental unit in Griesheim-près-Molsheim, ideal for extended stays. 8 guests max.',                  8, 3, 7, 1),
+  ('Shelter B',             'The Agaves Refuge - Charming 3-bedroom cottage in Griesheim-près-Molsheim with fenced garden. 8 guests max.',     8, 3, 7, 1),
+  ('La Maison Modern',      'Beautiful modern 5-bedroom house with underfloor heating in Griesheim-près-Molsheim. 15 guests max.',           15, 5, 13, 2),
+  ('La Refuge de la Martre','Charming renovated farmhouse with 6 bedrooms in Griesheim-près-Molsheim. 15 guests max.',                      15, 6, 14, 2)
 ON CONFLICT (name) DO NOTHING;
 
 
