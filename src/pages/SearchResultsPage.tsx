@@ -126,7 +126,7 @@ const SearchResultsPage: React.FC = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Cormorant Garamond',serif; background:#f5f6fa; color:#1a1a2e; }
+        body { font-family:'Cormorant Garamond',serif; background:#dbdbdb; color:#1a1a2e; }
 
         .sr-nav {
           position:fixed; top:0; left:0; right:0; z-index:100;

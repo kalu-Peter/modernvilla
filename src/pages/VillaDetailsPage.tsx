@@ -112,14 +112,14 @@ const VillaDetailsPage: React.FC = () => {
           --croc-sage: #505050;
           --croc-sand: #d4d4d4;
           --croc-cream: #f0f0f0;
-          --croc-gold: #909090;
+          --croc-gold: #4B7BA7;
           --croc-amber: #e0e0e0;
         }
 
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Cormorant Garamond', serif; background: #f5f6fa; color: #1a1a2e; overflow-x: hidden; }
+        body { font-family: 'Cormorant Garamond', serif; background: #dbdbdb; color: #1a1a2e; overflow-x: hidden; }
 
         nav {
           position: fixed; top: 0; left: 0; right: 0; z-index: 100;

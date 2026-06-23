@@ -18,12 +18,12 @@ const ModernRefuge: React.FC = () => {
   // Set default dates on mount
   useEffect(() => {
     const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    const checkout = new Date(today);
+    checkout.setDate(today.getDate() + 3);
 
     const fmt = (d: Date) => d.toISOString().split("T")[0];
     setCheckin(fmt(today));
-    setCheckout(fmt(tomorrow));
+    setCheckout(fmt(checkout));
   }, []);
 
   // Nav hide/show on scroll
@@ -96,7 +96,7 @@ const ModernRefuge: React.FC = () => {
           --croc-sage: #505050;
           --croc-sand: #d4d4d4;
           --croc-cream: #f0f0f0;
-          --croc-gold: #909090;
+          --croc-gold: #4B7BA7;
           --croc-amber: #e0e0e0;
           --croc-water: #686868;
           --croc-sky: #c0c0c0;
@@ -1126,7 +1126,7 @@ const ModernRefuge: React.FC = () => {
 
         /* VILLAS SECTION */
         .villas-section {
-          background: white;
+          background: #dbdbdb;
           padding: 120px 60px;
           position: relative;
           overflow: hidden;
@@ -2236,8 +2236,6 @@ const ModernRefuge: React.FC = () => {
         <div className="hero-content">
           <div className="hero-title-wrap">
             <h1 className="hero-title">
-              Welcome to
-              <br />
               <em>Alsace Hideaways</em>
             </h1>
           </div>

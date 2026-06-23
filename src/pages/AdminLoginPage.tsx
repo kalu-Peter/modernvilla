@@ -52,7 +52,7 @@ const AdminLoginPage: React.FC = () => {
 
         .al-root {
           min-height: 100vh;
-          background: #f5f6fa;
+          background: #dbdbdb;
           display: flex;
           align-items: center;
           justify-content: center;

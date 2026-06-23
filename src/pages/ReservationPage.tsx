@@ -303,7 +303,7 @@ const ReservationPage: React.FC = () => {
         <style>{`
           @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600&display=swap');
           * { margin:0; padding:0; box-sizing:border-box; }
-          body { font-family:'Inter',sans-serif; background:#f5f6fa; color:#1a1a2e; }
+          body { font-family:'Inter',sans-serif; background:#dbdbdb; color:#1a1a2e; }
           .success-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:60px 20px; }
           .success-box { max-width:540px; width:100%; background:#fff; border-radius:20px; padding:52px 48px; box-shadow:0 4px 32px rgba(0,0,0,0.07); border:1px solid #eef0f4; text-align:center; }
           .success-check { width:64px; height:64px; border-radius:50%; background:#d1fae5; color:#059669; font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 28px; }
@@ -379,7 +379,7 @@ const ReservationPage: React.FC = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@300;400&display=swap');
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Cormorant Garamond',serif; background:#f5f6fa; color:#1a1a2e; }
+        body { font-family:'Cormorant Garamond',serif; background:#dbdbdb; color:#1a1a2e; }
 
         .rp-nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:22px 60px; display:flex; align-items:center; gap:20px; background:rgba(201,168,76,0.97); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.18); box-shadow:0 2px 16px rgba(0,0,0,0.08); transition: transform 0.35s ease; }
         .rp-nav.nav-hidden { transform: translateY(-100%); }
