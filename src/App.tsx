@@ -22,7 +22,7 @@ function App() {
         <Router>
           <Suspense
             fallback={
-              <div style={{ background: "#0a0a0a", minHeight: "100vh" }} />
+              <div style={{ background: "#dbdbdb", minHeight: "100vh" }} />
             }
           >
             <PageTransition>
