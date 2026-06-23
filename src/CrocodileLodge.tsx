@@ -145,7 +145,7 @@ const ModernRefuge: React.FC = () => {
         .topbar-item:hover { color: #1a1a2e; }
         .topbar-divider { width: 1px; height: 14px; background: rgba(0,0,0,0.15); }
         @media (max-width: 768px) {
-          .topbar { gap: 8px; padding: 12px 16px; flex-direction: column; }
+          .topbar { gap: 8px; padding: 12px 16px; flex-direction: column; align-items: flex-start; height: auto; }
           .topbar-item { font-size: 0.65rem; }
           .topbar-divider { display: none; }
         }
@@ -175,6 +175,9 @@ const ModernRefuge: React.FC = () => {
           backdrop-filter: blur(12px);
           padding: 18px 60px;
           box-shadow: 0 2px 24px rgba(0,0,0,0.4);
+        }
+        @media (max-width: 768px) {
+          nav { position: static; top: auto; padding: 16px; margin-top: 50px; }
         }
 
         .nav-logo {
@@ -302,7 +305,7 @@ const ModernRefuge: React.FC = () => {
           width: 100%;
           height: 100%;
           background: rgba(13, 26, 15, 0.98);
-          z-index: 50;
+          z-index: 102;
           padding-top: 100px;
           flex-direction: column;
           align-items: center;
@@ -367,6 +370,9 @@ const ModernRefuge: React.FC = () => {
           justify-content: center;
           gap: 36px;
           padding: 120px 0 100px;
+        }
+        @media (max-width: 768px) {
+          .hero-content { margin-top: 0; padding: 60px 0 60px; }
         }
 
         .hero-title-wrap {
@@ -2095,7 +2101,8 @@ const ModernRefuge: React.FC = () => {
           .hamburger { display: flex; }
           .nav-links { display: none; }
           .nav-book { display: none; }
-          nav { padding: 20px 24px; }
+          nav { padding: 20px 24px; position: static; top: auto; margin-top: 50px; }
+          nav.nav-hidden { transform: none; }
           .hero-content { align-items: center; padding: 0 16px; }
           .booking-bar-hero { width: 100%; display: flex; justify-content: center; }
           .booking-bar { grid-template-columns: 1fr; width: 100%; }
