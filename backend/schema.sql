@@ -114,3 +114,68 @@ CREATE TABLE IF NOT EXISTS admin_users (
 INSERT INTO admin_users (username, password_hash) VALUES
   ('admin', '$2y$10$YOixf7yqsz7sStoeckQH2OPST9/PgBkqquzi.Ee8KwFVF87.s6nm')
 ON CONFLICT (username) DO NOTHING;
+
+
+-- 7. PROPERTY BLOCKS (date blocking for manual, airbnb, booking, maintenance)
+CREATE TABLE IF NOT EXISTS property_blocks (
+  id               BIGSERIAL PRIMARY KEY,
+  property_id      INTEGER NOT NULL
+                   REFERENCES properties(id) ON DELETE CASCADE,
+  start_date       DATE NOT NULL,
+  end_date         DATE NOT NULL,
+  block_type       VARCHAR(50) NOT NULL
+                   CHECK (block_type IN ('manual', 'airbnb', 'booking', 'maintenance')),
+  source_reference VARCHAR(255),
+  notes            TEXT,
+  created_at       TIMESTAMPTZ DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT end_after_start CHECK (end_date >= start_date),
+  CONSTRAINT valid_block_range CHECK (end_date - start_date <= 730) -- max 2 years
+);
+
+CREATE INDEX IF NOT EXISTS idx_property_blocks_property_dates
+  ON property_blocks (property_id, start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_property_blocks_type
+  ON property_blocks (property_id, block_type);
+
+
+-- 8. PROPERTY ICAL SOURCES (iCal feed URLs for syncing)
+CREATE TABLE IF NOT EXISTS property_ical_sources (
+  id               BIGSERIAL PRIMARY KEY,
+  property_id      INTEGER NOT NULL
+                   REFERENCES properties(id) ON DELETE CASCADE,
+  provider         VARCHAR(50) NOT NULL
+                   CHECK (provider IN ('airbnb', 'booking', 'vrbo')),
+  ical_url         TEXT NOT NULL,
+  last_sync_at     TIMESTAMPTZ,
+  created_at       TIMESTAMPTZ DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT unique_provider_per_property UNIQUE (property_id, provider)
+);
+
+CREATE INDEX IF NOT EXISTS idx_property_ical_sources_property
+  ON property_ical_sources (property_id);
+
+
+-- 9. IMPORTED CALENDAR EVENTS (events parsed from synced iCal feeds)
+CREATE TABLE IF NOT EXISTS imported_calendar_events (
+  id               BIGSERIAL PRIMARY KEY,
+  property_id      INTEGER NOT NULL
+                   REFERENCES properties(id) ON DELETE CASCADE,
+  external_uid     VARCHAR(255) NOT NULL,
+  source_provider  VARCHAR(50) NOT NULL
+                   CHECK (source_provider IN ('airbnb', 'booking', 'vrbo')),
+  start_date       DATE NOT NULL,
+  end_date         DATE NOT NULL,
+  summary          TEXT,
+  last_seen_at     TIMESTAMPTZ DEFAULT NOW(),
+  created_at       TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT end_after_start CHECK (end_date >= start_date),
+  CONSTRAINT unique_external_event UNIQUE (external_uid, property_id, source_provider)
+);
+
+CREATE INDEX IF NOT EXISTS idx_imported_calendar_events_property_dates
+  ON imported_calendar_events (property_id, start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_imported_calendar_events_provider
+  ON imported_calendar_events (property_id, source_provider);
+

@@ -177,6 +177,435 @@ class AvailabilityController
         }
     }
 
+    /**
+     * GET /api/availability/calendar?property_id=1
+     * Returns manual/maintenance blocks, iCal sources, and imported events for a property
+     */
+    public function getCalendar(): void
+    {
+        try {
+            $propertyId = Request::getQueryParam('property_id');
+
+            if (!$propertyId) {
+                Response::error('Missing required parameter: property_id');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            $stmt = $pdo->prepare('SELECT id FROM properties WHERE id = ?');
+            $stmt->execute([$propertyId]);
+            if (!$stmt->fetch(\PDO::FETCH_ASSOC)) {
+                Response::error('Property not found', null, 404);
+                return;
+            }
+
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
+                FROM property_blocks
+                WHERE property_id = ?
+                ORDER BY start_date
+            ');
+            $stmt->execute([$propertyId]);
+            $blocks = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, provider, ical_url, last_sync_at, created_at, updated_at
+                FROM property_ical_sources
+                WHERE property_id = ?
+                ORDER BY provider
+            ');
+            $stmt->execute([$propertyId]);
+            $icalSources = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, external_uid, source_provider, start_date, end_date, summary, last_seen_at, created_at
+                FROM imported_calendar_events
+                WHERE property_id = ?
+                ORDER BY start_date
+            ');
+            $stmt->execute([$propertyId]);
+            $importedEvents = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            Response::success([
+                'blocks' => $blocks,
+                'ical_sources' => $icalSources,
+                'imported_events' => $importedEvents,
+            ]);
+        } catch (\Exception $e) {
+            Response::error('Failed to fetch calendar data', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/availability/create_block
+     * Body: property_id, start_date, end_date, block_type, notes
+     */
+    public function createBlock(): void
+    {
+        try {
+            $body = Request::getBody();
+            $propertyId = $body['property_id'] ?? null;
+            $startDate = $body['start_date'] ?? null;
+            $endDate = $body['end_date'] ?? null;
+            $blockType = $body['block_type'] ?? 'manual';
+            $notes = $body['notes'] ?? null;
+
+            if (!$propertyId || !$startDate || !$endDate) {
+                Response::error('Missing required fields: property_id, start_date, end_date');
+                return;
+            }
+
+            if (!in_array($blockType, ['manual', 'maintenance'], true)) {
+                Response::error('block_type must be manual or maintenance');
+                return;
+            }
+
+            if (strtotime($endDate) < strtotime($startDate)) {
+                Response::error('end_date must be on or after start_date');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            $stmt = $pdo->prepare('SELECT id FROM properties WHERE id = ?');
+            $stmt->execute([$propertyId]);
+            if (!$stmt->fetch(\PDO::FETCH_ASSOC)) {
+                Response::error('Property not found', null, 404);
+                return;
+            }
+
+            $stmt = $pdo->prepare('
+                INSERT INTO property_blocks (property_id, start_date, end_date, block_type, notes)
+                VALUES (?, ?, ?, ?, ?)
+                RETURNING id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
+            ');
+            $stmt->execute([$propertyId, $startDate, $endDate, $blockType, $notes]);
+            $block = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            Response::success($block, 'Block created', 201);
+        } catch (\Exception $e) {
+            Response::error('Failed to create block', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/availability/update_block
+     * Body: id, start_date, end_date, block_type, notes
+     */
+    public function updateBlock(): void
+    {
+        try {
+            $body = Request::getBody();
+            $id = $body['id'] ?? null;
+
+            if (!$id) {
+                Response::error('Block id is required');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            $stmt = $pdo->prepare('SELECT id, block_type FROM property_blocks WHERE id = ?');
+            $stmt->execute([$id]);
+            $existing = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$existing) {
+                Response::error('Block not found', null, 404);
+                return;
+            }
+
+            if ($existing['block_type'] !== 'manual') {
+                Response::error('Only manual blocks can be edited', null, 403);
+                return;
+            }
+
+            $startDate = $body['start_date'] ?? null;
+            $endDate = $body['end_date'] ?? null;
+
+            if ($startDate && $endDate && strtotime($endDate) < strtotime($startDate)) {
+                Response::error('end_date must be on or after start_date');
+                return;
+            }
+
+            $updates = [];
+            $params = [];
+
+            if (isset($body['start_date'])) {
+                $updates[] = 'start_date = ?';
+                $params[] = $body['start_date'];
+            }
+            if (isset($body['end_date'])) {
+                $updates[] = 'end_date = ?';
+                $params[] = $body['end_date'];
+            }
+            if (array_key_exists('notes', $body)) {
+                $updates[] = 'notes = ?';
+                $params[] = $body['notes'];
+            }
+
+            if (empty($updates)) {
+                Response::error('No fields to update');
+                return;
+            }
+
+            $updates[] = 'updated_at = NOW()';
+            $params[] = $id;
+
+            $stmt = $pdo->prepare('
+                UPDATE property_blocks SET ' . implode(', ', $updates) . '
+                WHERE id = ?
+                RETURNING id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
+            ');
+            $stmt->execute($params);
+            $block = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            Response::success($block, 'Block updated');
+        } catch (\Exception $e) {
+            Response::error('Failed to update block', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/availability/delete_block?id=1
+     */
+    public function deleteBlock(): void
+    {
+        try {
+            $id = Request::getQueryParam('id');
+
+            if (!$id) {
+                Response::error('Block id is required');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+            $stmt = $pdo->prepare("DELETE FROM property_blocks WHERE id = ? RETURNING id");
+            $stmt->execute([$id]);
+
+            if ($stmt->rowCount() === 0) {
+                Response::error('Block not found', null, 404);
+                return;
+            }
+
+            Response::success(null, 'Block deleted');
+        } catch (\Exception $e) {
+            Response::error('Failed to delete block', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/availability/save_ical
+     * Body: property_id, provider, ical_url
+     */
+    public function saveIcal(): void
+    {
+        try {
+            $body = Request::getBody();
+            $propertyId = $body['property_id'] ?? null;
+            $provider = $body['provider'] ?? null;
+            $icalUrl = $body['ical_url'] ?? null;
+
+            if (!$propertyId || !$provider || !$icalUrl) {
+                Response::error('Missing required fields: property_id, provider, ical_url');
+                return;
+            }
+
+            if (!in_array($provider, ['airbnb', 'booking', 'vrbo'], true)) {
+                Response::error('provider must be airbnb, booking, or vrbo');
+                return;
+            }
+
+            if (!filter_var($icalUrl, FILTER_VALIDATE_URL)) {
+                Response::error('ical_url must be a valid URL');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            $stmt = $pdo->prepare('SELECT id FROM properties WHERE id = ?');
+            $stmt->execute([$propertyId]);
+            if (!$stmt->fetch(\PDO::FETCH_ASSOC)) {
+                Response::error('Property not found', null, 404);
+                return;
+            }
+
+            $stmt = $pdo->prepare('
+                INSERT INTO property_ical_sources (property_id, provider, ical_url)
+                VALUES (?, ?, ?)
+                ON CONFLICT (property_id, provider)
+                DO UPDATE SET ical_url = EXCLUDED.ical_url, updated_at = NOW()
+                RETURNING id, property_id, provider, ical_url, last_sync_at, created_at, updated_at
+            ');
+            $stmt->execute([$propertyId, $provider, $icalUrl]);
+            $source = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            Response::success($source, 'iCal source saved');
+        } catch (\Exception $e) {
+            Response::error('Failed to save iCal source', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * DELETE /api/availability/delete_ical?id=1
+     */
+    public function deleteIcal(): void
+    {
+        try {
+            $id = Request::getQueryParam('id');
+
+            if (!$id) {
+                Response::error('iCal source id is required');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+            $stmt = $pdo->prepare('DELETE FROM property_ical_sources WHERE id = ? RETURNING id, property_id, provider');
+            $stmt->execute([$id]);
+            $deleted = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$deleted) {
+                Response::error('iCal source not found', null, 404);
+                return;
+            }
+
+            $stmt = $pdo->prepare('
+                DELETE FROM imported_calendar_events WHERE property_id = ? AND source_provider = ?
+            ');
+            $stmt->execute([$deleted['property_id'], $deleted['provider']]);
+
+            Response::success(null, 'iCal source deleted');
+        } catch (\Exception $e) {
+            Response::error('Failed to delete iCal source', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/availability/sync_airbnb
+     * Body: property_id, provider
+     * Fetches the saved iCal feed for the given property/provider and imports its events
+     */
+    public function syncAirbnb(): void
+    {
+        try {
+            $body = Request::getBody();
+            $propertyId = $body['property_id'] ?? null;
+            $provider = $body['provider'] ?? null;
+
+            if (!$propertyId || !$provider) {
+                Response::error('Missing required fields: property_id, provider');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            $stmt = $pdo->prepare('
+                SELECT id, ical_url FROM property_ical_sources WHERE property_id = ? AND provider = ?
+            ');
+            $stmt->execute([$propertyId, $provider]);
+            $source = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$source) {
+                Response::error('No iCal source configured for this provider', null, 404);
+                return;
+            }
+
+            $icalText = $this->fetchIcalFeed($source['ical_url']);
+            $events = $this->parseIcalEvents($icalText);
+
+            $pdo->beginTransaction();
+            try {
+                foreach ($events as $event) {
+                    $stmt = $pdo->prepare('
+                        INSERT INTO imported_calendar_events
+                            (property_id, external_uid, source_provider, start_date, end_date, summary, last_seen_at)
+                        VALUES (?, ?, ?, ?, ?, ?, NOW())
+                        ON CONFLICT (external_uid, property_id, source_provider)
+                        DO UPDATE SET
+                            start_date = EXCLUDED.start_date,
+                            end_date = EXCLUDED.end_date,
+                            summary = EXCLUDED.summary,
+                            last_seen_at = NOW()
+                    ');
+                    $stmt->execute([
+                        $propertyId,
+                        $event['uid'],
+                        $provider,
+                        $event['start_date'],
+                        $event['end_date'],
+                        $event['summary'],
+                    ]);
+                }
+
+                $stmt = $pdo->prepare('UPDATE property_ical_sources SET last_sync_at = NOW(), updated_at = NOW() WHERE id = ?');
+                $stmt->execute([$source['id']]);
+
+                $pdo->commit();
+            } catch (\Exception $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+
+            Response::success(['events_count' => count($events)], 'Calendar synced');
+        } catch (\Exception $e) {
+            Response::error('Failed to sync calendar', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Fetches the raw iCal feed contents over HTTPS with a short timeout
+     */
+    private function fetchIcalFeed(string $url): string
+    {
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'timeout' => 15,
+                'header' => "User-Agent: ModernVilla-Sync/1.0\r\n",
+            ],
+        ]);
+
+        $contents = @file_get_contents($url, false, $context);
+
+        if ($contents === false) {
+            throw new \Exception('Unable to fetch iCal feed from provided URL');
+        }
+
+        return $contents;
+    }
+
+    /**
+     * Parses VEVENT blocks out of raw iCal text into [uid, summary, start_date, end_date]
+     */
+    private function parseIcalEvents(string $icalText): array
+    {
+        $events = [];
+
+        if (!preg_match_all('/BEGIN:VEVENT(.*?)END:VEVENT/s', $icalText, $blocks)) {
+            return $events;
+        }
+
+        foreach ($blocks[1] as $block) {
+            $uidMatch = preg_match('/UID:(.+)/', $block, $m) ? trim($m[1]) : null;
+            $summaryMatch = preg_match('/SUMMARY:(.+)/', $block, $m) ? trim($m[1]) : 'Reserved';
+            $startMatch = preg_match('/DTSTART(?:;[^:]*)?:(\d{8})/', $block, $m) ? $m[1] : null;
+            $endMatch = preg_match('/DTEND(?:;[^:]*)?:(\d{8})/', $block, $m) ? $m[1] : null;
+
+            if (!$uidMatch || !$startMatch || !$endMatch) {
+                continue;
+            }
+
+            $events[] = [
+                'uid' => $uidMatch,
+                'summary' => $summaryMatch,
+                'start_date' => substr($startMatch, 0, 4) . '-' . substr($startMatch, 4, 2) . '-' . substr($startMatch, 6, 2),
+                'end_date' => substr($endMatch, 0, 4) . '-' . substr($endMatch, 4, 2) . '-' . substr($endMatch, 6, 2),
+            ];
+        }
+
+        return $events;
+    }
+
     public function removeBlockedDate(string $id = ''): void
     {
         try {
