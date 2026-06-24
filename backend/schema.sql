@@ -23,23 +23,22 @@ INSERT INTO properties (name, description, max_guests, bedrooms, beds, bathrooms
 ON CONFLICT (name) DO NOTHING;
 
 
--- 2. PRICING (per-property, per-night base price)
-CREATE TABLE IF NOT EXISTS pricing (
-  id            SERIAL PRIMARY KEY,
-  property_name TEXT NOT NULL REFERENCES properties(name) ON DELETE CASCADE,
-  base_guests   INT  NOT NULL,
-  base_price    NUMERIC(10,2) NOT NULL,
-  extra_person_fee NUMERIC(10,2),
-  CONSTRAINT unique_property_pricing UNIQUE (property_name)
-);
+-- 2. PROPERTY PRICING (base weekday/weekend rates per property)
+CREATE TABLE IF NOT EXISTS property_pricing (
+    property_id INTEGER PRIMARY KEY
+        REFERENCES properties(id) ON DELETE CASCADE,
 
--- Base pricing: up to base_guests included, extra person fee applies beyond that
-INSERT INTO pricing (property_name, base_guests, base_price, extra_person_fee) VALUES
-  ('Shelter A',             6,  76,  15),
-  ('Shelter B',             6,  76,  15),
-  ('La Maison Modern',      6, 235,  15),
-  ('La Refuge de la Martre',6, 195,  15)
-ON CONFLICT DO NOTHING;
+    weekday_price NUMERIC(10,2) NOT NULL
+        CHECK (weekday_price > 0),
+
+    weekend_price NUMERIC(10,2) NOT NULL
+        CHECK (weekend_price > 0),
+
+    extra_person_fee NUMERIC(10,2) NOT NULL DEFAULT 0
+        CHECK (extra_person_fee >= 0),
+
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 
 -- 3. RESERVATIONS
@@ -80,21 +79,25 @@ CREATE INDEX IF NOT EXISTS idx_blocked_dates_property
   ON blocked_dates (property_name, blocked_date);
 
 
--- 5. SEASONAL PRICING (date-range price overrides per property)
-CREATE TABLE IF NOT EXISTS seasonal_pricing (
-  id               SERIAL PRIMARY KEY,
-  property_name    TEXT NOT NULL REFERENCES properties(name) ON DELETE CASCADE,
-  label            TEXT NOT NULL DEFAULT 'Custom Rate',
-  start_date       DATE NOT NULL,
-  end_date         DATE NOT NULL,
-  base_price       NUMERIC(10,2) NOT NULL CHECK (base_price > 0),
-  extra_person_fee NUMERIC(10,2),
-  created_at       TIMESTAMPTZ DEFAULT NOW(),
-  CONSTRAINT seasonal_end_after_start CHECK (end_date >= start_date)
+-- 5. PRICING OVERRIDES (date-specific price overrides)
+CREATE TABLE IF NOT EXISTS pricing_overrides (
+    property_id INTEGER NOT NULL
+        REFERENCES properties(id) ON DELETE CASCADE,
+
+    override_date DATE NOT NULL,
+
+    price NUMERIC(10,2) NOT NULL
+        CHECK (price > 0),
+
+    reason VARCHAR(255),
+
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (property_id, override_date)
 );
 
-CREATE INDEX IF NOT EXISTS idx_seasonal_pricing_property_dates
-  ON seasonal_pricing (property_name, start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_pricing_overrides_property
+  ON pricing_overrides (property_id, override_date);
 
 
 -- 6. ADMIN USERS (username/password login for the admin panel)

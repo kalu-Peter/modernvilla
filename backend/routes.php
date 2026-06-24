@@ -14,6 +14,7 @@ return [
         '/api/admin/reservations' => 'ReservationsController@update',
         '/api/admin/blocked-dates' => 'AvailabilityController@removeBlockedDate',
         '/api/admin/seasonal-pricing' => 'PricingController@updateSeasonal',
+        '/api/pricing/calendar' => 'PricingCalendarController@getCalendar',
     ],
 
     'POST' => [
@@ -24,6 +25,8 @@ return [
         '/api/admin/login' => 'AdminController@login',
         '/api/admin/blocked-dates' => 'AvailabilityController@removeBlockedDate',
         '/api/admin/seasonal-pricing' => 'PricingController@updateSeasonal',
+        '/api/pricing/save_override' => 'PricingCalendarController@saveOverride',
+        '/api/pricing/update_base' => 'PricingCalendarController@updateBasePricing',
     ],
 
     'PUT' => [
@@ -37,5 +40,6 @@ return [
         '/api/admin/reservations' => 'ReservationsController@update',
         '/api/admin/blocked-dates' => 'AvailabilityController@removeBlockedDate',
         '/api/admin/blocked-dates/:id' => 'AvailabilityController@removeBlockedDate',
+        '/api/pricing/delete_override' => 'PricingCalendarController@deleteOverride',
     ],
 ];

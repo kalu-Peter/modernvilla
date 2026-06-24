@@ -5,13 +5,16 @@ import type {
   AdminReservation,
   BlockedDate,
   SeasonalPricingRule,
+  PricingTier,
 } from "../types";
 import { useCurrency, SUPPORTED_CURRENCIES } from "../context/CurrencyContext";
+import PricingCalendarTab from "../components/PricingCalendarTab";
 
 type Tab =
   | "reservations"
   | "blocked-dates"
   | "seasonal-pricing"
+  | "pricing-calendar"
   | "currencies"
   | "users";
 type ResFilter = "all" | "pending" | "confirmed" | "cancelled";
@@ -157,352 +160,156 @@ const AdminDashboardPage: React.FC = () => {
     }
   }, [api, blockPropFilter]);
 
-  // ── Seasonal Pricing ──────────────────────────────────────────────────────
-  const [seasonalRules, setSeasonalRules] = useState<SeasonalPricingRule[]>([]);
+  // ── Pricing Tiers ───────────────────────────────────────────────────────
+  const [pricingTiers, setPricingTiers] = useState<PricingTier[]>([]);
+  const [pricingShelter, setPricingShelter] = useState(SHELTERS[0]?.name || "");
+  const [pricingError, setPricingError] = useState("");
+  const [pricingSuccess, setPricingSuccess] = useState("");
+  const [pricingSaving, setPricingSaving] = useState(false);
 
-  const [seasonalShelter, setSeasonalShelter] = useState(SHELTERS[0].id);
-  const [calEditRule, setCalEditRule] = useState<SeasonalPricingRule | null>(
-    null,
+  // Single day pricing form
+  const [singleDayDate, setSingleDayDate] = useState("");
+  const [singleDayPrice, setSingleDayPrice] = useState("");
+  const [singleDayExtra, setSingleDayExtra] = useState("");
+
+  // Weekend pricing form
+  const [weekendPrice, setWeekendPrice] = useState("");
+  const [weekendExtra, setWeekendExtra] = useState("");
+
+  // Yearly pricing form
+  const [yearlyPrice, setYearlyPrice] = useState("");
+  const [yearlyExtra, setYearlyExtra] = useState("");
+
+  const fetchPricingTiers = useCallback(
+    async (propertyName: string) => {
+      const res = await api(
+        `/seasonal-pricing?property_name=${encodeURIComponent(propertyName)}`,
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setPricingTiers(data.data || data);
+        // Pre-fill forms with existing data
+        const yearly =
+          data.data?.find?.((t: PricingTier) => t.tier_type === "yearly") ||
+          data.find((t: PricingTier) => t.tier_type === "yearly");
+        if (yearly) {
+          setYearlyPrice(String(yearly.base_price));
+          setYearlyExtra(String(yearly.extra_person_fee || ""));
+        }
+        const weekend =
+          data.data?.find?.((t: PricingTier) => t.tier_type === "weekend") ||
+          data.find((t: PricingTier) => t.tier_type === "weekend");
+        if (weekend) {
+          setWeekendPrice(String(weekend.base_price));
+          setWeekendExtra(String(weekend.extra_person_fee || ""));
+        }
+      }
+    },
+    [api],
   );
 
-  // ── Calendar pricing UI ───────────────────────────────────────────────────
-  const now = new Date();
-  const [calYear, setCalYear] = useState(now.getFullYear());
-  const [calMonth, setCalMonth] = useState(now.getMonth()); // 0-indexed
-  type CalMode = "single" | "range" | "weekends" | "fullmonth";
-  const [calMode, setCalMode] = useState<CalMode>("range");
-  const [calRangeStart, setCalRangeStart] = useState<string | null>(null);
-  const [calRangeEnd, setCalRangeEnd] = useState<string | null>(null);
-  const [calHover, setCalHover] = useState<string | null>(null);
-  const [calLabel, setCalLabel] = useState("");
-  const [calPrice, setCalPrice] = useState("");
-  const [calSaving, setCalSaving] = useState(false);
-  const [calError, setCalError] = useState("");
-  const [calSuccess, setCalSuccess] = useState("");
+  const upsertPricingTier = async (
+    tierType: "single_day" | "weekend" | "yearly",
+  ) => {
+    setPricingError("");
+    setPricingSuccess("");
 
-  const calDateStr = (y: number, m: number, d: number) =>
-    `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    let basePrice = 0;
+    let extraPersonFee = 0;
+    let specificDate = null;
 
-  const calPriceForDate = (dateStr: string): SeasonalPricingRule | null =>
-    seasonalRules.find(
-      (r) =>
-        r.shelter_id === seasonalShelter &&
-        dateStr >= r.start_date.slice(0, 10) &&
-        dateStr <= r.end_date.slice(0, 10),
-    ) ?? null;
-
-  const isInCalSelection = (dateStr: string): boolean => {
-    if (!calRangeStart) return false;
-    const tentativeEnd =
-      calRangeEnd ??
-      (calMode === "range" && !calRangeEnd ? calHover : null) ??
-      calRangeStart;
-    const [s, e] =
-      calRangeStart <= tentativeEnd
-        ? [calRangeStart, tentativeEnd]
-        : [tentativeEnd, calRangeStart];
-    return dateStr >= s && dateStr <= e;
-  };
-
-  const getWeekendsInMonth = (y: number, m: number) => {
-    const weekends: Array<{ start: string; end: string }> = [];
-    const days = new Date(y, m + 1, 0).getDate();
-    for (let d = 1; d <= days; d++) {
-      const dow = new Date(y, m, d).getDay(); // 0=Sun, 6=Sat
-      if (dow === 6) {
-        const sat = calDateStr(y, m, d);
-        const sun = calDateStr(y, m, d + 1 <= days ? d + 1 : d);
-        weekends.push({ start: sat, end: d + 1 <= days ? sun : sat });
-      } else if (dow === 0 && d === 1) {
-        // Month starts on Sunday — lone Sunday
-        weekends.push({ start: calDateStr(y, m, d), end: calDateStr(y, m, d) });
+    if (tierType === "single_day") {
+      if (!singleDayDate) {
+        setPricingError("Please select a date for single day pricing.");
+        return;
       }
+      basePrice = parseFloat(singleDayPrice);
+      extraPersonFee = parseFloat(singleDayExtra) || 0;
+      specificDate = singleDayDate;
+    } else if (tierType === "weekend") {
+      basePrice = parseFloat(weekendPrice);
+      extraPersonFee = parseFloat(weekendExtra) || 0;
+    } else {
+      basePrice = parseFloat(yearlyPrice);
+      extraPersonFee = parseFloat(yearlyExtra) || 0;
     }
-    return weekends;
-  };
 
-  const weekendDatesInMonth = (y: number, m: number): string[] => {
-    const days = new Date(y, m + 1, 0).getDate();
-    const result: string[] = [];
-    for (let d = 1; d <= days; d++) {
-      const dow = new Date(y, m, d).getDay();
-      if (dow === 0 || dow === 6) result.push(calDateStr(y, m, d));
-    }
-    return result;
-  };
-
-  const isWeekendSelected = (dateStr: string) =>
-    calMode === "weekends" &&
-    weekendDatesInMonth(calYear, calMonth).includes(dateStr);
-
-  const isFullMonthSelected = (dateStr: string) => {
-    if (calMode !== "fullmonth") return false;
-    const start = calDateStr(calYear, calMonth, 1);
-    const end = calDateStr(
-      calYear,
-      calMonth,
-      new Date(calYear, calMonth + 1, 0).getDate(),
-    );
-    return dateStr >= start && dateStr <= end;
-  };
-
-  const handleCalDayClick = (dateStr: string) => {
-    setCalError("");
-    setCalSuccess("");
-    if (calMode === "single") {
-      setCalRangeStart(dateStr);
-      setCalRangeEnd(dateStr);
-      const rule = calPriceForDate(dateStr);
-      if (rule) {
-        setCalEditRule(rule);
-        setCalLabel(rule.label);
-        const rate = rates[currency.code] ?? 1;
-        setCalPrice(
-          String(Math.round(Number(rule.price_per_night) * rate * 100) / 100),
-        );
-      } else {
-        setCalEditRule(null);
-        setCalLabel("");
-        setCalPrice("");
-      }
-    } else if (calMode === "range") {
-      setCalEditRule(null);
-      if (!calRangeStart || calRangeEnd) {
-        setCalRangeStart(dateStr);
-        setCalRangeEnd(null);
-      } else {
-        const [s, e] =
-          dateStr >= calRangeStart
-            ? [calRangeStart, dateStr]
-            : [dateStr, calRangeStart];
-        setCalRangeStart(s);
-        setCalRangeEnd(e);
-      }
-    }
-  };
-
-  const panelVisible =
-    (calMode === "single" && calRangeStart !== null) ||
-    (calMode === "range" && calRangeStart !== null && calRangeEnd !== null) ||
-    calMode === "weekends" ||
-    calMode === "fullmonth";
-
-  const saveCalendarRule = async () => {
-    const priceInCurrency = parseFloat(calPrice);
-    if (isNaN(priceInCurrency) || priceInCurrency <= 0) {
-      setCalError("Enter a valid price per night.");
+    if (isNaN(basePrice) || basePrice <= 0) {
+      setPricingError(`Please enter a valid base price for ${tierType}.`);
       return;
     }
-    // Always store in KES (base currency); convert from selected currency
-    const rate = rates[currency.code] ?? 1;
-    const price = Math.round(priceInCurrency / rate);
-    setCalSaving(true);
-    setCalError("");
-    setCalSuccess("");
+
+    setPricingSaving(true);
     try {
-      if (calMode === "single" && calEditRule) {
-        // Update existing rule
-        const res = await api(`/seasonal-pricing?id=${calEditRule.id}`, {
-          method: "PUT",
-          body: JSON.stringify({
-            label: calLabel || calEditRule.label,
-            price_per_night: price,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setCalError(data.error ?? "Failed to update.");
-          return;
-        }
-        setSeasonalRules((prev) =>
-          prev.map((r) =>
-            r.id === calEditRule.id
-              ? {
-                  ...r,
-                  label: data.label,
-                  price_per_night: data.price_per_night,
-                }
-              : r,
-          ),
+      const res = await api("/seasonal-pricing", {
+        method: "POST",
+        body: JSON.stringify({
+          property_name: pricingShelter,
+          tier_type: tierType,
+          specific_date: specificDate,
+          base_price: basePrice,
+          extra_person_fee: extraPersonFee || null,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setPricingError(
+          data.error || data.message || "Failed to save pricing tier.",
         );
-      } else if (calMode === "weekends") {
-        const weekends = getWeekendsInMonth(calYear, calMonth);
-        if (weekends.length === 0) {
-          setCalError("No weekends found in this month.");
-          return;
-        }
-        const updatedRules = [...seasonalRules];
-        for (const { start, end } of weekends) {
-          const existing = seasonalRules.find(
-            (r) =>
-              r.start_date.slice(0, 10) === start &&
-              r.end_date.slice(0, 10) === end,
-          );
-          if (existing) {
-            const res = await api(`/seasonal-pricing?id=${existing.id}`, {
-              method: "PUT",
-              body: JSON.stringify({
-                label: calLabel || "Weekend Rate",
-                price_per_night: price,
-              }),
-            });
-            const data = await res.json();
-            if (!res.ok) {
-              setCalError(data.error ?? "Failed to update weekend rule.");
-              return;
-            }
-            const idx = updatedRules.findIndex((r) => r.id === existing.id);
-            if (idx !== -1)
-              updatedRules[idx] = {
-                ...updatedRules[idx],
-                label: data.label,
-                price_per_night: data.price_per_night,
-              };
-          } else {
-            const res = await api("/seasonal-pricing", {
-              method: "POST",
-              body: JSON.stringify({
-                shelter_id: seasonalShelter,
-                label: calLabel || "Weekend Rate",
-                start_date: start,
-                end_date: end,
-                price_per_night: price,
-              }),
-            });
-            const data = await res.json();
-            if (!res.ok) {
-              setCalError(data.error ?? "Failed to save weekend rule.");
-              return;
-            }
-            updatedRules.push(data);
-          }
-        }
-        setSeasonalRules(updatedRules);
-      } else if (calMode === "fullmonth") {
-        const start = calDateStr(calYear, calMonth, 1);
-        const end = calDateStr(
-          calYear,
-          calMonth,
-          new Date(calYear, calMonth + 1, 0).getDate(),
-        );
-        const existing = seasonalRules.find(
-          (r) =>
-            r.start_date.slice(0, 10) === start &&
-            r.end_date.slice(0, 10) === end,
-        );
-        if (existing) {
-          const res = await api(`/seasonal-pricing?id=${existing.id}`, {
-            method: "PUT",
-            body: JSON.stringify({
-              label: calLabel || "Monthly Rate",
-              price_per_night: price,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            setCalError(data.error ?? "Failed to update.");
-            return;
-          }
-          setSeasonalRules((prev) =>
-            prev.map((r) =>
-              r.id === existing.id
-                ? {
-                    ...r,
-                    label: data.label,
-                    price_per_night: data.price_per_night,
-                  }
-                : r,
-            ),
-          );
-        } else {
-          const res = await api("/seasonal-pricing", {
-            method: "POST",
-            body: JSON.stringify({
-              shelter_id: seasonalShelter,
-              label: calLabel || "Monthly Rate",
-              start_date: start,
-              end_date: end,
-              price_per_night: price,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            setCalError(data.error ?? "Failed to save.");
-            return;
-          }
-          setSeasonalRules((prev) => [...prev, data]);
-        }
-      } else {
-        // range or new single day
-        const end = calRangeEnd ?? calRangeStart!;
-        const existing = seasonalRules.find(
-          (r) =>
-            r.start_date.slice(0, 10) === calRangeStart! &&
-            r.end_date.slice(0, 10) === end,
-        );
-        if (existing) {
-          const res = await api(`/seasonal-pricing?id=${existing.id}`, {
-            method: "PUT",
-            body: JSON.stringify({
-              label: calLabel || existing.label,
-              price_per_night: price,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            setCalError(data.error ?? "Failed to update.");
-            return;
-          }
-          setSeasonalRules((prev) =>
-            prev.map((r) =>
-              r.id === existing.id
-                ? {
-                    ...r,
-                    label: data.label,
-                    price_per_night: data.price_per_night,
-                  }
-                : r,
-            ),
-          );
-        } else {
-          const res = await api("/seasonal-pricing", {
-            method: "POST",
-            body: JSON.stringify({
-              shelter_id: seasonalShelter,
-              label: calLabel || "Custom Rate",
-              start_date: calRangeStart!,
-              end_date: end,
-              price_per_night: price,
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            setCalError(data.error ?? "Failed to save.");
-            return;
-          }
-          setSeasonalRules((prev) => [...prev, data]);
-        }
+        return;
       }
-      setCalSuccess(calEditRule ? "Rule updated." : "Pricing rule saved.");
-      setCalRangeStart(null);
-      setCalRangeEnd(null);
-      setCalPrice("");
-      setCalLabel("");
-      setCalEditRule(null);
+
+      const tier = data.data || data;
+      setPricingTiers((prev) => {
+        const idx = prev.findIndex(
+          (t) => t.tier_type === tierType && t.specific_date === specificDate,
+        );
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = tier;
+          return updated;
+        }
+        return [...prev, tier];
+      });
+
+      // Reset form fields based on tier type
+      if (tierType === "single_day") {
+        setSingleDayDate("");
+        setSingleDayPrice("");
+        setSingleDayExtra("");
+      } else if (tierType === "weekend") {
+        setWeekendPrice("");
+        setWeekendExtra("");
+      } else {
+        setYearlyPrice("");
+        setYearlyExtra("");
+      }
+
+      setPricingSuccess(
+        `${tierType.replace("_", " ")} pricing saved successfully.`,
+      );
     } finally {
-      setCalSaving(false);
+      setPricingSaving(false);
     }
   };
 
-  const deleteCalRule = async (id: number) => {
-    if (!window.confirm("Delete this pricing rule?")) return;
-    await api(`/seasonal-pricing?id=${id}`, { method: "DELETE" });
-    setSeasonalRules((prev) => prev.filter((r) => r.id !== id));
-    setCalRangeStart(null);
-    setCalRangeEnd(null);
-    setCalPrice("");
-    setCalLabel("");
-    setCalEditRule(null);
+  const deletePricingTier = async (id: number) => {
+    if (!window.confirm("Delete this pricing tier?")) return;
+    setPricingError("");
+    setPricingSuccess("");
+    try {
+      const res = await api(`/seasonal-pricing?id=${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        setPricingError(data.error || "Failed to delete pricing tier.");
+        return;
+      }
+      setPricingTiers((prev) => prev.filter((t) => t.id !== id));
+      setPricingSuccess("Pricing tier deleted.");
+    } catch (e) {
+      setPricingError("Error deleting pricing tier.");
+    }
   };
 
   const abbrevPrice = (kes: number) => {
@@ -514,16 +321,6 @@ const AdminDashboardPage: React.FC = () => {
         : String(Math.round(n));
     return `${currency.symbol}${num}`;
   };
-
-  const fetchSeasonalPricing = useCallback(
-    async (shelterId: string) => {
-      const res = await api(
-        `/seasonal-pricing?shelter_id=${encodeURIComponent(shelterId)}`,
-      );
-      if (res.ok) setSeasonalRules(await res.json());
-    },
-    [api],
-  );
 
   // ── Users ─────────────────────────────────────────────────────────────────
   type AdminUser = { id: string; username: string; created_at: string };
@@ -584,16 +381,17 @@ const AdminDashboardPage: React.FC = () => {
       fetchBlockedDates();
       fetchIcalUrls();
     }
-    if (activeTab === "seasonal-pricing") fetchSeasonalPricing(seasonalShelter);
+    if (activeTab === "seasonal-pricing" && pricingShelter)
+      fetchPricingTiers(pricingShelter);
     if (activeTab === "users") fetchUsers();
   }, [
     activeTab,
     fetchReservations,
     fetchBlockedDates,
     fetchIcalUrls,
-    fetchSeasonalPricing,
+    fetchPricingTiers,
     fetchUsers,
-    seasonalShelter,
+    pricingShelter,
   ]);
 
   useEffect(() => {
@@ -1204,6 +1002,7 @@ const AdminDashboardPage: React.FC = () => {
               "reservations",
               "blocked-dates",
               "seasonal-pricing",
+              "pricing-calendar",
               "users",
             ] as Tab[]
           ).map((t) => (
@@ -1221,8 +1020,10 @@ const AdminDashboardPage: React.FC = () => {
                   : t === "blocked-dates"
                     ? "Blocked Dates"
                     : t === "seasonal-pricing"
-                      ? "Pricing"
-                      : "Users"}
+                      ? "Pricing (Legacy)"
+                      : t === "pricing-calendar"
+                        ? "Pricing Calendar"
+                        : "Users"}
                 {t === "reservations" && newCount > 0 && (
                   <span className="adm-badge">{newCount}</span>
                 )}
@@ -1807,433 +1608,290 @@ const AdminDashboardPage: React.FC = () => {
             </>
           )}
 
-          {/* ── SEASONAL PRICING CALENDAR ─────────────────── */}
-          {activeTab === "seasonal-pricing" &&
-            (() => {
-              const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-              const firstDow = new Date(calYear, calMonth, 1).getDay();
-              const firstDowMon = firstDow === 0 ? 6 : firstDow - 1; // Mon=0
-              const monthLabel = new Date(calYear, calMonth, 1).toLocaleString(
-                "en-GB",
-                { month: "long", year: "numeric" },
-              );
-              const todayStr = new Date().toISOString().split("T")[0];
-              const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+          {/* ── PRICING TIERS ────────────────────────────── */}
+          {activeTab === "seasonal-pricing" && (
+            <>
+              <style>{`
+                .pricing-wrap { background: #fff; border: 1px solid #eef0f4; border-radius: 16px; padding: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 24px; }
+                .pricing-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+                .pricing-select { font-family: 'Inter', sans-serif; padding: 8px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px; background: #fff; color: #1a1a2e; cursor: pointer; }
+                .pricing-select:focus { outline: none; border-color: #c9a84c; }
+                .pricing-tier { background: #f5f6fa; border: 1.5px solid #c9a84c; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+                .pricing-tier-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; text-transform: capitalize; }
+                .pricing-form { display: grid; gap: 16px; }
+                .pricing-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: flex-end; }
+                @media (max-width: 900px) { .pricing-row { grid-template-columns: 1fr 1fr; } }
+                .pricing-field { display: flex; flex-direction: column; gap: 5px; }
+                .pricing-field label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #9098a9; }
+                .pricing-field input { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 9px 12px; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #1a1a2e; outline: none; }
+                .pricing-field input:focus { border-color: #c9a84c; }
+                .pricing-btn { padding: 9px 20px; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; background: #1a1a2e; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: background 0.18s; }
+                .pricing-btn:hover { background: #2a2a3e; }
+                .pricing-btn:disabled { background: #ccc; cursor: not-allowed; }
+                .pricing-list { margin-top: 16px; border-top: 1px solid #e5e7eb; padding-top: 16px; }
+                .pricing-list-item { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem; }
+                .pricing-list-label { color: #1a1a2e; font-weight: 600; }
+                .pricing-list-value { color: #9098a9; margin-right: 12px; }
+                .pricing-list-delete { background: #ef4444; color: #fff; border: none; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: 600; transition: background 0.18s; }
+                .pricing-list-delete:hover { background: #dc2626; }
+                .adm-form-msg { padding: 12px 16px; border-radius: 8px; font-size: 0.85rem; font-family: 'Inter', sans-serif; }
+                .adm-form-msg.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+                .adm-form-msg.error { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+              `}</style>
 
-              const cells: Array<string | null> = [
-                ...Array(firstDowMon).fill(null),
-                ...Array.from({ length: daysInMonth }, (_, i) =>
-                  calDateStr(calYear, calMonth, i + 1),
-                ),
-              ];
+              <div className="pricing-wrap">
+                <div className="pricing-header">
+                  <label
+                    htmlFor="pricing-shelter"
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: "#9098a9",
+                    }}
+                  >
+                    Select Property
+                  </label>
+                  <select
+                    id="pricing-shelter"
+                    className="pricing-select"
+                    value={pricingShelter}
+                    onChange={(e) => {
+                      setPricingShelter(e.target.value);
+                      fetchPricingTiers(e.target.value);
+                      setSingleDayDate("");
+                      setSingleDayPrice("");
+                      setSingleDayExtra("");
+                    }}
+                  >
+                    {SHELTERS.map((s) => (
+                      <option key={s.id} value={s.name}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              const prevMonth = () => {
-                if (calMonth === 0) {
-                  setCalYear((y) => y - 1);
-                  setCalMonth(11);
-                } else setCalMonth((m) => m - 1);
-              };
-              const nextMonth = () => {
-                if (calMonth === 11) {
-                  setCalYear((y) => y + 1);
-                  setCalMonth(0);
-                } else setCalMonth((m) => m + 1);
-              };
+                {pricingError && (
+                  <div className="adm-form-msg error">{pricingError}</div>
+                )}
+                {pricingSuccess && (
+                  <div className="adm-form-msg success">{pricingSuccess}</div>
+                )}
 
-              const getDayState = (dateStr: string) => {
-                const dow = new Date(dateStr).getDay();
-                const isWeekend = dow === 0 || dow === 6;
-                const rule = calPriceForDate(dateStr);
-                const selected =
-                  calMode === "single" || calMode === "range"
-                    ? isInCalSelection(dateStr)
-                    : calMode === "weekends"
-                      ? isWeekendSelected(dateStr)
-                      : isFullMonthSelected(dateStr);
-                return { isWeekend, rule, selected };
-              };
-
-              const selectionLabel = () => {
-                if (calMode === "weekends")
-                  return `All Weekends in ${new Date(calYear, calMonth).toLocaleString("en-GB", { month: "long", year: "numeric" })}`;
-                if (calMode === "fullmonth") return monthLabel;
-                if (!calRangeStart) return null;
-                const end = calRangeEnd ?? calRangeStart;
-                if (calRangeStart === end) return fmt(calRangeStart);
-                return `${fmt(calRangeStart)} – ${fmt(end)}`;
-              };
-
-              return (
-                <>
-                  <style>{`
-                  .cal-wrap { background:#fff; border:1px solid #eef0f4; border-radius:16px; padding:28px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:24px; }
-                  .cal-topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:22px; }
-                  .cal-nav { display:flex; align-items:center; gap:10px; }
-                  .cal-nav-btn { background:none; border:1.5px solid #e5e7eb; border-radius:8px; width:34px; height:34px; cursor:pointer; font-size:0.9rem; color:#6b7280; transition:all 0.15s; display:flex; align-items:center; justify-content:center; }
-                  .cal-nav-btn:hover { border-color:#c9a84c; color:#c9a84c; }
-                  .cal-month-label { font-family:'Playfair Display',serif; font-size:1.1rem; color:#1a1a2e; min-width:180px; text-align:center; }
-                  .cal-mode-bar { display:flex; gap:6px; flex-wrap:wrap; }
-                  .cal-mode-btn { padding:7px 16px; font-family:'Inter',sans-serif; font-size:0.7rem; font-weight:600; letter-spacing:0.04em; border:1.5px solid #e5e7eb; border-radius:8px; background:#fff; color:#9098a9; cursor:pointer; transition:all 0.15s; }
-                  .cal-mode-btn:hover { border-color:#c9a84c; color:#c9a84c; }
-                  .cal-mode-btn.active { background:#1a1a2e; color:#fff; border-color:#1a1a2e; }
-                  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
-                  .cal-header-cell { text-align:center; font-family:'Inter',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#9098a9; padding:8px 0; }
-                  .cal-header-cell.weekend-col { color:#c9a84c; }
-                  .cal-day { min-height:56px; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; border:1.5px solid transparent; transition:all 0.12s; background:#fafbfc; padding:4px 2px; user-select:none; }
-                  .cal-day:hover { border-color:#c9a84c; background:#fffbf0; }
-                  .cal-day.weekend-day { background:#fffdf5; }
-                  .cal-day.has-rule { background:#fef9ee; border-color:#f0d882; }
-                  .cal-day.in-range { background:#eef1ff; border-color:#c7cde8; }
-                  .cal-day.selected { background:#1a1a2e !important; border-color:#1a1a2e !important; }
-                  .cal-day.today .cal-day-num::after { content:''; display:block; width:4px; height:4px; background:#c9a84c; border-radius:50%; margin:2px auto 0; }
-                  .cal-day-num { font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:#374151; line-height:1; }
-                  .cal-day.selected .cal-day-num { color:#fff; }
-                  .cal-day.in-range .cal-day-num { color:#3730a3; }
-                  .cal-day-price { font-size:0.58rem; font-weight:700; color:#c9a84c; margin-top:3px; letter-spacing:0.02em; }
-                  .cal-day.selected .cal-day-price { color:#c9a84c; }
-                  .cal-panel { background:#f5f6fa; border:1.5px solid #c9a84c; border-radius:12px; padding:20px 24px; margin-top:20px; }
-                  .cal-panel-title { font-family:'Inter',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#9098a9; margin-bottom:14px; }
-                  .cal-panel-sel { font-family:'Playfair Display',serif; font-size:1rem; color:#1a1a2e; margin-bottom:16px; }
-                  .cal-panel-row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
-                  .cal-panel-field { display:flex; flex-direction:column; gap:5px; }
-                  .cal-panel-field label { font-family:'Inter',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#9098a9; }
-                  .cal-panel-field input { background:#fff; border:1.5px solid #e5e7eb; border-radius:8px; padding:9px 12px; font-family:'Inter',sans-serif; font-size:0.85rem; color:#1a1a2e; outline:none; transition:border-color 0.15s; min-width:140px; }
-                  .cal-panel-field input:focus { border-color:#c9a84c; }
-                  .cal-legend { display:flex; gap:16px; flex-wrap:wrap; margin-top:16px; }
-                  .cal-legend-item { display:flex; align-items:center; gap:6px; font-family:'Inter',sans-serif; font-size:0.68rem; color:#9098a9; }
-                  .cal-legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
-                `}</style>
-
-                  {/* ── Toolbar ── */}
-                  <div className="cal-wrap">
-                    <div className="cal-topbar">
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 16,
-                          flexWrap: "wrap",
-                        }}
+                {/* SINGLE DAY PRICING */}
+                <div className="pricing-tier">
+                  <div className="pricing-tier-title">Single Day Pricing</div>
+                  <div className="pricing-form">
+                    <div className="pricing-row">
+                      <div className="pricing-field">
+                        <label>Date</label>
+                        <input
+                          type="date"
+                          value={singleDayDate}
+                          onChange={(e) => setSingleDayDate(e.target.value)}
+                        />
+                      </div>
+                      <div className="pricing-field">
+                        <label>Base Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={singleDayPrice}
+                          onChange={(e) => setSingleDayPrice(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="pricing-field">
+                        <label>Extra Person Fee</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={singleDayExtra}
+                          onChange={(e) => setSingleDayExtra(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <button
+                        className="pricing-btn"
+                        onClick={() => upsertPricingTier("single_day")}
+                        disabled={pricingSaving}
                       >
-                        <select
-                          className="adm-select"
-                          value={seasonalShelter}
-                          onChange={(e) => {
-                            setSeasonalShelter(e.target.value);
-                            fetchSeasonalPricing(e.target.value);
-                            setCalRangeStart(null);
-                            setCalRangeEnd(null);
-                          }}
-                        >
-                          {SHELTERS.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.name}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="cal-nav">
-                          <button className="cal-nav-btn" onClick={prevMonth}>
-                            ‹
-                          </button>
-                          <div className="cal-month-label">{monthLabel}</div>
-                          <button className="cal-nav-btn" onClick={nextMonth}>
-                            ›
-                          </button>
-                        </div>
-                      </div>
-                      <div className="cal-mode-bar">
-                        {(
-                          [
-                            { key: "single", label: "Single Day" },
-                            { key: "range", label: "Date Range" },
-                            { key: "weekends", label: "All Weekends" },
-                            { key: "fullmonth", label: "Full Month" },
-                          ] as const
-                        ).map(({ key, label }) => (
-                          <button
-                            key={key}
-                            className={`cal-mode-btn${calMode === key ? " active" : ""}`}
-                            onClick={() => {
-                              setCalMode(key);
-                              setCalRangeStart(null);
-                              setCalRangeEnd(null);
-                              setCalError("");
-                              setCalSuccess("");
-                              setCalEditRule(null);
-                              // Pre-fill price from first existing rule for weekends/fullmonth
-                              if (key === "weekends") {
-                                const wDates = weekendDatesInMonth(
-                                  calYear,
-                                  calMonth,
-                                );
-                                const existing = seasonalRules.find((r) =>
-                                  wDates.includes(r.start_date.slice(0, 10)),
-                                );
-                                if (existing) {
-                                  const rate = rates[currency.code] ?? 1;
-                                  setCalPrice(
-                                    String(
-                                      Math.round(
-                                        Number(existing.price_per_night) *
-                                          rate *
-                                          100,
-                                      ) / 100,
-                                    ),
-                                  );
-                                  setCalLabel(existing.label);
-                                } else {
-                                  setCalPrice("");
-                                  setCalLabel("");
-                                }
-                              } else if (key === "fullmonth") {
-                                const start = calDateStr(calYear, calMonth, 1);
-                                const end = calDateStr(
-                                  calYear,
-                                  calMonth,
-                                  new Date(calYear, calMonth + 1, 0).getDate(),
-                                );
-                                const existing = seasonalRules.find(
-                                  (r) =>
-                                    r.start_date.slice(0, 10) === start &&
-                                    r.end_date.slice(0, 10) === end,
-                                );
-                                if (existing) {
-                                  const rate = rates[currency.code] ?? 1;
-                                  setCalPrice(
-                                    String(
-                                      Math.round(
-                                        Number(existing.price_per_night) *
-                                          rate *
-                                          100,
-                                      ) / 100,
-                                    ),
-                                  );
-                                  setCalLabel(existing.label);
-                                } else {
-                                  setCalPrice("");
-                                  setCalLabel("");
-                                }
-                              } else {
-                                setCalPrice("");
-                                setCalLabel("");
-                              }
-                            }}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
+                        {pricingSaving ? "Saving..." : "Save"}
+                      </button>
                     </div>
-
-                    {/* ── Calendar grid ── */}
-                    <div className="cal-grid">
-                      {DAYS.map((d, i) => (
-                        <div
-                          key={d}
-                          className={`cal-header-cell${i >= 5 ? " weekend-col" : ""}`}
-                        >
-                          {d}
+                  </div>
+                  <div className="pricing-list">
+                    {pricingTiers
+                      .filter(
+                        (t) =>
+                          t.tier_type === "single_day" &&
+                          t.property_name === pricingShelter,
+                      )
+                      .map((tier) => (
+                        <div key={tier.id} className="pricing-list-item">
+                          <div>
+                            <span className="pricing-list-label">
+                              {tier.specific_date}:
+                            </span>
+                            <span className="pricing-list-value">
+                              {formatPrice(tier.base_price)}
+                              {tier.extra_person_fee &&
+                                ` + ${formatPrice(tier.extra_person_fee)}/person`}
+                            </span>
+                          </div>
+                          <button
+                            className="pricing-list-delete"
+                            onClick={() => deletePricingTier(tier.id)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       ))}
-                      {cells.map((dateStr, idx) => {
-                        if (!dateStr) return <div key={`blank-${idx}`} />;
-                        const { isWeekend, rule, selected } =
-                          getDayState(dateStr);
-                        const inRange =
-                          !selected &&
-                          ((calMode === "range" && isInCalSelection(dateStr)) ||
-                            (calMode === "weekends" &&
-                              isWeekendSelected(dateStr)) ||
-                            (calMode === "fullmonth" &&
-                              isFullMonthSelected(dateStr)));
-                        const cls = [
-                          "cal-day",
-                          isWeekend ? "weekend-day" : "",
-                          rule && !selected && !inRange ? "has-rule" : "",
-                          inRange ? "in-range" : "",
-                          selected ? "selected" : "",
-                          dateStr === todayStr ? "today" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ");
-
-                        return (
-                          <div
-                            key={dateStr}
-                            className={cls}
-                            onClick={() => handleCalDayClick(dateStr)}
-                            onMouseEnter={() =>
-                              calMode === "range" &&
-                              calRangeStart &&
-                              !calRangeEnd &&
-                              setCalHover(dateStr)
-                            }
-                            onMouseLeave={() => setCalHover(null)}
-                            title={
-                              rule
-                                ? `${rule.label}: ${formatPrice(Number(rule.price_per_night))}/night`
-                                : ""
-                            }
-                          >
-                            <span className="cal-day-num">
-                              {Number(dateStr.split("-")[2])}
-                            </span>
-                            {rule && (
-                              <span className="cal-day-price">
-                                {abbrevPrice(Number(rule.price_per_night))}
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* ── Legend ── */}
-                    <div className="cal-legend">
-                      <div className="cal-legend-item">
-                        <div
-                          className="cal-legend-dot"
-                          style={{
-                            background: "#fffdf5",
-                            border: "1.5px solid #f0d882",
-                          }}
-                        />{" "}
-                        Weekend
-                      </div>
-                      <div className="cal-legend-item">
-                        <div
-                          className="cal-legend-dot"
-                          style={{
-                            background: "#fef9ee",
-                            border: "1.5px solid #f0d882",
-                          }}
-                        />{" "}
-                        Has price rule
-                      </div>
-                      <div className="cal-legend-item">
-                        <div
-                          className="cal-legend-dot"
-                          style={{
-                            background: "#eef1ff",
-                            border: "1.5px solid #c7cde8",
-                          }}
-                        />{" "}
-                        In selection
-                      </div>
-                      <div className="cal-legend-item">
-                        <div
-                          className="cal-legend-dot"
-                          style={{ background: "#1a1a2e" }}
-                        />{" "}
-                        Selected
-                      </div>
-                    </div>
-
-                    {/* ── Price panel ── */}
-                    {panelVisible && (
-                      <div className="cal-panel">
-                        <div className="cal-panel-title">
-                          {calEditRule ? "Edit Price Rule" : "Set Price"}
-                        </div>
-                        <div className="cal-panel-sel">
-                          📅 {selectionLabel()}
-                        </div>
-                        <div className="cal-panel-row">
-                          <div className="cal-panel-field">
-                            <label>Label</label>
-                            <input
-                              type="text"
-                              placeholder={
-                                calMode === "weekends"
-                                  ? "Weekend Rate"
-                                  : calMode === "fullmonth"
-                                    ? "Monthly Rate"
-                                    : "e.g. High Season"
-                              }
-                              value={calLabel}
-                              onChange={(e) => setCalLabel(e.target.value)}
-                            />
-                          </div>
-                          <div className="cal-panel-field">
-                            <label>Price / Night ({currency.code})</label>
-                            <input
-                              type="number"
-                              min="1"
-                              placeholder="e.g. 12000"
-                              value={calPrice}
-                              onChange={(e) => setCalPrice(e.target.value)}
-                              autoFocus
-                            />
-                          </div>
-                          <button
-                            className="adm-btn adm-btn-save"
-                            style={{
-                              padding: "10px 24px",
-                              alignSelf: "flex-end",
-                              background: "#c9a84c",
-                            }}
-                            disabled={calSaving}
-                            onClick={saveCalendarRule}
-                          >
-                            {calSaving
-                              ? "Saving…"
-                              : calEditRule
-                                ? "Update Rule"
-                                : "Save Rule"}
-                          </button>
-                          {calEditRule && (
-                            <button
-                              className="adm-btn adm-btn-remove"
-                              style={{
-                                padding: "10px 18px",
-                                alignSelf: "flex-end",
-                              }}
-                              onClick={() => deleteCalRule(calEditRule.id)}
-                            >
-                              Delete
-                            </button>
-                          )}
-                          <button
-                            className="adm-btn adm-btn-cancel"
-                            style={{
-                              padding: "10px 18px",
-                              alignSelf: "flex-end",
-                            }}
-                            onClick={() => {
-                              setCalRangeStart(null);
-                              setCalRangeEnd(null);
-                              setCalPrice("");
-                              setCalLabel("");
-                              setCalError("");
-                              setCalSuccess("");
-                              setCalEditRule(null);
-                            }}
-                          >
-                            Clear
-                          </button>
-                        </div>
-                        {calError && (
-                          <div
-                            className="adm-form-msg error"
-                            style={{ marginTop: 12 }}
-                          >
-                            {calError}
-                          </div>
-                        )}
-                        {calSuccess && (
-                          <div
-                            className="adm-form-msg success"
-                            style={{ marginTop: 12 }}
-                          >
-                            {calSuccess}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
-                </>
-              );
-            })()}
+                </div>
+
+                {/* WEEKEND PRICING */}
+                <div className="pricing-tier">
+                  <div className="pricing-tier-title">Weekend Pricing</div>
+                  <div className="pricing-form">
+                    <div className="pricing-row">
+                      <div className="pricing-field">
+                        <label>Base Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={weekendPrice}
+                          onChange={(e) => setWeekendPrice(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="pricing-field">
+                        <label>Extra Person Fee</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={weekendExtra}
+                          onChange={(e) => setWeekendExtra(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div></div>
+                      <button
+                        className="pricing-btn"
+                        onClick={() => upsertPricingTier("weekend")}
+                        disabled={pricingSaving}
+                      >
+                        {pricingSaving ? "Saving..." : "Save"}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="pricing-list">
+                    {pricingTiers
+                      .filter(
+                        (t) =>
+                          t.tier_type === "weekend" &&
+                          t.property_name === pricingShelter,
+                      )
+                      .map((tier) => (
+                        <div key={tier.id} className="pricing-list-item">
+                          <div>
+                            <span className="pricing-list-label">
+                              Weekend Rate:
+                            </span>
+                            <span className="pricing-list-value">
+                              {formatPrice(tier.base_price)}
+                              {tier.extra_person_fee &&
+                                ` + ${formatPrice(tier.extra_person_fee)}/person`}
+                            </span>
+                          </div>
+                          <button
+                            className="pricing-list-delete"
+                            onClick={() => deletePricingTier(tier.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* YEARLY PRICING */}
+                <div className="pricing-tier">
+                  <div className="pricing-tier-title">Yearly Pricing</div>
+                  <div className="pricing-form">
+                    <div className="pricing-row">
+                      <div className="pricing-field">
+                        <label>Base Price</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={yearlyPrice}
+                          onChange={(e) => setYearlyPrice(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="pricing-field">
+                        <label>Extra Person Fee</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={yearlyExtra}
+                          onChange={(e) => setYearlyExtra(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div></div>
+                      <button
+                        className="pricing-btn"
+                        onClick={() => upsertPricingTier("yearly")}
+                        disabled={pricingSaving}
+                      >
+                        {pricingSaving ? "Saving..." : "Save"}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="pricing-list">
+                    {pricingTiers
+                      .filter(
+                        (t) =>
+                          t.tier_type === "yearly" &&
+                          t.property_name === pricingShelter,
+                      )
+                      .map((tier) => (
+                        <div key={tier.id} className="pricing-list-item">
+                          <div>
+                            <span className="pricing-list-label">
+                              Yearly Rate:
+                            </span>
+                            <span className="pricing-list-value">
+                              {formatPrice(tier.base_price)}
+                              {tier.extra_person_fee &&
+                                ` + ${formatPrice(tier.extra_person_fee)}/person`}
+                            </span>
+                          </div>
+                          <button
+                            className="pricing-list-delete"
+                            onClick={() => deletePricingTier(tier.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === "pricing-calendar" && <PricingCalendarTab />}
 
           {activeTab === "users" && (
             <>

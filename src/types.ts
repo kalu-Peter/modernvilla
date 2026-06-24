@@ -437,3 +437,14 @@ export interface SeasonalPricingRule {
   price_per_night: number;
   created_at: string;
 }
+
+export interface PricingTier {
+  id: number;
+  property_name: string;
+  tier_type: "single_day" | "weekend" | "yearly";
+  specific_date: string | null;
+  base_price: number;
+  extra_person_fee: number | null;
+  created_at: string;
+  updated_at: string;
+}

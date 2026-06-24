@@ -17,22 +17,22 @@ class PricingController
 
             if ($propertyName) {
                 $stmt = $pdo->prepare('
-                    SELECT * FROM seasonal_pricing 
+                    SELECT * FROM pricing_tiers 
                     WHERE property_name = ? 
-                    ORDER BY start_date
+                    ORDER BY tier_type, specific_date
                 ');
                 $stmt->execute([$propertyName]);
             } else {
                 $stmt = $pdo->query('
-                    SELECT * FROM seasonal_pricing 
-                    ORDER BY property_name, start_date
+                    SELECT * FROM pricing_tiers 
+                    ORDER BY property_name, tier_type, specific_date
                 ');
             }
 
             $pricing = $stmt->fetchAll();
-            Response::success($pricing, 'Seasonal pricing retrieved');
+            Response::success($pricing, 'Pricing tiers retrieved');
         } catch (\Exception $e) {
-            Response::error('Failed to retrieve seasonal pricing', [$e->getMessage()], 500);
+            Response::error('Failed to retrieve pricing tiers', [$e->getMessage()], 500);
         }
     }
 
@@ -41,57 +41,61 @@ class PricingController
         try {
             $method = $_SERVER['REQUEST_METHOD'];
 
-            // Handle GET request - list seasonal pricing
+            // Handle GET request - list pricing tiers
             if ($method === 'GET') {
-                $this->listSeasonal();
+                $this->listPricingTiers();
                 return;
             }
 
-            // Handle POST request - create new pricing
+            // Handle POST request - create or update pricing tier
             if ($method === 'POST') {
-                $this->createSeasonal();
+                $this->upsertPricingTier();
                 return;
             }
 
-            // Handle PUT request - update pricing
+            // Handle PUT request - update pricing tier
             if ($method === 'PUT') {
-                $this->updateSingleSeasonal();
+                $this->upsertPricingTier();
                 return;
             }
 
-            // Handle DELETE request - delete pricing
+            // Handle DELETE request - delete pricing tier
             if ($method === 'DELETE') {
-                $this->deleteSeasonal();
+                $this->deletePricingTier();
                 return;
             }
 
             Response::error('Method not allowed', null, 405);
         } catch (\Exception $e) {
-            Response::error('Seasonal pricing operation failed', [$e->getMessage()], 500);
+            Response::error('Pricing tier operation failed', [$e->getMessage()], 500);
         }
     }
 
-    private function listSeasonal(): void
+    private function listPricingTiers(): void
     {
         try {
             $pdo = Connection::getInstance();
-            $stmt = $pdo->query('SELECT id, property_name, label, start_date, end_date, base_price, extra_person_fee, created_at FROM seasonal_pricing ORDER BY property_name, start_date');
-            $pricing = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $stmt = $pdo->query('
+                SELECT id, property_name, tier_type, specific_date, base_price, extra_person_fee, created_at, updated_at 
+                FROM pricing_tiers 
+                ORDER BY property_name, tier_type, specific_date
+            ');
+            $tiers = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             header('Content-Type: application/json');
-            echo json_encode($pricing);
+            echo json_encode($tiers);
             exit;
         } catch (\Exception $e) {
-            Response::error('Failed to fetch seasonal pricing', [$e->getMessage()], 500);
+            Response::error('Failed to fetch pricing tiers', [$e->getMessage()], 500);
         }
     }
 
-    private function createSeasonal(): void
+    private function upsertPricingTier(): void
     {
         try {
             $body = Request::getBody();
 
-            $required = ['property_name', 'start_date', 'end_date', 'base_price'];
+            $required = ['property_name', 'tier_type', 'base_price'];
             foreach ($required as $field) {
                 if (empty($body[$field])) {
                     Response::error("Missing required field: $field");
@@ -99,103 +103,92 @@ class PricingController
                 }
             }
 
-            $pdo = Connection::getInstance();
-            $stmt = $pdo->prepare('
-                INSERT INTO seasonal_pricing 
-                (property_name, label, start_date, end_date, base_price, extra_person_fee)
-                VALUES (?, ?, ?, ?, ?, ?)
-                RETURNING id, property_name, label, start_date, end_date, base_price, extra_person_fee
-            ');
+            $tierType = $body['tier_type'];
+            if (!in_array($tierType, ['single_day', 'weekend', 'yearly'])) {
+                Response::error("Invalid tier_type. Must be 'single_day', 'weekend', or 'yearly'");
+                return;
+            }
 
-            $stmt->execute([
-                $body['property_name'],
-                $body['label'] ?? 'Custom Rate',
-                $body['start_date'],
-                $body['end_date'],
-                $body['base_price'],
-                $body['extra_person_fee'] ?? null
-            ]);
+            if ($tierType === 'single_day' && empty($body['specific_date'])) {
+                Response::error("specific_date is required for single_day pricing");
+                return;
+            }
 
-            $pricing = $stmt->fetch(\PDO::FETCH_ASSOC);
-            Response::success($pricing, 'Seasonal pricing created', 201);
-        } catch (\Exception $e) {
-            Response::error('Failed to create seasonal pricing', [$e->getMessage()], 500);
-        }
-    }
-
-    private function updateSingleSeasonal(): void
-    {
-        try {
-            $body = Request::getBody();
-            $id = $body['id'] ?? ($_GET['id'] ?? null);
-
-            if (!$id) {
-                Response::error('Pricing ID required');
+            if ($tierType !== 'single_day' && !empty($body['specific_date'])) {
+                Response::error("specific_date should only be used for single_day pricing");
                 return;
             }
 
             $pdo = Connection::getInstance();
-            $updates = [];
-            $params = [];
+            $propertyName = $body['property_name'];
+            $basePrice = $body['base_price'];
+            $extraPersonFee = $body['extra_person_fee'] ?? null;
+            $specificDate = $body['specific_date'] ?? null;
 
-            if (isset($body['label'])) {
-                $updates[] = 'label = ?';
-                $params[] = $body['label'];
-            }
-            if (isset($body['start_date'])) {
-                $updates[] = 'start_date = ?';
-                $params[] = $body['start_date'];
-            }
-            if (isset($body['end_date'])) {
-                $updates[] = 'end_date = ?';
-                $params[] = $body['end_date'];
-            }
-            if (isset($body['base_price'])) {
-                $updates[] = 'base_price = ?';
-                $params[] = $body['base_price'];
-            }
-            if (isset($body['extra_person_fee'])) {
-                $updates[] = 'extra_person_fee = ?';
-                $params[] = $body['extra_person_fee'];
-            }
-
-            if (empty($updates)) {
-                Response::error('No fields to update');
+            // Check if property exists
+            $stmt = $pdo->prepare('SELECT name FROM properties WHERE name = ?');
+            $stmt->execute([$propertyName]);
+            if (!$stmt->fetch()) {
+                Response::error('Property not found');
                 return;
             }
 
-            $params[] = $id;
-            $query = 'UPDATE seasonal_pricing SET ' . implode(', ', $updates) . ' WHERE id = ?';
-            $stmt = $pdo->prepare($query);
-            $stmt->execute($params);
+            // For single_day: upsert by (property_name, tier_type, specific_date)
+            // For weekend/yearly: upsert by (property_name, tier_type)
+            if ($tierType === 'single_day') {
+                $stmt = $pdo->prepare('
+                    INSERT INTO pricing_tiers (property_name, tier_type, specific_date, base_price, extra_person_fee)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT (property_name, tier_type, specific_date) 
+                    DO UPDATE SET 
+                        base_price = EXCLUDED.base_price,
+                        extra_person_fee = EXCLUDED.extra_person_fee,
+                        updated_at = NOW()
+                    RETURNING id, property_name, tier_type, specific_date, base_price, extra_person_fee, updated_at
+                ');
+                $stmt->execute([$propertyName, $tierType, $specificDate, $basePrice, $extraPersonFee]);
+            } else {
+                $stmt = $pdo->prepare('
+                    INSERT INTO pricing_tiers (property_name, tier_type, base_price, extra_person_fee)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT (property_name, tier_type) 
+                    DO UPDATE SET 
+                        base_price = EXCLUDED.base_price,
+                        extra_person_fee = EXCLUDED.extra_person_fee,
+                        updated_at = NOW()
+                    RETURNING id, property_name, tier_type, specific_date, base_price, extra_person_fee, updated_at
+                ');
+                $stmt->execute([$propertyName, $tierType, $basePrice, $extraPersonFee]);
+            }
 
-            Response::success(null, 'Seasonal pricing updated', 200);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            Response::success($result, 'Pricing tier saved successfully', 201);
         } catch (\Exception $e) {
-            Response::error('Failed to update seasonal pricing', [$e->getMessage()], 500);
+            Response::error('Failed to save pricing tier', [$e->getMessage()], 500);
         }
     }
 
-    private function deleteSeasonal(): void
+    private function deletePricingTier(): void
     {
         try {
             $id = $_GET['id'] ?? null;
             if (!$id) {
-                Response::error('Pricing ID required');
+                Response::error('Pricing tier ID required');
                 return;
             }
 
             $pdo = Connection::getInstance();
-            $stmt = $pdo->prepare('DELETE FROM seasonal_pricing WHERE id = ?');
+            $stmt = $pdo->prepare('DELETE FROM pricing_tiers WHERE id = ?');
             $stmt->execute([$id]);
 
             if ($stmt->rowCount() === 0) {
-                Response::error('Seasonal pricing not found', null, 404);
+                Response::error('Pricing tier not found', null, 404);
                 return;
             }
 
-            Response::success(null, 'Seasonal pricing deleted', 200);
+            Response::success(null, 'Pricing tier deleted successfully', 200);
         } catch (\Exception $e) {
-            Response::error('Failed to delete seasonal pricing', [$e->getMessage()], 500);
+            Response::error('Failed to delete pricing tier', [$e->getMessage()], 500);
         }
     }
 }
