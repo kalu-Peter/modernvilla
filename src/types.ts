@@ -412,6 +412,39 @@ export interface AdminReservation {
   created_at: string;
 }
 
+export interface RevenueMonthly {
+  month: number;
+  label: string;
+  revenue: number;
+  bookings_count: number;
+}
+
+export interface RevenueYearly {
+  year: number;
+  revenue: number;
+  bookings_count: number;
+}
+
+export interface RevenueByProperty {
+  property_name: string;
+  revenue: number;
+  bookings_count: number;
+}
+
+export interface RevenueSummary {
+  year: number;
+  available_years: number[];
+  monthly: RevenueMonthly[];
+  yearly: RevenueYearly[];
+  by_property: RevenueByProperty[];
+  totals: {
+    all_time_revenue: number;
+    all_time_bookings: number;
+    selected_year_revenue: number;
+    selected_year_bookings: number;
+  };
+}
+
 export interface BlockedDate {
   id: number;
   property_name: string;

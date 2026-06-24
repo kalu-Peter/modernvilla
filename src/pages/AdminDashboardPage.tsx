@@ -12,19 +12,29 @@ const AvailabilityTab = React.lazy(() =>
   })),
 );
 
+const RevenueTab = React.lazy(() =>
+  import("../components/RevenueTab").then((m) => ({
+    default: m.RevenueTab,
+  })),
+);
+
 type Tab =
   | "reservations"
+  | "revenue"
   | "pricing-calendar"
   | "availability-blocking"
   | "currencies"
   | "users";
 type ResFilter = "all" | "pending" | "confirmed" | "cancelled";
 
-const PROPERTY_NAMES = SHELTERS.map((s) => s.name);
+const getReservationStatus = (
+  r: AdminReservation,
+): "pending" | "confirmed" | "cancelled" =>
+  r.cancelled ? "cancelled" : r.confirmed ? "confirmed" : "pending";
 
 const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { formatPrice, currency, setCurrency, rates } = useCurrency();
+  const { currency, setCurrency, rates } = useCurrency();
   const secret = sessionStorage.getItem("adminSecret") ?? "";
   const adminUser = sessionStorage.getItem("adminUser") ?? "Admin";
 
@@ -84,27 +94,19 @@ const AdminDashboardPage: React.FC = () => {
 
   const updateReservation = async (
     id: string,
-    status: string,
-    notes?: string,
+    changes: Partial<
+      Pick<AdminReservation, "confirmed" | "cancelled" | "payment_status">
+    >,
   ) => {
     setActionLoading(id);
     try {
       const res = await api("/reservations", {
         method: "PUT",
-        body: JSON.stringify({ id, status, ...(notes && { notes }) }),
+        body: JSON.stringify({ id, ...changes }),
       });
       if (res.ok) {
         setReservations((prev) =>
-          prev.map((r) =>
-            r.id === id
-              ? {
-                  ...r,
-                  status,
-                  ...(notes && { notes }),
-                  updated_at: new Date().toISOString(),
-                }
-              : r,
-          ),
+          prev.map((r) => (r.id === id ? { ...r, ...changes } : r)),
         );
       }
     } finally {
@@ -203,7 +205,7 @@ const AdminDashboardPage: React.FC = () => {
 
   // ── Calculate notification count ─────────────────────────────────────────
   const newCount = reservations.filter((r) => {
-    if (r.status !== "pending") return false;
+    if (getReservationStatus(r) !== "pending") return false;
     return new Date(r.created_at) > new Date(lastSeenAt);
   }).length;
 
@@ -262,6 +264,7 @@ const AdminDashboardPage: React.FC = () => {
             {(
               [
                 "reservations",
+                "revenue",
                 "pricing-calendar",
                 "availability-blocking",
                 "currencies",
@@ -279,13 +282,15 @@ const AdminDashboardPage: React.FC = () => {
                 <span className="adm-tab-wrap">
                   {t === "reservations"
                     ? "Reservations"
-                    : t === "pricing-calendar"
-                      ? "Pricing Calendar"
-                      : t === "availability-blocking"
-                        ? "Availability & Blocking"
-                        : t === "currencies"
-                          ? "Currencies"
-                          : "Users"}
+                    : t === "revenue"
+                      ? "Revenue"
+                      : t === "pricing-calendar"
+                        ? "Pricing Calendar"
+                        : t === "availability-blocking"
+                          ? "Availability & Blocking"
+                          : t === "currencies"
+                            ? "Currencies"
+                            : "Users"}
                   {t === "reservations" && newCount > 0 && (
                     <span className="adm-badge">{newCount}</span>
                   )}
@@ -350,50 +355,69 @@ const AdminDashboardPage: React.FC = () => {
                       {reservations
                         .filter(
                           (r) =>
-                            (resFilter === "all" || r.status === resFilter) &&
+                            (resFilter === "all" ||
+                              getReservationStatus(r) === resFilter) &&
                             (resPropFilter === "all" ||
-                              r.property === resPropFilter),
+                              r.property_name === resPropFilter),
                         )
-                        .map((r) => (
-                          <tr key={r.id}>
-                            <td>{r.guest_name}</td>
-                            <td>{r.property}</td>
-                            <td>
-                              {r.checkin} to {r.checkout}
-                            </td>
-                            <td>
-                              <span className={`adm-badge-status ${r.status}`}>
-                                {r.status}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="adm-actions">
-                                {r.status === "pending" && (
-                                  <button
-                                    className="adm-btn"
-                                    disabled={actionLoading === r.id}
-                                    onClick={() =>
-                                      updateReservation(r.id, "confirmed")
-                                    }
-                                  >
-                                    Confirm
-                                  </button>
-                                )}
-                                <button
-                                  className="adm-btn danger"
-                                  disabled={actionLoading === r.id}
-                                  onClick={() => deleteReservation(r.id)}
+                        .map((r) => {
+                          const status = getReservationStatus(r);
+                          return (
+                            <tr key={r.id}>
+                              <td>{r.name}</td>
+                              <td>{r.property_name}</td>
+                              <td>
+                                {r.checkin} to {r.checkout}
+                              </td>
+                              <td>
+                                <span
+                                  className={`adm-badge-status ${status}`}
                                 >
-                                  Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
+                                  {status}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="adm-actions">
+                                  {status === "pending" && (
+                                    <button
+                                      className="adm-btn"
+                                      disabled={actionLoading === r.id}
+                                      onClick={() =>
+                                        updateReservation(r.id, {
+                                          confirmed: true,
+                                        })
+                                      }
+                                    >
+                                      Confirm
+                                    </button>
+                                  )}
+                                  <button
+                                    className="adm-btn danger"
+                                    disabled={actionLoading === r.id}
+                                    onClick={() => deleteReservation(r.id)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 )}
               </>
+            )}
+
+            {/* ── REVENUE ───────────────────────────────────────────────── */}
+            {activeTab === "revenue" && (
+              <Suspense
+                fallback={
+                  <div style={{ padding: "24px" }}>Loading module...</div>
+                }
+              >
+                <RevenueTab />
+              </Suspense>
             )}
 
             {/* ── PRICING CALENDAR ──────────────────────────────────────── */}
@@ -418,12 +442,17 @@ const AdminDashboardPage: React.FC = () => {
                   <div className="adm-form-field">
                     <label>Display Currency</label>
                     <select
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
+                      value={currency.code}
+                      onChange={(e) => {
+                        const selected = SUPPORTED_CURRENCIES.find(
+                          (c) => c.code === e.target.value,
+                        );
+                        if (selected) setCurrency(selected);
+                      }}
                     >
                       {SUPPORTED_CURRENCIES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
+                        <option key={c.code} value={c.code}>
+                          {c.name} ({c.code})
                         </option>
                       ))}
                     </select>

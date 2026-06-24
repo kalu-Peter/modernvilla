@@ -14,6 +14,7 @@ return [
         '/api/pricing/property' => 'PricingController@getPropertyPricing',
         '/api/pricing/calendar' => 'PricingCalendarController@getCalendar',
         '/api/admin/reservations' => 'ReservationsController@update',
+        '/api/admin/revenue' => 'RevenueController@getSummary',
     ],
 
     'POST' => [
