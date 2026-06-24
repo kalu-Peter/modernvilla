@@ -9,6 +9,8 @@ return [
     'GET' => [
         '/api/properties' => 'PropertiesController@getAll',
         '/api/availability' => 'AvailabilityController@check',
+        '/api/availability/batch' => 'AvailabilityController@checkBatch',
+        '/api/pricing/property' => 'PricingController@getPropertyPricing',
         '/api/seasonal-price' => 'PricingController@getSeasonal',
         '/api/admin/auth' => 'AdminController@login',
         '/api/admin/reservations' => 'ReservationsController@update',

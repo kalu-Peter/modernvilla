@@ -8,6 +8,91 @@ use App\Helpers\Request;
 
 class PricingController
 {
+    /**
+     * Get hardcoded cleaning and monetary fees for a property
+     * Fees in KES (converted from EUR using ~130 KES/EUR rate)
+     * - Shelter A (1): 80 EUR = 10,400 KES
+     * - Shelter B (2): 80 EUR = 10,400 KES
+     * - La Maison Modern (3): 40 EUR = 5,200 KES
+     * - Refuge de la Martre (4): 40 EUR = 5,200 KES
+     */
+    private function getFeesForProperty(int $propertyId): array
+    {
+        $fees = [
+            1 => ['cleaning_fee' => 10400, 'monetary_fee' => 10400],  // Shelter A
+            2 => ['cleaning_fee' => 10400, 'monetary_fee' => 10400],  // Shelter B
+            3 => ['cleaning_fee' => 5200, 'monetary_fee' => 5200],    // La Maison Modern
+            4 => ['cleaning_fee' => 5200, 'monetary_fee' => 5200],    // Refuge de la Martre
+        ];
+        return $fees[$propertyId] ?? ['cleaning_fee' => 5200, 'monetary_fee' => 5200];
+    }
+
+    /**
+     * GET /api/pricing/property?property_id=1
+     * Returns base pricing for a property
+     */
+    public function getPropertyPricing(): void
+    {
+        try {
+            $propertyId = Request::getQueryParam('property_id');
+
+            if (!$propertyId) {
+                Response::error('Missing required parameter: property_id');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            // Verify property exists
+            $stmt = $pdo->prepare('SELECT id, name FROM properties WHERE id = ?');
+            $stmt->execute([$propertyId]);
+            $property = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$property) {
+                Response::error('Property not found');
+                return;
+            }
+
+            // Get pricing
+            $stmt = $pdo->prepare('
+                SELECT weekday_price, weekend_price, extra_person_fee, updated_at
+                FROM property_pricing
+                WHERE property_id = ?
+            ');
+            $stmt->execute([$propertyId]);
+            $pricing = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            $fees = $this->getFeesForProperty($propertyId);
+
+            if (!$pricing) {
+                Response::success([
+                    'property_id' => $propertyId,
+                    'property_name' => $property['name'],
+                    'weekday_price' => null,
+                    'weekend_price' => null,
+                    'extra_person_fee' => 0,
+                    'cleaning_fee' => $fees['cleaning_fee'],
+                    'monetary_fee' => $fees['monetary_fee'],
+                    'updated_at' => null
+                ]);
+                return;
+            }
+
+            Response::success([
+                'property_id' => $propertyId,
+                'property_name' => $property['name'],
+                'weekday_price' => floatval($pricing['weekday_price']),
+                'weekend_price' => floatval($pricing['weekend_price']),
+                'extra_person_fee' => floatval($pricing['extra_person_fee']),
+                'cleaning_fee' => $fees['cleaning_fee'],
+                'monetary_fee' => $fees['monetary_fee'],
+                'updated_at' => $pricing['updated_at']
+            ]);
+        } catch (\Exception $e) {
+            Response::error('Failed to get property pricing', [$e->getMessage()], 500);
+        }
+    }
+
     public function getSeasonal(): void
     {
         try {

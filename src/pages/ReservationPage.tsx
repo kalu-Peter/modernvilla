@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SHELTERS, getPropertyNameForShelter } from "../types";
+import { useCurrency } from "../context/CurrencyContext";
 
 function nightsBetween(a: string, b: string) {
   if (!a || !b) return 0;
@@ -37,45 +38,13 @@ function formatDate(d: string) {
   });
 }
 
-// Property rates - hardcoded for instant calculation
-const PROPERTY_RATES: Record<string, any> = {
-  "La Maison Modern": {
-    basePrice: 235,
-    weekendPrice: 195,
-    cleaningFee: 40,
-    taxPercentage: 5.5,
-    monetaryFee: 40,
-    baseGuestCount: 6,
-    additionalGuestCharge: 15,
-  },
-  "La Refuge de la Martre": {
-    basePrice: 195,
-    weekendPrice: 308,
-    cleaningFee: 40,
-    taxPercentage: 5.5,
-    monetaryFee: 40,
-    baseGuestCount: 6,
-    additionalGuestCharge: 15,
-  },
-  "Shelter A": {
-    basePrice: 76,
-    weekendPrice: 135,
-    cleaningFee: 40,
-    taxPercentage: 5.5,
-    monetaryFee: 40,
-    baseGuestCount: 6,
-    additionalGuestCharge: 15,
-  },
-  "Shelter B": {
-    basePrice: 76,
-    weekendPrice: 135,
-    cleaningFee: 40,
-    taxPercentage: 5.5,
-    monetaryFee: 40,
-    baseGuestCount: 6,
-    additionalGuestCharge: 15,
-  },
-};
+interface PropertyPricing {
+  weekday_price: number | null;
+  weekend_price: number | null;
+  extra_person_fee: number;
+  cleaning_fee: number;
+  monetary_fee: number;
+}
 
 function isWeekend(dateString: string): boolean {
   const d = new Date(dateString + "T00:00:00");
@@ -84,13 +53,12 @@ function isWeekend(dateString: string): boolean {
 }
 
 function calculateDetailedPrice(
-  propertyName: string,
+  pricing: PropertyPricing | null,
   checkin: string,
   checkout: string,
   guests: number,
 ) {
-  const rates = PROPERTY_RATES[propertyName];
-  if (!rates) return null;
+  if (!pricing || !pricing.weekday_price || !pricing.weekend_price) return null;
 
   let roomCharges = 0;
   const currentDate = new Date(checkin + "T00:00:00");
@@ -98,22 +66,23 @@ function calculateDetailedPrice(
 
   while (currentDate < endDate) {
     const dateStr = currentDate.toISOString().split("T")[0];
-    const price = isWeekend(dateStr) ? rates.weekendPrice : rates.basePrice;
+    const price = isWeekend(dateStr)
+      ? pricing.weekend_price
+      : pricing.weekday_price;
     roomCharges += price;
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
   const nights = nightsBetween(checkin, checkout);
   const guestCharges =
-    guests > rates.baseGuestCount
-      ? (guests - rates.baseGuestCount) * rates.additionalGuestCharge * nights
-      : 0;
+    guests > 6 ? (guests - 6) * pricing.extra_person_fee * nights : 0;
 
-  const cleaningFee = rates.cleaningFee;
-  const monetaryFee = rates.monetaryFee;
+  const cleaningFee = pricing.cleaning_fee;
+  const monetaryFee = pricing.monetary_fee;
+  const taxPercentage = 5.5;
+
   const subtotal = roomCharges + guestCharges + cleaningFee + monetaryFee;
-  const taxAmount =
-    Math.round(subtotal * (rates.taxPercentage / 100) * 100) / 100;
+  const taxAmount = Math.round(subtotal * (taxPercentage / 100) * 100) / 100;
   const totalPrice = Math.round((subtotal + taxAmount) * 100) / 100;
 
   return {
@@ -123,7 +92,7 @@ function calculateDetailedPrice(
       cleaningFee,
       monetaryFee,
       taxAmount,
-      taxPercentage: rates.taxPercentage,
+      taxPercentage,
     },
     totalPrice,
   };
@@ -133,11 +102,7 @@ const ReservationPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-
-  // Format EUR prices (these are already in EUR, not KES)
-  const formatEURPrice = (eur: number): string => {
-    return `€ ${eur.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  };
+  const { formatPrice } = useCurrency();
 
   const shelterId = queryParams.get("shelterId") ?? "";
   const shelter = SHELTERS.find((s) => s.id === shelterId);
@@ -183,27 +148,64 @@ const ReservationPage: React.FC = () => {
 
   // Fetch pricing from new API
   const [priceBreakdown, setPriceBreakdown] = React.useState<any>(null);
+  const [pricing, setPricing] = React.useState<PropertyPricing | null>(null);
 
   const minNights = getMinNights(shelter.id);
   const nights = nightsBetween(checkin, checkout);
 
+  // Fetch property pricing from database
   React.useEffect(() => {
-    if (checkin && checkout && shelter && guestCount > 0) {
-      const propertyName = getPropertyNameForShelter(shelter.id);
-      if (!propertyName) {
-        setPriceBreakdown(null);
-        return;
+    if (!shelter) return;
+
+    const fetchPricing = async () => {
+      try {
+        const shelterToPropertyMap: Record<string, number> = {
+          "shelter-a": 1,
+          "shelter-b": 2,
+          "la-maison-modern": 3,
+          "refuge-de-la-martre": 4,
+        };
+
+        const propertyId = shelterToPropertyMap[shelter.id];
+        if (!propertyId) {
+          setPricing(null);
+          return;
+        }
+
+        const res = await fetch(
+          `/api/pricing/property?property_id=${propertyId}`,
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setPricing({
+            weekday_price: data.data.weekday_price,
+            weekend_price: data.data.weekend_price,
+            extra_person_fee: data.data.extra_person_fee,
+            cleaning_fee: data.data.cleaning_fee || 5200,
+            monetary_fee: data.data.monetary_fee || 5200,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch pricing:", error);
+        setPricing(null);
       }
-      // Calculate pricing locally for instant display
+    };
+
+    fetchPricing();
+  }, [shelter]);
+
+  React.useEffect(() => {
+    if (checkin && checkout && pricing && guestCount > 0) {
+      // Calculate pricing with fetched data
       const breakdown = calculateDetailedPrice(
-        propertyName,
+        pricing,
         checkin,
         checkout,
         guestCount,
       );
       setPriceBreakdown(breakdown);
     }
-  }, [checkin, checkout, shelter, guestCount]);
+  }, [checkin, checkout, pricing, guestCount]);
 
   const total = priceBreakdown?.totalPrice ?? 0;
 
@@ -294,7 +296,7 @@ const ReservationPage: React.FC = () => {
         `Check-out: ${formatDate(checkout)}\n` +
         `Guests: ${guestCount}\n` +
         `Name: ${formData.firstName} ${formData.lastName}\n` +
-        `Total: ${formatEURPrice(total)}\n\n` +
+        `Total: ${formatPrice(total)}\n\n` +
         `Please confirm my reservation. Thank you!`,
     );
 
@@ -606,29 +608,27 @@ const ReservationPage: React.FC = () => {
                   )}
                 </span>
                 <span>
-                  {formatEURPrice(priceBreakdown?.breakdown?.roomCharges ?? 0)}
+                  {formatPrice(priceBreakdown?.breakdown?.roomCharges ?? 0)}
                 </span>
               </div>
               {priceBreakdown?.breakdown?.guestCharges > 0 && (
                 <div className="rp-card-line">
                   <span>Extra guests</span>
                   <span>
-                    {formatEURPrice(
-                      priceBreakdown?.breakdown?.guestCharges ?? 0,
-                    )}
+                    {formatPrice(priceBreakdown?.breakdown?.guestCharges ?? 0)}
                   </span>
                 </div>
               )}
               <div className="rp-card-line">
                 <span>Cleaning fee</span>
                 <span>
-                  {formatEURPrice(priceBreakdown?.breakdown?.cleaningFee ?? 0)}
+                  {formatPrice(priceBreakdown?.breakdown?.cleaningFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">
                 <span>Monetary fee</span>
                 <span>
-                  {formatEURPrice(priceBreakdown?.breakdown?.monetaryFee ?? 0)}
+                  {formatPrice(priceBreakdown?.breakdown?.monetaryFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">
@@ -636,13 +636,13 @@ const ReservationPage: React.FC = () => {
                   Tax ({priceBreakdown?.breakdown?.taxPercentage ?? 0}%)
                 </span>
                 <span>
-                  {formatEURPrice(priceBreakdown?.breakdown?.taxAmount ?? 0)}
+                  {formatPrice(priceBreakdown?.breakdown?.taxAmount ?? 0)}
                 </span>
               </div>
 
               <div className="rp-card-line total">
                 <span>Total</span>
-                <span>{formatEURPrice(total)}</span>
+                <span>{formatPrice(total)}</span>
               </div>
 
               <p

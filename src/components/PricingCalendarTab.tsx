@@ -47,7 +47,7 @@ interface BasePricingModalState {
 }
 
 const PricingCalendarTab: React.FC = () => {
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice, currency, rates } = useCurrency();
   const [properties, setProperties] = useState<PropertyInfo[]>([]);
   const [selectedPropertyId, setSelectedPropertyId] = useState<number | null>(
     null,
@@ -82,6 +82,13 @@ const PricingCalendarTab: React.FC = () => {
     });
 
   const secret = sessionStorage.getItem("adminSecret") ?? "";
+
+  // ── Currency conversion: from selected currency to KES ──────────────────
+  const convertToKES = (priceInSelectedCurrency: number): number => {
+    if (currency.code === "KES") return priceInSelectedCurrency;
+    const rate = rates[currency.code] ?? 1;
+    return priceInSelectedCurrency / rate;
+  };
 
   // ── Fetch initial properties ────────────────────────────────────────────
   useEffect(() => {
@@ -150,11 +157,22 @@ const PricingCalendarTab: React.FC = () => {
   // ── Base pricing modal handlers ────────────────────────────────────
   const openBasePricingModal = () => {
     if (!basePricing) return;
+    // Convert from KES to selected currency for display
+    const rate = rates[currency.code] ?? 1;
     setBasePricingModal({
       isOpen: true,
-      weekdayPrice: basePricing.weekday_price?.toString() || "",
-      weekendPrice: basePricing.weekend_price?.toString() || "",
-      extraPersonFee: basePricing.extra_person_fee?.toString() || "0",
+      weekdayPrice: (basePricing.weekday_price
+        ? basePricing.weekday_price * rate
+        : 0
+      ).toFixed(2),
+      weekendPrice: (basePricing.weekend_price
+        ? basePricing.weekend_price * rate
+        : 0
+      ).toFixed(2),
+      extraPersonFee: (basePricing.extra_person_fee
+        ? basePricing.extra_person_fee * rate
+        : 0
+      ).toFixed(2),
     });
   };
 
@@ -180,6 +198,16 @@ const PricingCalendarTab: React.FC = () => {
 
     setSaving(true);
     try {
+      const weekdayInKES = convertToKES(
+        parseFloat(basePricingModal.weekdayPrice),
+      );
+      const weekendInKES = convertToKES(
+        parseFloat(basePricingModal.weekendPrice),
+      );
+      const extraFeeInKES = convertToKES(
+        parseFloat(basePricingModal.extraPersonFee) || 0,
+      );
+
       const response = await fetch("/api/pricing/update_base", {
         method: "POST",
         headers: {
@@ -188,9 +216,9 @@ const PricingCalendarTab: React.FC = () => {
         },
         body: JSON.stringify({
           property_id: selectedPropertyId,
-          weekday_price: parseFloat(basePricingModal.weekdayPrice),
-          weekend_price: parseFloat(basePricingModal.weekendPrice),
-          extra_person_fee: parseFloat(basePricingModal.extraPersonFee) || 0,
+          weekday_price: weekdayInKES,
+          weekend_price: weekendInKES,
+          extra_person_fee: extraFeeInKES,
         }),
       });
 
@@ -316,6 +344,9 @@ const PricingCalendarTab: React.FC = () => {
 
     setSaving(true);
     try {
+      const priceInSelectedCurrency = parseFloat(editModal.price);
+      const priceInKES = convertToKES(priceInSelectedCurrency);
+
       const response = await fetch("/api/pricing/save_override", {
         method: "POST",
         headers: {
@@ -325,7 +356,7 @@ const PricingCalendarTab: React.FC = () => {
         body: JSON.stringify({
           property_id: selectedPropertyId,
           override_date: editModal.date,
-          price: parseFloat(editModal.price),
+          price: priceInKES,
           reason: editModal.reason || null,
         }),
       });
@@ -1026,10 +1057,18 @@ const PricingCalendarTab: React.FC = () => {
                   <strong>Yes</strong>
                 </div>
               )}
+              <div className="pricing-modal-info-row">
+                <span>
+                  Enter price in:{" "}
+                  <strong>
+                    {currency.symbol} {currency.code}
+                  </strong>
+                </span>
+              </div>
             </div>
 
             <div className="pricing-modal-form-group">
-              <label>New Price</label>
+              <label>New Price ({currency.code})</label>
               <input
                 type="number"
                 min="0.01"
@@ -1038,7 +1077,7 @@ const PricingCalendarTab: React.FC = () => {
                 onChange={(e) =>
                   setEditModal({ ...editModal, price: e.target.value })
                 }
-                placeholder="Enter price"
+                placeholder={`Enter price in ${currency.code}`}
               />
             </div>
 
@@ -1092,10 +1131,18 @@ const PricingCalendarTab: React.FC = () => {
               <div className="pricing-modal-info-row">
                 <span>These prices apply to all dates unless overridden</span>
               </div>
+              <div className="pricing-modal-info-row">
+                <span>
+                  Prices entered in:{" "}
+                  <strong>
+                    {currency.symbol} {currency.code}
+                  </strong>
+                </span>
+              </div>
             </div>
 
             <div className="pricing-modal-form-group">
-              <label>Weekday Price</label>
+              <label>Weekday Price ({currency.code})</label>
               <input
                 type="number"
                 min="0.01"
@@ -1107,12 +1154,12 @@ const PricingCalendarTab: React.FC = () => {
                     weekdayPrice: e.target.value,
                   })
                 }
-                placeholder="Enter weekday price"
+                placeholder={`Enter weekday price in ${currency.code}`}
               />
             </div>
 
             <div className="pricing-modal-form-group">
-              <label>Weekend Price</label>
+              <label>Weekend Price ({currency.code})</label>
               <input
                 type="number"
                 min="0.01"
@@ -1124,12 +1171,12 @@ const PricingCalendarTab: React.FC = () => {
                     weekendPrice: e.target.value,
                   })
                 }
-                placeholder="Enter weekend price"
+                placeholder={`Enter weekend price in ${currency.code}`}
               />
             </div>
 
             <div className="pricing-modal-form-group">
-              <label>Extra Person Fee (Optional)</label>
+              <label>Extra Person Fee ({currency.code}) - Optional</label>
               <input
                 type="number"
                 min="0"
@@ -1141,7 +1188,7 @@ const PricingCalendarTab: React.FC = () => {
                     extraPersonFee: e.target.value,
                   })
                 }
-                placeholder="Enter extra person fee"
+                placeholder={`Enter extra person fee in ${currency.code}`}
               />
             </div>
 

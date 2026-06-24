@@ -25,6 +25,8 @@ interface ShelterStatus {
   shelterId: string;
   available: boolean;
   price: number | null;
+  cleaningFee?: number;
+  monetaryFee?: number;
 }
 
 const SearchResultsPage: React.FC = () => {
@@ -64,42 +66,68 @@ const SearchResultsPage: React.FC = () => {
       setLoading(true);
       const results: Record<string, ShelterStatus> = {};
 
-      await Promise.all(
-        SHELTERS.map(async (shelter) => {
-          let available = shelter.isAvailable !== false;
-          if (available) {
-            try {
-              const params = new URLSearchParams({
-                property: shelter.name,
-                checkin,
-                checkout,
-              });
-              const res = await fetch(`/api/availability?${params}`);
-              if (res.ok) {
-                const data = await res.json();
-                available = !!data.available;
-              }
-            } catch {
-              /* keep available=true on network error */
-            }
-          }
+      try {
+        // Use the new batch endpoint for better performance
+        const params = new URLSearchParams({
+          checkin,
+          checkout,
+        });
+        const res = await fetch(`/api/availability/batch?${params}`);
 
-          let price: number | null = null;
-          try {
-            const res = await fetch(
-              `/api/pricing?action=seasonal&shelterId=${encodeURIComponent(shelter.id)}&checkin=${checkin}`,
+        if (res.ok) {
+          const data = await res.json();
+
+          // Map the batch results to shelters
+          SHELTERS.forEach((shelter) => {
+            const propertyData = data.data.properties.find(
+              (p: any) => p.name === shelter.name,
             );
-            if (res.ok) {
-              const data = await res.json();
-              price = data.price ?? null;
-            }
-          } catch {
-            /* fallback to base */
-          }
 
-          results[shelter.id] = { shelterId: shelter.id, available, price };
-        }),
-      );
+            let available = shelter.isAvailable !== false;
+            let price: number | null = null;
+            let cleaningFee = 5200;
+            let monetaryFee = 5200;
+
+            if (propertyData) {
+              available = propertyData.available;
+
+              // Calculate price based on first night (simplified)
+              if (propertyData.pricing) {
+                const firstNightDate = new Date(checkin);
+                const dayOfWeek = firstNightDate.getDay();
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+                price = isWeekend
+                  ? propertyData.pricing.weekend_price
+                  : propertyData.pricing.weekday_price;
+
+                cleaningFee = propertyData.pricing.cleaning_fee || 5200;
+                monetaryFee = propertyData.pricing.monetary_fee || 5200;
+              }
+            }
+
+            results[shelter.id] = {
+              shelterId: shelter.id,
+              available,
+              price,
+              cleaningFee,
+              monetaryFee,
+            };
+          });
+        }
+      } catch (error) {
+        console.error("Failed to check availability:", error);
+        // Fallback: assume all are available
+        SHELTERS.forEach((shelter) => {
+          results[shelter.id] = {
+            shelterId: shelter.id,
+            available: true,
+            price: null,
+            cleaningFee: 5200,
+            monetaryFee: 5200,
+          };
+        });
+      }
 
       setStatuses(results);
       setLoading(false);
@@ -257,6 +285,14 @@ const SearchResultsPage: React.FC = () => {
               const pricePerNight =
                 status?.price ?? shelter.pricing[0]?.basePrice ?? 0;
               const totalBase = pricePerNight * nights;
+              const cleaningFee = status?.cleaningFee ?? 5200;
+              const monetaryFee = status?.monetaryFee ?? 5200;
+              const taxPercentage = 5.5;
+              const subtotal = totalBase + cleaningFee + monetaryFee;
+              const taxAmount =
+                Math.round(subtotal * (taxPercentage / 100) * 100) / 100;
+              const totalWithFees =
+                Math.round((subtotal + taxAmount) * 100) / 100;
               return (
                 <div key={shelter.id} className="sr-card">
                   <div className="sr-card-img">
@@ -288,7 +324,7 @@ const SearchResultsPage: React.FC = () => {
                     </div>
                     <div className="sr-card-price">
                       <div className="sr-card-price-total">
-                        {formatPrice(totalBase)}
+                        {formatPrice(totalWithFees)}
                       </div>
                       <div className="sr-card-price-sub">
                         {formatPrice(pricePerNight)} / night

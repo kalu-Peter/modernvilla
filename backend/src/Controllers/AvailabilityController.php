@@ -8,6 +8,25 @@ use App\Helpers\Request;
 
 class AvailabilityController
 {
+    /**
+     * Get hardcoded cleaning and monetary fees for a property
+     * Fees in KES (converted from EUR using ~130 KES/EUR rate)
+     * - Shelter A (1): 80 EUR = 10,400 KES
+     * - Shelter B (2): 80 EUR = 10,400 KES
+     * - La Maison Modern (3): 40 EUR = 5,200 KES
+     * - Refuge de la Martre (4): 40 EUR = 5,200 KES
+     */
+    private function getFeesForProperty(int $propertyId): array
+    {
+        $fees = [
+            1 => ['cleaning_fee' => 10400, 'monetary_fee' => 10400],  // Shelter A
+            2 => ['cleaning_fee' => 10400, 'monetary_fee' => 10400],  // Shelter B
+            3 => ['cleaning_fee' => 5200, 'monetary_fee' => 5200],    // La Maison Modern
+            4 => ['cleaning_fee' => 5200, 'monetary_fee' => 5200],    // Refuge de la Martre
+        ];
+        return $fees[$propertyId] ?? ['cleaning_fee' => 5200, 'monetary_fee' => 5200];
+    }
+
     public function check(): void
     {
         try {
@@ -20,29 +39,141 @@ class AvailabilityController
                 return;
             }
 
+            // Get property ID from name
             $pdo = Connection::getInstance();
+            $stmt = $pdo->prepare('SELECT id FROM properties WHERE name = ?');
+            $stmt->execute([$property]);
+            $propertyResult = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            // Check for blocked dates or existing reservations
+            if (!$propertyResult) {
+                Response::error('Property not found');
+                return;
+            }
+
+            $propertyId = $propertyResult['id'];
+
+            // Check for overlapping reservations (not cancelled)
             $stmt = $pdo->prepare('
                 SELECT COUNT(*) as count FROM reservations 
-                WHERE property_name = ? 
+                WHERE property_id = ? 
                 AND cancelled = false
-                AND ((checkin < ? AND checkout > ?) OR (checkin < ? AND checkout > ?))
+                AND (
+                    (checkin::date < ?::date AND checkout::date > ?::date) OR
+                    (checkin::date <= ?::date AND checkout::date >= ?::date) OR
+                    (checkin::date < ?::date AND checkout::date > ?::date)
+                )
             ');
 
-            $stmt->execute([$property, $checkout, $checkin, $checkout, $checkin]);
-            $result = $stmt->fetch();
+            $stmt->execute([$propertyId, $checkout, $checkin, $checkin, $checkout, $checkout, $checkin]);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            $available = $result['count'] == 0;
+            if ($result && $result['count'] > 0) {
+                Response::success([
+                    'available' => false,
+                    'property' => $property,
+                    'property_id' => $propertyId,
+                    'checkin' => $checkin,
+                    'checkout' => $checkout,
+                    'reason' => 'Property is booked for these dates'
+                ]);
+                return;
+            }
 
             Response::success([
-                'available' => $available,
+                'available' => true,
                 'property' => $property,
+                'property_id' => $propertyId,
                 'checkin' => $checkin,
                 'checkout' => $checkout
             ]);
         } catch (\Exception $e) {
             Response::error('Failed to check availability', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/availability/batch?checkin=2026-06-24&checkout=2026-06-27
+     * Returns availability status for all properties
+     */
+    public function checkBatch(): void
+    {
+        try {
+            $checkin = Request::getQueryParam('checkin');
+            $checkout = Request::getQueryParam('checkout');
+
+            if (!$checkin || !$checkout) {
+                Response::error('Missing required parameters: checkin, checkout');
+                return;
+            }
+
+            // Validate date format
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $checkin) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $checkout)) {
+                Response::error('Invalid date format. Use YYYY-MM-DD');
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+
+            // Get all properties
+            $stmt = $pdo->prepare('SELECT id, name, max_guests FROM properties ORDER BY id');
+            $stmt->execute();
+            $properties = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $results = [];
+
+            foreach ($properties as $property) {
+                $propertyId = $property['id'];
+
+                // Check for overlapping reservations
+                $stmt = $pdo->prepare('
+                    SELECT COUNT(*) as count FROM reservations 
+                    WHERE property_id = ? 
+                    AND cancelled = false
+                    AND (
+                        (checkin::date < ?::date AND checkout::date > ?::date) OR
+                        (checkin::date <= ?::date AND checkout::date >= ?::date) OR
+                        (checkin::date < ?::date AND checkout::date > ?::date)
+                    )
+                ');
+
+                $stmt->execute([$propertyId, $checkout, $checkin, $checkin, $checkout, $checkout, $checkin]);
+                $reservationResult = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                $available = !($reservationResult && $reservationResult['count'] > 0);
+
+                // Get pricing for this property
+                $stmt = $pdo->prepare('
+                    SELECT weekday_price, weekend_price, extra_person_fee 
+                    FROM property_pricing 
+                    WHERE property_id = ?
+                ');
+                $stmt->execute([$propertyId]);
+                $pricing = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+                $fees = $this->getFeesForProperty($propertyId);
+
+                $results[] = [
+                    'property_id' => $propertyId,
+                    'name' => $property['name'],
+                    'max_guests' => $property['max_guests'],
+                    'available' => $available,
+                    'pricing' => $pricing ? [
+                        'weekday_price' => floatval($pricing['weekday_price']),
+                        'weekend_price' => floatval($pricing['weekend_price']),
+                        'extra_person_fee' => floatval($pricing['extra_person_fee']),
+                        'cleaning_fee' => $fees['cleaning_fee'],
+                        'monetary_fee' => $fees['monetary_fee']
+                    ] : null
+                ];
+            }
+
+            Response::success([
+                'checkin' => $checkin,
+                'checkout' => $checkout,
+                'properties' => $results
+            ]);
+        } catch (\Exception $e) {
+            Response::error('Failed to check batch availability', [$e->getMessage()], 500);
         }
     }
 
