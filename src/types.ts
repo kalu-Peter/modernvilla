@@ -38,13 +38,6 @@ export interface Reservation {
   status: "pending" | "confirmed" | "completed" | "cancelled";
 }
 
-export interface PaymentInfo {
-  phoneNumber: string;
-  amount: number;
-  reservationId: string;
-  status: "pending" | "completed" | "failed";
-}
-
 // Shelter Pricing Configuration
 export const SHELTERS: Shelter[] = [
   {

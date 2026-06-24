@@ -620,7 +620,7 @@ const AdminDashboardPage: React.FC = () => {
                       <thead>
                         <tr>
                           <th>Currency</th>
-                          <th>Rate (to KES)</th>
+                          <th>Rate (to EUR)</th>
                         </tr>
                       </thead>
                       <tbody>

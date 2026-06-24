@@ -120,7 +120,7 @@ export default async function handler(req, res) {
               </tr>
               <tr>
                 <td style="padding:16px 14px;color:#1a1a2e;font-size:0.9rem;font-weight:bold;">Total Amount</td>
-                <td style="padding:16px 14px;font-weight:bold;font-size:1.1rem;color:#c9a84c;">Ksh ${Number(total_price).toLocaleString()}</td>
+                <td style="padding:16px 14px;font-weight:bold;font-size:1.1rem;color:#c9a84c;">€${Number(total_price).toLocaleString()}</td>
               </tr>
             </table>
 
@@ -165,7 +165,7 @@ export default async function handler(req, res) {
                     <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#9098a9;margin:0 0 10px;font-weight:bold;">Guest Details</p>
                     <p style="font-size:0.9rem;font-weight:bold;margin:0 0 4px;">${name.trim()}</p>
                     <p style="font-size:0.82rem;color:#6b7280;margin:0 0 3px;">${email.trim().toLowerCase()}</p>
-                    <p style="font-size:0.82rem;color:#6b7280;margin:0;">+254${phone.trim().replace(/\D/g,'')}</p>
+                    <p style="font-size:0.82rem;color:#6b7280;margin:0;">+33${phone.trim().replace(/\D/g,'')}</p>
                   </td>
                   <td style="vertical-align:top;width:50%;padding-left:16px;border-left:1px solid #eef0f4;">
                     <p style="font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#9098a9;margin:0 0 10px;font-weight:bold;">Booking Details</p>
@@ -184,11 +184,11 @@ export default async function handler(req, res) {
                 </tr>
                 <tr style="background:#fff;">
                   <td style="padding:12px 16px;font-size:0.85rem;border-bottom:1px solid #eef0f4;">Accommodation (${nights} night${nights !== 1 ? "s" : ""})</td>
-                  <td style="text-align:right;padding:12px 16px;font-size:0.85rem;border-bottom:1px solid #eef0f4;">Ksh ${Number(total_price).toLocaleString()}</td>
+                  <td style="text-align:right;padding:12px 16px;font-size:0.85rem;border-bottom:1px solid #eef0f4;">€${Number(total_price).toLocaleString()}</td>
                 </tr>
                 <tr style="background:#1a1a2e;">
                   <td style="padding:14px 16px;font-size:0.9rem;font-weight:bold;color:#fff;">Total Due</td>
-                  <td style="text-align:right;padding:14px 16px;font-size:1rem;font-weight:bold;color:#c9a84c;">Ksh ${Number(total_price).toLocaleString()}</td>
+                  <td style="text-align:right;padding:14px 16px;font-size:1rem;font-weight:bold;color:#c9a84c;">€${Number(total_price).toLocaleString()}</td>
                 </tr>
               </table>
 
@@ -197,7 +197,7 @@ export default async function handler(req, res) {
                 <p style="font-size:0.78rem;color:#92400e;margin:6px 0 0;line-height:1.5;">Please review and confirm or decline this booking in the admin dashboard.</p>
               </div>
 
-              <a href="${process.env.SITE_URL ?? 'https://themodernrefuge.co.ke'}/admin/dashboard"
+              <a href="${process.env.SITE_URL ?? 'https://alsacehideaways.fr'}/admin/dashboard"
                  style="display:inline-block;background:#c9a84c;color:#fff;padding:12px 28px;text-decoration:none;font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;border-radius:8px;font-family:Georgia,serif;">
                 View in Dashboard →
               </a>

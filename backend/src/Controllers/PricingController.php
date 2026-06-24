@@ -10,21 +10,21 @@ class PricingController
 {
     /**
      * Get hardcoded cleaning and monetary fees for a property
-     * Fees in KES (converted from EUR using ~130 KES/EUR rate)
-     * - Shelter A (1): 80 EUR = 10,400 KES
-     * - Shelter B (2): 80 EUR = 10,400 KES
-     * - La Maison Modern (3): 40 EUR = 5,200 KES
-     * - Refuge de la Martre (4): 40 EUR = 5,200 KES
+     * Fees in EUR
+     * - Shelter A (1): 80 EUR
+     * - Shelter B (2): 80 EUR
+     * - La Maison Modern (3): 40 EUR
+     * - Refuge de la Martre (4): 40 EUR
      */
     private function getFeesForProperty(int $propertyId): array
     {
         $fees = [
-            1 => ['cleaning_fee' => 10400, 'monetary_fee' => 10400],  // Shelter A
-            2 => ['cleaning_fee' => 10400, 'monetary_fee' => 10400],  // Shelter B
-            3 => ['cleaning_fee' => 5200, 'monetary_fee' => 5200],    // La Maison Modern
-            4 => ['cleaning_fee' => 5200, 'monetary_fee' => 5200],    // Refuge de la Martre
+            1 => ['cleaning_fee' => 80, 'monetary_fee' => 80],  // Shelter A
+            2 => ['cleaning_fee' => 80, 'monetary_fee' => 80],  // Shelter B
+            3 => ['cleaning_fee' => 40, 'monetary_fee' => 40],  // La Maison Modern
+            4 => ['cleaning_fee' => 40, 'monetary_fee' => 40],  // Refuge de la Martre
         ];
-        return $fees[$propertyId] ?? ['cleaning_fee' => 5200, 'monetary_fee' => 5200];
+        return $fees[$propertyId] ?? ['cleaning_fee' => 40, 'monetary_fee' => 40];
     }
 
     /**

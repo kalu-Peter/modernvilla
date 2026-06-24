@@ -72,7 +72,7 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           id: merchantRef,
-          currency: "KES",
+          currency: "EUR",
           amount: Math.ceil(amount),
           description: description || "Shelter Reservation – Alsace Hideaways",
           callback_url: callbackUrl,

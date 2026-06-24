@@ -83,9 +83,9 @@ const PricingCalendarTab: React.FC = () => {
 
   const secret = sessionStorage.getItem("adminSecret") ?? "";
 
-  // ── Currency conversion: from selected currency to KES ──────────────────
-  const convertToKES = (priceInSelectedCurrency: number): number => {
-    if (currency.code === "KES") return priceInSelectedCurrency;
+  // ── Currency conversion: from selected currency to EUR ──────────────────
+  const convertToEUR = (priceInSelectedCurrency: number): number => {
+    if (currency.code === "EUR") return priceInSelectedCurrency;
     const rate = rates[currency.code] ?? 1;
     return priceInSelectedCurrency / rate;
   };
@@ -157,7 +157,7 @@ const PricingCalendarTab: React.FC = () => {
   // ── Base pricing modal handlers ────────────────────────────────────
   const openBasePricingModal = () => {
     if (!basePricing) return;
-    // Convert from KES to selected currency for display
+    // Convert from EUR to selected currency for display
     const rate = rates[currency.code] ?? 1;
     setBasePricingModal({
       isOpen: true,
@@ -198,13 +198,13 @@ const PricingCalendarTab: React.FC = () => {
 
     setSaving(true);
     try {
-      const weekdayInKES = convertToKES(
+      const weekdayInEUR = convertToEUR(
         parseFloat(basePricingModal.weekdayPrice),
       );
-      const weekendInKES = convertToKES(
+      const weekendInEUR = convertToEUR(
         parseFloat(basePricingModal.weekendPrice),
       );
-      const extraFeeInKES = convertToKES(
+      const extraFeeInEUR = convertToEUR(
         parseFloat(basePricingModal.extraPersonFee) || 0,
       );
 
@@ -216,9 +216,9 @@ const PricingCalendarTab: React.FC = () => {
         },
         body: JSON.stringify({
           property_id: selectedPropertyId,
-          weekday_price: weekdayInKES,
-          weekend_price: weekendInKES,
-          extra_person_fee: extraFeeInKES,
+          weekday_price: weekdayInEUR,
+          weekend_price: weekendInEUR,
+          extra_person_fee: extraFeeInEUR,
         }),
       });
 
@@ -345,7 +345,7 @@ const PricingCalendarTab: React.FC = () => {
     setSaving(true);
     try {
       const priceInSelectedCurrency = parseFloat(editModal.price);
-      const priceInKES = convertToKES(priceInSelectedCurrency);
+      const priceInEUR = convertToEUR(priceInSelectedCurrency);
 
       const response = await fetch("/api/pricing/save_override", {
         method: "POST",
@@ -356,7 +356,7 @@ const PricingCalendarTab: React.FC = () => {
         body: JSON.stringify({
           property_id: selectedPropertyId,
           override_date: editModal.date,
-          price: priceInKES,
+          price: priceInEUR,
           reason: editModal.reason || null,
         }),
       });

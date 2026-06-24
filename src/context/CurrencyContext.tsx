@@ -7,7 +7,6 @@ export interface Currency {
 }
 
 export const SUPPORTED_CURRENCIES: Currency[] = [
-  { code: "KES", symbol: "Ksh", name: "Kenyan Shilling" },
   { code: "USD", symbol: "$",   name: "US Dollar" },
   { code: "GBP", symbol: "£",   name: "British Pound" },
   { code: "EUR", symbol: "€",   name: "Euro" },
@@ -29,8 +28,8 @@ export const SUPPORTED_CURRENCIES: Currency[] = [
 interface CurrencyContextValue {
   currency: Currency;
   setCurrency: (c: Currency) => void;
-  /** Convert a KES amount to the selected currency and format it */
-  formatPrice: (kes: number) => string;
+  /** Convert a EUR amount to the selected currency and format it */
+  formatPrice: (eur: number) => string;
   rates: Record<string, number>;
   loading: boolean;
 }
@@ -41,27 +40,27 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrency] = useState<Currency>(
     SUPPORTED_CURRENCIES.find((c) => c.code === "EUR") ?? SUPPORTED_CURRENCIES[0]
   );
-  const [rates, setRates] = useState<Record<string, number>>({ KES: 1 });
+  const [rates, setRates] = useState<Record<string, number>>({ EUR: 1 });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    fetch("https://open.er-api.com/v6/latest/KES")
+    fetch("https://open.er-api.com/v6/latest/EUR")
       .then((r) => r.json())
       .then((data) => {
-        if (data?.rates) setRates({ KES: 1, ...data.rates });
+        if (data?.rates) setRates({ EUR: 1, ...data.rates });
       })
       .catch(() => {
-        // silently fall back to KES-only
+        // silently fall back to EUR-only
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const formatPrice = (kes: number): string => {
+  const formatPrice = (eur: number): string => {
     const rate = rates[currency.code] ?? 1;
-    const converted = kes * rate;
+    const converted = eur * rate;
     const formatted =
-      ["KES","TZS","UGX","CLP"].includes(currency.code)
+      ["TZS","UGX","CLP"].includes(currency.code)
         ? Math.round(converted).toLocaleString()
         : converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `${currency.symbol} ${formatted}`;

@@ -181,8 +181,8 @@ const ReservationPage: React.FC = () => {
             weekday_price: data.data.weekday_price,
             weekend_price: data.data.weekend_price,
             extra_person_fee: data.data.extra_person_fee,
-            cleaning_fee: data.data.cleaning_fee || 5200,
-            monetary_fee: data.data.monetary_fee || 5200,
+            cleaning_fee: data.data.cleaning_fee || 40,
+            monetary_fee: data.data.monetary_fee || 40,
           });
         }
       } catch (error) {
@@ -547,11 +547,11 @@ const ReservationPage: React.FC = () => {
               <div className="rp-field">
                 <label>Phone Number</label>
                 <div className="rp-phone-wrap">
-                  <span className="rp-phone-prefix">+254</span>
+                  <span className="rp-phone-prefix">+33</span>
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="700 000 000"
+                    placeholder="6 12 34 56 78"
                     value={formData.phone}
                     onChange={handleChange}
                     autoComplete="tel"
