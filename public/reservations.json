@@ -1,8 +1,8 @@
 [
   {
     "id": "res-001",
-    "villaId": "blue-villa",
-    "villaName": "Blue Villa",
+    "shelterId": "blue-villa",
+    "shelterName": "Blue Villa",
     "guestCount": 2,
     "checkInDate": "2026-03-03",
     "checkOutDate": "2026-03-06",
@@ -14,8 +14,8 @@
   },
   {
     "id": "res-002",
-    "villaId": "green-villa",
-    "villaName": "Green Villa",
+    "shelterId": "green-villa",
+    "shelterName": "Green Villa",
     "guestCount": 4,
     "checkInDate": "2026-03-14",
     "checkOutDate": "2026-03-16",
@@ -27,8 +27,8 @@
   },
   {
     "id": "res-003",
-    "villaId": "yellow-villa",
-    "villaName": "Yellow Villa",
+    "shelterId": "yellow-villa",
+    "shelterName": "Yellow Villa",
     "guestCount": 2,
     "checkInDate": "2026-04-10",
     "checkOutDate": "2026-04-12",

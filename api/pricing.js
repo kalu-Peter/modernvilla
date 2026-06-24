@@ -76,18 +76,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { property, checkin, checkout, guests, villaId, action } = req.query;
+  const { property, checkin, checkout, guests, shelterId, action } = req.query;
 
-  // GET /api/pricing?action=seasonal&villaId=xxx&checkin=xxx
+  // GET /api/pricing?action=seasonal&shelterId=xxx&checkin=xxx
   if (action === "seasonal") {
-    if (!villaId || !checkin) {
-      return res.status(400).json({ error: "villaId and checkin are required" });
+    if (!shelterId || !checkin) {
+      return res.status(400).json({ error: "shelterId and checkin are required" });
     }
 
     const { data, error } = await supabase
       .from("seasonal_pricing")
       .select("price_per_night, label")
-      .eq("villa_id", villaId)
+      .eq("shelter_id", shelterId)
       .lte("start_date", checkin)
       .gte("end_date", checkin)
       .order("created_at", { ascending: false })

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import type { Villa } from "../types";
+import type { Shelter } from "../types";
 
-interface VillaCardProps {
-  villa: Villa;
-  onSelectVilla: (villa: Villa) => void;
+interface ShelterCardProps {
+  shelter: Shelter;
+  onSelectShelter: (shelter: Shelter) => void;
 }
 
 const BedIcon = () => (
@@ -59,9 +59,14 @@ const BathIcon = () => (
   </svg>
 );
 
-const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
+const ShelterCard: React.FC<ShelterCardProps> = ({
+  shelter,
+  onSelectShelter,
+}) => {
   const images =
-    villa.gallery && villa.gallery.length > 0 ? villa.gallery : [villa.image];
+    shelter.gallery && shelter.gallery.length > 0
+      ? shelter.gallery
+      : [shelter.image];
   const [imgIndex, setImgIndex] = useState(0);
 
   const prev = (e: React.MouseEvent) => {
@@ -75,14 +80,14 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
 
   return (
     <div
-      className="villa-card reveal"
-      onClick={() => onSelectVilla(villa)}
+      className="shelter-card reveal"
+      onClick={() => onSelectShelter(shelter)}
       style={{ cursor: "pointer" }}
     >
-      <div className="villa-card-image" style={{ position: "relative" }}>
+      <div className="shelter-card-image" style={{ position: "relative" }}>
         <img
           src={images[imgIndex]}
-          alt={villa.name}
+          alt={shelter.name}
           loading="lazy"
           decoding="async"
         />
@@ -110,45 +115,45 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
         )}
       </div>
 
-      <div className="villa-card-header">
-        <h3>{villa.name}</h3>
-        <div className="villa-amenity-chips">
-          <span className="villa-amenity-chip">AC</span>
-          <span className="villa-amenity-chip">Kitchen</span>
-          <span className="villa-amenity-chip">WiFi</span>
-          <span className="villa-amenity-chip">Laundry</span>
+      <div className="shelter-card-header">
+        <h3>{shelter.name}</h3>
+        <div className="shelter-amenity-chips">
+          <span className="shelter-amenity-chip">AC</span>
+          <span className="shelter-amenity-chip">Kitchen</span>
+          <span className="shelter-amenity-chip">WiFi</span>
+          <span className="shelter-amenity-chip">Laundry</span>
         </div>
       </div>
 
-      <div className="villa-card-content">
+      <div className="shelter-card-content">
         {/* Icon chips row */}
-        <div className="villa-meta-chips">
-          {villa.bedrooms && (
-            <span className="villa-chip">
+        <div className="shelter-meta-chips">
+          {shelter.bedrooms && (
+            <span className="shelter-chip">
               <BedIcon />
-              {villa.bedrooms} Bedroom{villa.bedrooms > 1 ? "s" : ""}
+              {shelter.bedrooms} Bedroom{shelter.bedrooms > 1 ? "s" : ""}
             </span>
           )}
-          {villa.beds && (
-            <span className="villa-chip">
+          {shelter.beds && (
+            <span className="shelter-chip">
               <BedIcon />
-              {villa.beds} Bed{villa.beds > 1 ? "s" : ""}
+              {shelter.beds} Bed{shelter.beds > 1 ? "s" : ""}
             </span>
           )}
-          {villa.bathrooms && (
-            <span className="villa-chip">
+          {shelter.bathrooms && (
+            <span className="shelter-chip">
               <BathIcon />
-              {villa.bathrooms} Bath
+              {shelter.bathrooms} Bath
             </span>
           )}
-          <span className="villa-chip">
+          <span className="shelter-chip">
             <GuestIcon />
-            Max {villa.maxGuests}
+            Max {shelter.maxGuests}
           </span>
         </div>
 
-        <div className="villa-card-buttons">
-          {villa.openingSoon ? (
+        <div className="shelter-card-buttons">
+          {shelter.openingSoon ? (
             <span
               style={{
                 fontFamily: "'Josefin Sans', sans-serif",
@@ -166,11 +171,11 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
             </span>
           ) : (
             <button
-              onClick={() => villa.isAvailable && onSelectVilla(villa)}
-              disabled={!villa.isAvailable}
+              onClick={() => shelter.isAvailable && onSelectShelter(shelter)}
+              disabled={!shelter.isAvailable}
               style={{
-                background: villa.isAvailable ? "#6b7280" : "transparent",
-                color: villa.isAvailable ? "#fff" : "#6b7280",
+                background: shelter.isAvailable ? "#6b7280" : "transparent",
+                color: shelter.isAvailable ? "#fff" : "#6b7280",
                 fontFamily: "'Josefin Sans', sans-serif",
                 fontSize: "0.78rem",
                 fontWeight: 700,
@@ -179,8 +184,8 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
                 border: "1.5px solid #6b7280",
                 borderRadius: 6,
                 padding: "7px 18px",
-                cursor: villa.isAvailable ? "pointer" : "default",
-                opacity: villa.isAvailable ? 1 : 0.4,
+                cursor: shelter.isAvailable ? "pointer" : "default",
+                opacity: shelter.isAvailable ? 1 : 0.4,
                 transition: "background 0.2s, color 0.2s",
               }}
             >
@@ -193,4 +198,4 @@ const VillaCard: React.FC<VillaCardProps> = ({ villa, onSelectVilla }) => {
   );
 };
 
-export default VillaCard;
+export default ShelterCard;

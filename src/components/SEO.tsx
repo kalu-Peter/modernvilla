@@ -23,7 +23,7 @@ export default function SEO({
     : "Alsace Hideaways — Luxury Holiday Rentals in Strasbourg, France";
   const metaDesc =
     description ??
-    "Discover exceptional holiday properties across Strasbourg, France. Alsace Hideaways offers handpicked retreats — from serene countryside villas to elegant woodland escapes.";
+    "Discover exceptional holiday properties across Strasbourg, France. Alsace Hideaways offers handpicked retreats — from serene countryside shelters to elegant woodland escapes.";
   const metaImage = image
     ? image.startsWith("http")
       ? image

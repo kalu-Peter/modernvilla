@@ -1,14 +1,14 @@
-// Villa Types and Constants
+// Shelter Types and Constants
 export interface PricingTier {
   baseGuests: number;     // guests included in the base price
   basePrice: number;      // flat nightly rate for up to baseGuests
   extraPersonFee: number; // added per person beyond baseGuests (0 = no extras)
 }
 
-export interface Villa {
+export interface Shelter {
   id: string;
   name: string;
-  type: 'Villa' | 'Lodge' | 'Apartment' | 'Bungalow';
+  type: 'Shelter' | 'Lodge' | 'Apartment' | 'Bungalow';
   maxGuests: number;
   description: string;
   isAvailable: boolean;
@@ -26,8 +26,8 @@ export interface Villa {
 
 export interface Reservation {
   id: string;
-  villaId: string;
-  villaName: string;
+  shelterId: string;
+  shelterName: string;
   guestCount: number;
   checkInDate: string;
   checkOutDate: string;
@@ -45,12 +45,12 @@ export interface PaymentInfo {
   status: "pending" | "completed" | "failed";
 }
 
-// Villa Pricing Configuration
-export const VILLAS: Villa[] = [
+// Shelter Pricing Configuration
+export const SHELTERS: Shelter[] = [
   {
     id: "shelter-a",
     name: "Shelter A - Griesheim-près-Molsheim, France",
-    type: "Villa",
+    type: "Shelter",
     bedrooms: 3,
     beds: 7,
     bathrooms: 1,
@@ -107,7 +107,7 @@ export const VILLAS: Villa[] = [
   {
     id: "shelter-b",
     name: "Shelter B - Griesheim-près-Molsheim, France",
-    type: "Villa",
+    type: "Shelter",
     bedrooms: 3,
     beds: 7,
     bathrooms: 1,
@@ -178,7 +178,7 @@ export const VILLAS: Villa[] = [
   {
     id: "la-maison-modern",
     name: "La Maison Modern - Griesheim-près-Molsheim, France",
-    type: "Villa",
+    type: "Shelter",
     bedrooms: 5,
     beds: 13,
     bathrooms: 2,
@@ -269,7 +269,7 @@ export const VILLAS: Villa[] = [
   {
     id: "refuge-de-la-martre",
     name: "Refuge de la Martre - Griesheim-près-Molsheim, France",
-    type: "Villa",
+    type: "Shelter",
     bedrooms: 6,
     beds: 14,
     bathrooms: 2,
@@ -368,28 +368,28 @@ export const VILLAS: Villa[] = [
   },
 ];
 
-// Helper function to get per-night price for a villa and guest count
-export const getVillaPrice = (villaId: string, guestCount: number): number | null => {
-  const villa = VILLAS.find((v) => v.id === villaId);
-  if (!villa) return null;
-  if (guestCount < 1 || guestCount > villa.maxGuests) return null;
+// Helper function to get per-night price for a shelter and guest count
+export const getShelterPrice = (shelterId: string, guestCount: number): number | null => {
+  const shelter = SHELTERS.find((s) => s.id === shelterId);
+  if (!shelter) return null;
+  if (guestCount < 1 || guestCount > shelter.maxGuests) return null;
 
-  const tier = villa.pricing[0];
+  const tier = shelter.pricing[0];
   if (!tier) return null;
 
   if (guestCount <= tier.baseGuests) return tier.basePrice;
   return tier.basePrice + (guestCount - tier.baseGuests) * tier.extraPersonFee;
 };
 
-// Mapping from villa ID to property name in database
-export const getPropertyNameForVilla = (villaId: string): string | null => {
+// Mapping from shelter ID to property name in database
+export const getPropertyNameForShelter = (shelterId: string): string | null => {
   const mapping: Record<string, string> = {
     "shelter-a": "Shelter A",
     "shelter-b": "Shelter B",
     "la-maison-modern": "La Maison Modern",
     "refuge-de-la-martre": "La Refuge de la Martre",
   };
-  return mapping[villaId] ?? null;
+  return mapping[shelterId] ?? null;
 };
 
 // ─── Admin Types ───────────────────────────────────────────────────────────────
@@ -430,7 +430,7 @@ export interface PricingRow {
 
 export interface SeasonalPricingRule {
   id: number;
-  villa_id: string;
+  shelter_id: string;
   label: string;
   start_date: string;
   end_date: string;

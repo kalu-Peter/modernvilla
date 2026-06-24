@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { VILLAS } from "../types";
+import { SHELTERS } from "../types";
 import type {
   AdminReservation,
   BlockedDate,
@@ -16,7 +16,7 @@ type Tab =
   | "users";
 type ResFilter = "all" | "pending" | "confirmed" | "cancelled";
 
-const PROPERTY_NAMES = VILLAS.map((v) => v.name);
+const PROPERTY_NAMES = SHELTERS.map((s) => s.name);
 
 const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -160,7 +160,7 @@ const AdminDashboardPage: React.FC = () => {
   // ── Seasonal Pricing ──────────────────────────────────────────────────────
   const [seasonalRules, setSeasonalRules] = useState<SeasonalPricingRule[]>([]);
 
-  const [seasonalVilla, setSeasonalVilla] = useState(VILLAS[0].id);
+  const [seasonalShelter, setSeasonalShelter] = useState(SHELTERS[0].id);
   const [calEditRule, setCalEditRule] = useState<SeasonalPricingRule | null>(
     null,
   );
@@ -186,7 +186,7 @@ const AdminDashboardPage: React.FC = () => {
   const calPriceForDate = (dateStr: string): SeasonalPricingRule | null =>
     seasonalRules.find(
       (r) =>
-        r.villa_id === seasonalVilla &&
+        r.shelter_id === seasonalShelter &&
         dateStr >= r.start_date.slice(0, 10) &&
         dateStr <= r.end_date.slice(0, 10),
     ) ?? null;
@@ -362,7 +362,7 @@ const AdminDashboardPage: React.FC = () => {
             const res = await api("/seasonal-pricing", {
               method: "POST",
               body: JSON.stringify({
-                villa_id: seasonalVilla,
+                shelter_id: seasonalShelter,
                 label: calLabel || "Weekend Rate",
                 start_date: start,
                 end_date: end,
@@ -418,7 +418,7 @@ const AdminDashboardPage: React.FC = () => {
           const res = await api("/seasonal-pricing", {
             method: "POST",
             body: JSON.stringify({
-              villa_id: seasonalVilla,
+              shelter_id: seasonalShelter,
               label: calLabel || "Monthly Rate",
               start_date: start,
               end_date: end,
@@ -468,7 +468,7 @@ const AdminDashboardPage: React.FC = () => {
           const res = await api("/seasonal-pricing", {
             method: "POST",
             body: JSON.stringify({
-              villa_id: seasonalVilla,
+              shelter_id: seasonalShelter,
               label: calLabel || "Custom Rate",
               start_date: calRangeStart!,
               end_date: end,
@@ -516,9 +516,9 @@ const AdminDashboardPage: React.FC = () => {
   };
 
   const fetchSeasonalPricing = useCallback(
-    async (villaId: string) => {
+    async (shelterId: string) => {
       const res = await api(
-        `/seasonal-pricing?villa_id=${encodeURIComponent(villaId)}`,
+        `/seasonal-pricing?shelter_id=${encodeURIComponent(shelterId)}`,
       );
       if (res.ok) setSeasonalRules(await res.json());
     },
@@ -584,7 +584,7 @@ const AdminDashboardPage: React.FC = () => {
       fetchBlockedDates();
       fetchIcalUrls();
     }
-    if (activeTab === "seasonal-pricing") fetchSeasonalPricing(seasonalVilla);
+    if (activeTab === "seasonal-pricing") fetchSeasonalPricing(seasonalShelter);
     if (activeTab === "users") fetchUsers();
   }, [
     activeTab,
@@ -593,7 +593,7 @@ const AdminDashboardPage: React.FC = () => {
     fetchIcalUrls,
     fetchSeasonalPricing,
     fetchUsers,
-    seasonalVilla,
+    seasonalShelter,
   ]);
 
   useEffect(() => {
@@ -1917,17 +1917,17 @@ const AdminDashboardPage: React.FC = () => {
                       >
                         <select
                           className="adm-select"
-                          value={seasonalVilla}
+                          value={seasonalShelter}
                           onChange={(e) => {
-                            setSeasonalVilla(e.target.value);
+                            setSeasonalShelter(e.target.value);
                             fetchSeasonalPricing(e.target.value);
                             setCalRangeStart(null);
                             setCalRangeEnd(null);
                           }}
                         >
-                          {VILLAS.map((v) => (
-                            <option key={v.id} value={v.id}>
-                              {v.name}
+                          {SHELTERS.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name}
                             </option>
                           ))}
                         </select>

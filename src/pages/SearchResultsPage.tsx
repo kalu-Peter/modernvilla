@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { VILLAS } from "../types";
+import { SHELTERS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
 import { useCurrency } from "../context/CurrencyContext";
 
@@ -21,8 +21,8 @@ function fmtDate(d: string) {
   });
 }
 
-interface VillaStatus {
-  villaId: string;
+interface ShelterStatus {
+  shelterId: string;
   available: boolean;
   price: number | null;
 }
@@ -37,7 +37,7 @@ const SearchResultsPage: React.FC = () => {
   const guests = Number(searchParams.get("guests") ?? 1);
   const nights = nightsBetween(checkin, checkout);
 
-  const [statuses, setStatuses] = useState<Record<string, VillaStatus>>({});
+  const [statuses, setStatuses] = useState<Record<string, ShelterStatus>>({});
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navVisible, setNavVisible] = useState(true);
@@ -62,15 +62,15 @@ const SearchResultsPage: React.FC = () => {
 
     const checkAll = async () => {
       setLoading(true);
-      const results: Record<string, VillaStatus> = {};
+      const results: Record<string, ShelterStatus> = {};
 
       await Promise.all(
-        VILLAS.map(async (villa) => {
-          let available = villa.isAvailable !== false;
+        SHELTERS.map(async (shelter) => {
+          let available = shelter.isAvailable !== false;
           if (available) {
             try {
               const params = new URLSearchParams({
-                property: villa.name,
+                property: shelter.name,
                 checkin,
                 checkout,
               });
@@ -87,7 +87,7 @@ const SearchResultsPage: React.FC = () => {
           let price: number | null = null;
           try {
             const res = await fetch(
-              `/api/pricing?action=seasonal&villaId=${encodeURIComponent(villa.id)}&checkin=${checkin}`,
+              `/api/pricing?action=seasonal&shelterId=${encodeURIComponent(shelter.id)}&checkin=${checkin}`,
             );
             if (res.ok) {
               const data = await res.json();
@@ -97,7 +97,7 @@ const SearchResultsPage: React.FC = () => {
             /* fallback to base */
           }
 
-          results[villa.id] = { villaId: villa.id, available, price };
+          results[shelter.id] = { shelterId: shelter.id, available, price };
         }),
       );
 
@@ -108,16 +108,16 @@ const SearchResultsPage: React.FC = () => {
     checkAll();
   }, [checkin, checkout]);
 
-  const handleReserve = (villaId: string) => {
+  const handleReserve = (shelterId: string) => {
     navigate(
-      `/reservation?villaId=${villaId}&guestCount=${guests}&checkin=${checkin}&checkout=${checkout}`,
+      `/reservation?shelterId=${shelterId}&guestCount=${guests}&checkin=${checkin}&checkout=${checkout}`,
     );
   };
 
-  // Only show villas that are available and not opening soon
-  const visibleVillas = VILLAS.filter((villa) => {
-    if (villa.openingSoon) return false;
-    const s = statuses[villa.id];
+  // Only show shelters that are available and not opening soon
+  const visibleShelters = SHELTERS.filter((shelter) => {
+    if (shelter.openingSoon) return false;
+    const s = statuses[shelter.id];
     return s?.available ?? true;
   });
 
@@ -197,7 +197,7 @@ const SearchResultsPage: React.FC = () => {
         </Link>
         <ul className="sr-nav-links">
           <li>
-            <a href="/#villas">Villas</a>
+            <a href="/#shelters">Shelters</a>
           </li>
           <li>
             <Link to="/gallery">Gallery</Link>
@@ -219,8 +219,8 @@ const SearchResultsPage: React.FC = () => {
       </nav>
 
       <div className={`mobile-menu${mobileMenuOpen ? " open" : ""}`}>
-        <a href="/#villas" onClick={() => setMobileMenuOpen(false)}>
-          Villas
+        <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
+          Shelters
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
           Gallery
@@ -232,7 +232,7 @@ const SearchResultsPage: React.FC = () => {
 
       <div className="sr-wrap">
         <div className="sr-header">
-          <h1 className="sr-title">Available Villas</h1>
+          <h1 className="sr-title">Available Shelters</h1>
           <div className="sr-subtitle">
             {fmtDate(checkin)} — {fmtDate(checkout)} &nbsp;·&nbsp; {nights}{" "}
             night{nights !== 1 ? "s" : ""} &nbsp;·&nbsp; {guests} guest
@@ -242,9 +242,9 @@ const SearchResultsPage: React.FC = () => {
 
         {loading ? (
           <div className="sr-loading">Checking availability…</div>
-        ) : visibleVillas.length === 0 ? (
+        ) : visibleShelters.length === 0 ? (
           <div className="sr-loading">
-            No villas available for the selected dates. Try different dates or{" "}
+            No shelters available for the selected dates. Try different dates or{" "}
             <a href="https://wa.me/33601943348" style={{ color: "#c9a84c" }}>
               contact us
             </a>
@@ -252,32 +252,33 @@ const SearchResultsPage: React.FC = () => {
           </div>
         ) : (
           <div className="sr-grid">
-            {visibleVillas.map((villa) => {
-              const status = statuses[villa.id];
+            {visibleShelters.map((shelter) => {
+              const status = statuses[shelter.id];
               const pricePerNight =
-                status?.price ?? villa.pricing[0]?.basePrice ?? 0;
+                status?.price ?? shelter.pricing[0]?.basePrice ?? 0;
               const totalBase = pricePerNight * nights;
               return (
-                <div key={villa.id} className="sr-card">
+                <div key={shelter.id} className="sr-card">
                   <div className="sr-card-img">
                     <img
-                      src={villa.image}
-                      alt={villa.name}
+                      src={shelter.image}
+                      alt={shelter.name}
                       loading="lazy"
                       decoding="async"
                     />
                     <span className="sr-card-badge available">Available</span>
                   </div>
                   <div className="sr-card-body">
-                    <div className="sr-card-type">{villa.type}</div>
-                    <div className="sr-card-name">{villa.name}</div>
+                    <div className="sr-card-type">{shelter.type}</div>
+                    <div className="sr-card-name">{shelter.name}</div>
                     <div className="sr-card-meta">
-                      {villa.bedrooms && (
+                      {shelter.bedrooms && (
                         <span>
-                          {villa.bedrooms} Bed{villa.bedrooms > 1 ? "s" : ""}
+                          {shelter.bedrooms} Bed
+                          {shelter.bedrooms > 1 ? "s" : ""}
                         </span>
                       )}
-                      <span>Up to {villa.maxGuests} guests</span>
+                      <span>Up to {shelter.maxGuests} guests</span>
                     </div>
                     <div className="sr-card-amenities">
                       <span className="sr-card-amenity">AC</span>
@@ -302,7 +303,7 @@ const SearchResultsPage: React.FC = () => {
                       }}
                     >
                       <Link
-                        to={`/villa/${villa.id}`}
+                        to={`/shelter/${shelter.id}`}
                         style={{
                           display: "inline-block",
                           fontFamily: "'Inter',sans-serif",
@@ -321,9 +322,9 @@ const SearchResultsPage: React.FC = () => {
                       >
                         View Details
                       </Link>
-                      {villa.contactOnly ? (
+                      {shelter.contactOnly ? (
                         <a
-                          href={`https://wa.me/33601943348?text=${encodeURIComponent(`Hi, I'd like to book ${villa.name} from ${checkin} to ${checkout} for ${guests} guest${guests !== 1 ? "s" : ""}.`)}`}
+                          href={`https://wa.me/33601943348?text=${encodeURIComponent(`Hi, I'd like to book ${shelter.name} from ${checkin} to ${checkout} for ${guests} guest${guests !== 1 ? "s" : ""}.`)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
@@ -348,7 +349,7 @@ const SearchResultsPage: React.FC = () => {
                         <button
                           className="sr-btn-reserve"
                           style={{ width: "auto", padding: "10px 20px" }}
-                          onClick={() => handleReserve(villa.id)}
+                          onClick={() => handleReserve(shelter.id)}
                         >
                           Reserve
                         </button>

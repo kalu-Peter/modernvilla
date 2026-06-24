@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import type { Villa } from "../types";
-import { getVillaPrice, VILLAS } from "../types";
+import type { Shelter } from "../types";
+import { getShelterPrice, SHELTERS } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
 
 const WA_NUMBER = "";
 
 interface DetailsModalProps {
-  villa: Villa;
+  shelter: Shelter;
   checkInDate: string;
   checkOutDate: string;
   onClose: () => void;
   onReserve: (
-    villaId: string,
+    shelterId: string,
     guestCount: number,
     price: number,
     checkIn: string,
@@ -26,7 +26,7 @@ function nightsBetween(a: string, b: string) {
 }
 
 const DetailsModal: React.FC<DetailsModalProps> = ({
-  villa,
+  shelter,
   checkInDate,
   checkOutDate,
   onClose,
@@ -34,21 +34,21 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
 }) => {
   const [guestCount, setGuestCount] = useState<number>(1);
   const [activeGalleryImg, setActiveGalleryImg] = useState<number>(0);
-  const price = getVillaPrice(villa.id, guestCount);
-  const tier = VILLAS.find((v) => v.id === villa.id)?.pricing[0] ?? null;
+  const price = getShelterPrice(shelter.id, guestCount);
+  const tier = SHELTERS.find((s) => s.id === shelter.id)?.pricing[0] ?? null;
   const { formatPrice } = useCurrency();
   const nights = nightsBetween(checkInDate, checkOutDate);
 
   const handleReserve = () => {
     if (price === null) {
-      alert(`Sorry, ${villa.name} is not available for ${guestCount} guests.`);
+      alert(`Sorry, ${shelter.name} is not available for ${guestCount} guests.`);
       return;
     }
     if (!checkInDate || !checkOutDate) {
       alert("Please select check-in and check-out dates first.");
       return;
     }
-    onReserve(villa.id, guestCount, price, checkInDate, checkOutDate);
+    onReserve(shelter.id, guestCount, price, checkInDate, checkOutDate);
   };
 
   return (
@@ -62,35 +62,35 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
         </button>
 
         {/* Coloured header */}
-        <div className="modal-header" style={{ backgroundColor: villa.color }}>
-          <h2>{villa.name}</h2>
+        <div className="modal-header" style={{ backgroundColor: shelter.color }}>
+          <h2>{shelter.name}</h2>
           <div className="modal-header-meta">
-            {villa.bedrooms && (
+            {shelter.bedrooms && (
               <span>
-                🛏 {villa.bedrooms} Bedroom{villa.bedrooms > 1 ? "s" : ""}
+                🛏 {shelter.bedrooms} Bedroom{shelter.bedrooms > 1 ? "s" : ""}
               </span>
             )}
-            {villa.beds && (
+            {shelter.beds && (
               <span>
-                🛏️ {villa.beds} Bed{villa.beds > 1 ? "s" : ""}
+                🛏️ {shelter.beds} Bed{shelter.beds > 1 ? "s" : ""}
               </span>
             )}
-            {villa.bathrooms && (
+            {shelter.bathrooms && (
               <span>
-                🚿 {villa.bathrooms} Bathroom{villa.bathrooms > 1 ? "s" : ""}
+                🚿 {shelter.bathrooms} Bathroom{shelter.bathrooms > 1 ? "s" : ""}
               </span>
             )}
-            <span>👥 Up to {villa.maxGuests} guests</span>
+            <span>👥 Up to {shelter.maxGuests} guests</span>
           </div>
         </div>
 
         {/* Gallery */}
-        {villa.gallery && villa.gallery.length > 0 && (
+        {shelter.gallery && shelter.gallery.length > 0 && (
           <div className="modal-gallery">
             <div className="modal-gallery-main">
               <img
-                src={villa.gallery[activeGalleryImg]}
-                alt={`${villa.name} — photo ${activeGalleryImg + 1}`}
+                src={shelter.gallery[activeGalleryImg]}
+                alt={`${shelter.name} — photo ${activeGalleryImg + 1}`}
               />
               {/* Prev arrow */}
               {activeGalleryImg > 0 && (
@@ -103,7 +103,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                 </button>
               )}
               {/* Next arrow */}
-              {activeGalleryImg < villa.gallery.length - 1 && (
+              {activeGalleryImg < shelter.gallery.length - 1 && (
                 <button
                   className="gallery-arrow gallery-arrow--next"
                   onClick={() => setActiveGalleryImg((i) => i + 1)}
@@ -114,11 +114,11 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
               )}
               {/* Counter */}
               <div className="gallery-counter">
-                {activeGalleryImg + 1} / {villa.gallery.length}
+                {activeGalleryImg + 1} / {shelter.gallery.length}
               </div>
             </div>
             <div className="modal-gallery-thumbs">
-              {villa.gallery.map((src, i) => (
+              {shelter.gallery.map((src, i) => (
                 <button
                   key={i}
                   className={`modal-gallery-thumb${i === activeGalleryImg ? " active" : ""}`}
@@ -135,15 +135,15 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
           {/* Description */}
           <div className="modal-section">
             <h4>About this property</h4>
-            <p style={{ whiteSpace: "pre-line" }}>{villa.description}</p>
+            <p style={{ whiteSpace: "pre-line" }}>{shelter.description}</p>
           </div>
 
           {/* Amenities */}
-          {villa.amenities && villa.amenities.length > 0 && (
+          {shelter.amenities && shelter.amenities.length > 0 && (
             <div className="modal-section">
               <h4>Amenities</h4>
               <ul className="amenities-list">
-                {villa.amenities.map((item) => (
+                {shelter.amenities.map((item) => (
                   <li key={item}>{item}</li>
                 ))}
               </ul>
@@ -184,8 +184,8 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
             </div>
           )}
 
-          {/* Guest selector (only for bookable villas) */}
-          {!villa.contactOnly && (
+          {/* Guest selector (only for bookable shelters) */}
+          {!shelter.contactOnly && (
             <div className="modal-section">
               <h4>Number of guests</h4>
               <div className="guest-selector">
@@ -204,9 +204,9 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                 <button
                   className="guest-step-btn"
                   onClick={() =>
-                    setGuestCount((g) => Math.min(villa.maxGuests, g + 1))
+                    setGuestCount((g) => Math.min(shelter.maxGuests, g + 1))
                   }
-                  disabled={guestCount >= villa.maxGuests}
+                  disabled={guestCount >= shelter.maxGuests}
                   aria-label="Add guest"
                 >
                   +
@@ -232,7 +232,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
 
           {/* Pricing & CTA */}
           <div className="modal-section price-section">
-            {villa.contactOnly ? (
+            {shelter.contactOnly ? (
               <>
                 <h4>Booking</h4>
                 <p
@@ -250,7 +250,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                 </p>
                 <a
                   className="btn-reserve-now"
-                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi, I'm interested in booking the ${villa.name}. Could you please provide availability and pricing details?`)}`}
+                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi, I'm interested in booking the ${shelter.name}. Could you please provide availability and pricing details?`)}`}}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -297,8 +297,8 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                     )}
                     {tier.extraPersonFee === 0 && (
                       <span>
-                        Max {villa.maxGuests} guest
-                        {villa.maxGuests > 1 ? "s" : ""} — no extra charges
+                        Max {shelter.maxGuests} guest
+                        {shelter.maxGuests > 1 ? "s" : ""} — no extra charges
                       </span>
                     )}
                   </div>

@@ -1054,7 +1054,7 @@ const Gallery: React.FC = () => {
         </Link>
         <ul className="nav-links">
           <li>
-            <a href="/">Villas</a>
+            <a href="/#shelters">Shelters</a>
           </li>
           <li>
             <Link to="/gallery">Gallery</Link>
@@ -1079,8 +1079,8 @@ const Gallery: React.FC = () => {
         <Link to="/" onClick={() => setMobileMenuOpen(false)}>
           Home
         </Link>
-        <a href="/" onClick={() => setMobileMenuOpen(false)}>
-          Villas
+        <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
+          Shelters
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
           Gallery

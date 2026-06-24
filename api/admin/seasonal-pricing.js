@@ -9,9 +9,9 @@ export default async function handler(req, res) {
 
   // GET /api/admin/seasonal-pricing - List all seasonal pricing
   if (req.method === "GET" && !id) {
-    const { villa_id } = req.query;
-    let query = supabase.from("seasonal_pricing").select("id, villa_id, label, start_date, end_date, price_per_night, created_at").order("start_date");
-    if (villa_id) query = query.eq("villa_id", villa_id);
+    const { shelter_id } = req.query;
+    let query = supabase.from("seasonal_pricing").select("id, shelter_id, label, start_date, end_date, price_per_night, created_at").order("start_date");
+    if (shelter_id) query = query.eq("shelter_id", shelter_id);
     const { data, error } = await query;
     if (error) return res.status(500).json({ error: error.message });
     return res.json(data);
@@ -19,13 +19,13 @@ export default async function handler(req, res) {
 
   // POST /api/admin/seasonal-pricing - Create seasonal pricing
   if (req.method === "POST" && !id) {
-    const { villa_id, label, start_date, end_date, price_per_night } = req.body;
-    if (!villa_id || !start_date || !end_date || !price_per_night) {
-      return res.status(400).json({ error: "villa_id, start_date, end_date and price_per_night are required" });
+    const { shelter_id, label, start_date, end_date, price_per_night } = req.body;
+    if (!shelter_id || !start_date || !end_date || !price_per_night) {
+      return res.status(400).json({ error: "shelter_id, start_date, end_date and price_per_night are required" });
     }
     const { data, error } = await supabase
       .from("seasonal_pricing")
-      .insert({ villa_id, label: label || "Custom Rate", start_date, end_date, price_per_night: parseFloat(price_per_night) })
+      .insert({ shelter_id, label: label || "Custom Rate", start_date, end_date, price_per_night: parseFloat(price_per_night) })
       .select()
       .single();
     if (error) return res.status(500).json({ error: error.message });

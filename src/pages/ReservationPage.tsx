@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { VILLAS, getPropertyNameForVilla } from "../types";
+import { SHELTERS, getPropertyNameForShelter } from "../types";
 
 function nightsBetween(a: string, b: string) {
   if (!a || !b) return 0;
@@ -17,14 +17,14 @@ const MIN_NIGHTS: Record<string, number> = {
   "refuge-de-la-martre": 2,
 };
 
-function getMinNights(villaId: string) {
-  return MIN_NIGHTS[villaId] ?? 1;
+function getMinNights(shelterId: string) {
+  return MIN_NIGHTS[shelterId] ?? 1;
 }
 
-function minCheckout(checkin: string, villaId: string) {
+function minCheckout(checkin: string, shelterId: string) {
   if (!checkin) return "";
   const d = new Date(checkin);
-  d.setDate(d.getDate() + getMinNights(villaId));
+  d.setDate(d.getDate() + getMinNights(shelterId));
   return d.toISOString().split("T")[0];
 }
 
@@ -139,8 +139,8 @@ const ReservationPage: React.FC = () => {
     return `€ ${eur.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const villaId = queryParams.get("villaId") ?? "";
-  const villa = VILLAS.find((v) => v.id === villaId);
+  const shelterId = queryParams.get("shelterId") ?? "";
+  const shelter = SHELTERS.find((s) => s.id === shelterId);
 
   const [checkin, setCheckin] = useState(
     queryParams.get("checkin") ?? queryParams.get("checkIn") ?? "",
@@ -176,20 +176,20 @@ const ReservationPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!villaId) navigate("/");
-  }, [villaId, navigate]);
+    if (!shelterId) navigate("/");
+  }, [shelterId, navigate]);
 
-  if (!villa) return null;
+  if (!shelter) return null;
 
   // Fetch pricing from new API
   const [priceBreakdown, setPriceBreakdown] = React.useState<any>(null);
 
-  const minNights = getMinNights(villa.id);
+  const minNights = getMinNights(shelter.id);
   const nights = nightsBetween(checkin, checkout);
 
   React.useEffect(() => {
-    if (checkin && checkout && villa && guestCount > 0) {
-      const propertyName = getPropertyNameForVilla(villa.id);
+    if (checkin && checkout && shelter && guestCount > 0) {
+      const propertyName = getPropertyNameForShelter(shelter.id);
       if (!propertyName) {
         setPriceBreakdown(null);
         return;
@@ -203,7 +203,7 @@ const ReservationPage: React.FC = () => {
       );
       setPriceBreakdown(breakdown);
     }
-  }, [checkin, checkout, villa, guestCount]);
+  }, [checkin, checkout, shelter, guestCount]);
 
   const total = priceBreakdown?.totalPrice ?? 0;
 
@@ -219,7 +219,7 @@ const ReservationPage: React.FC = () => {
     }
     if (nights < minNights) {
       setSubmitError(
-        `${villa.name} requires a minimum stay of ${minNights} nights.`,
+        `${shelter.name} requires a minimum stay of ${minNights} nights.`,
       );
       return false;
     }
@@ -247,7 +247,7 @@ const ReservationPage: React.FC = () => {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const propertyName = getPropertyNameForVilla(villa.id);
+      const propertyName = getPropertyNameForShelter(shelter.id);
       if (!propertyName) {
         setSubmitError("Property not found");
         setSubmitting(false);
@@ -289,7 +289,7 @@ const ReservationPage: React.FC = () => {
   if (submitted) {
     const waMessage = encodeURIComponent(
       `Hi! I just submitted a booking request to Alsace Hideaways.\n\n` +
-        `Property: ${getPropertyNameForVilla(villa.id) ?? villa.name}\n` +
+        `Property: ${getPropertyNameForShelter(shelter.id) ?? shelter.name}\n` +
         `Check-in: ${formatDate(checkin)}\n` +
         `Check-out: ${formatDate(checkout)}\n` +
         `Guests: ${guestCount}\n` +
@@ -324,7 +324,7 @@ const ReservationPage: React.FC = () => {
             <h1>Booking Request Sent</h1>
             <p>
               Thank you, <strong>{formData.firstName}</strong>! Your booking
-              request for <strong>{villa.name}</strong> has been received. A
+              request for <strong>{shelter.name}</strong> has been received. A
               confirmation email is on its way to{" "}
               <strong>{formData.email}</strong>.
             </p>
@@ -418,7 +418,7 @@ const ReservationPage: React.FC = () => {
 
         /* Right column – summary card */
         .rp-card { background:#fff; border:1px solid #eef0f4; border-radius:18px; padding:32px; box-shadow:0 2px 12px rgba(0,0,0,0.05); position:sticky; top:88px; }
-        .rp-card-villa { font-family:'Playfair Display',serif; font-size:1.25rem; color:#1a1a2e; margin-bottom:4px; }
+        .rp-card-shelter { font-family:'Playfair Display',serif; font-size:1.25rem; color:#1a1a2e; margin-bottom:4px; }
         .rp-card-loc { font-family:'Inter',sans-serif; font-size:0.72rem; color:#9098a9; margin-bottom:20px; }
         .rp-card-dates { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
         .rp-card-date { background:#f5f6fa; border-radius:10px; padding:12px 14px; }
@@ -468,7 +468,7 @@ const ReservationPage: React.FC = () => {
                     min={new Date().toISOString().split("T")[0]}
                     onChange={(e) => {
                       setCheckin(e.target.value);
-                      const min = minCheckout(e.target.value, villa.id);
+                      const min = minCheckout(e.target.value, shelter.id);
                       if (checkout < min) setCheckout(min);
                     }}
                   />
@@ -479,7 +479,7 @@ const ReservationPage: React.FC = () => {
                     type="date"
                     value={checkout}
                     min={
-                      minCheckout(checkin, villa.id) ||
+                      minCheckout(checkin, shelter.id) ||
                       new Date().toISOString().split("T")[0]
                     }
                     onChange={(e) => setCheckout(e.target.value)}
@@ -493,7 +493,7 @@ const ReservationPage: React.FC = () => {
                   onChange={(e) => setGuestCount(Number(e.target.value))}
                 >
                   {Array.from(
-                    { length: villa.maxGuests ?? 10 },
+                    { length: shelter.maxGuests ?? 10 },
                     (_, i) => i + 1,
                   ).map((n) => (
                     <option key={n} value={n}>
@@ -577,10 +577,10 @@ const ReservationPage: React.FC = () => {
 
         {/* ── Right: summary card ── */}
         <div className="rp-card">
-          <div className="rp-card-villa">{villa.name}</div>
+          <div className="rp-card-shelter">{shelter.name}</div>
           <div className="rp-card-loc">
-            Diani Beach, Kwale County · {villa.bedrooms ?? 1} bed
-            {(villa.bedrooms ?? 1) > 1 ? "s" : ""}
+            Diani Beach, Kwale County · {shelter.bedrooms ?? 1} bed
+            {(shelter.bedrooms ?? 1) > 1 ? "s" : ""}
           </div>
 
           {checkin && checkout && nights > 0 ? (

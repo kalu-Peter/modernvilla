@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import VillaCard from "./components/VillaCard";
+import ShelterCard from "./components/ShelterCard";
 import CurrencySelector from "./components/CurrencySelector";
 import SEO from "./components/SEO";
-import type { Villa } from "./types";
-import { VILLAS } from "./types";
+import type { Shelter } from "./types";
+import { SHELTERS } from "./types";
 
 const ModernRefuge: React.FC = () => {
   const navigate = useNavigate();
@@ -79,8 +79,8 @@ const ModernRefuge: React.FC = () => {
     );
   };
 
-  const handleSelectVilla = (villa: Villa) => {
-    navigate(`/villa/${villa.id}?checkin=${checkin}&checkout=${checkout}`);
+  const handleSelectShelter = (shelter: Shelter) => {
+    navigate(`/shelter/${shelter.id}?checkin=${checkin}&checkout=${checkout}`);
   };
 
   return (
@@ -1124,15 +1124,15 @@ const ModernRefuge: React.FC = () => {
         .legend-dot.booked { background: rgba(240,240,240,0.1); border: 1px solid rgba(240,240,240,0.2); }
         .legend-dot.selected { background: var(--croc-gold); }
 
-        /* VILLAS SECTION */
-        .villas-section {
+        /* SHELTERS SECTION */
+        .shelters-section {
           background: #dbdbdb;
           padding: 120px 60px;
           position: relative;
           overflow: hidden;
         }
-        .villas-section::before {
-          content: 'VILLAS';
+        .shelters-section::before {
+          content: 'SHELTERS';
           position: absolute;
           top: 50%;
           left: -2%;
@@ -1146,7 +1146,7 @@ const ModernRefuge: React.FC = () => {
           pointer-events: none;
         }
 
-        .villas-grid {
+        .shelters-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           grid-auto-rows: 1fr;
@@ -1155,7 +1155,7 @@ const ModernRefuge: React.FC = () => {
           margin: 0 auto;
         }
 
-        .villa-card {
+        .shelter-card {
           position: relative;
           overflow: hidden;
           cursor: pointer;
@@ -1167,14 +1167,14 @@ const ModernRefuge: React.FC = () => {
           flex-direction: column;
           height: 100%;
         }
-        .villa-card:hover {
+        .shelter-card:hover {
           box-shadow: 0 8px 24px rgba(13, 26, 15, 0.25);
         }
-        .villa-card-header h3 {
+        .shelter-card-header h3 {
           color: #000000;
           font-size: 1.4rem;
         }
-        .villa-card-content {
+        .shelter-card-content {
           display: flex;
           flex-direction: column;
           gap: 12px;
@@ -1182,24 +1182,24 @@ const ModernRefuge: React.FC = () => {
           padding: 20px;
         }
         
-        .villa-guests {
+        .shelter-guests {
           font-family: 'Inter', sans-serif;
           font-size: 0.85rem;
           color: rgba(13, 26, 15, 0.7);
           margin: 0;
         }
-        .villa-guests strong {
+        .shelter-guests strong {
           color: var(--croc-deep);
           font-weight: 600;
         }
 
-        .villa-meta-chips {
+        .shelter-meta-chips {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
         }
 
-        .villa-chip {
+        .shelter-chip {
           display: inline-flex;
           align-items: center;
           gap: 5px;
@@ -1214,13 +1214,13 @@ const ModernRefuge: React.FC = () => {
           font-weight: 500;
         }
         
-        .villa-amenity-chips {
+        .shelter-amenity-chips {
           display: flex;
           flex-wrap: wrap;
           gap: 6px;
           margin: 4px 0 8px;
         }
-        .villa-amenity-chip {
+        .shelter-amenity-chip {
           font-size: 0.75rem;
           padding: 4px 10px;
           border-radius: 20px;
@@ -1230,7 +1230,7 @@ const ModernRefuge: React.FC = () => {
           letter-spacing: 0.01em;
         }
         
-        .villa-status {
+        .shelter-status {
           display: flex;
           align-items: center;
         }
@@ -1246,7 +1246,7 @@ const ModernRefuge: React.FC = () => {
           font-size: 0.8rem;
           font-weight: 500;
         }
-        .villa-card-buttons {
+        .shelter-card-buttons {
           display: flex;
           gap: 12px;
           margin-top: auto;
@@ -1277,19 +1277,19 @@ const ModernRefuge: React.FC = () => {
           cursor: not-allowed;
         }
 
-        .villa-card-image {
+        .shelter-card-image {
           width: 100%;
           height: 280px;
           overflow: hidden;
           position: relative;
         }
-        .villa-card-image img {
+        .shelter-card-image img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           transition: transform 0.3s ease;
         }
-        .villa-card:hover .villa-card-image img {
+        .shelter-card:hover .shelter-card-image img {
           transform: scale(1.05);
         }
         .card-img-nav {
@@ -1333,18 +1333,18 @@ const ModernRefuge: React.FC = () => {
         }
         .card-img-dot.active { background: #fff; }
 
-        .villa-img-bg {
+        .shelter-img-bg {
           height: 380px;
           transition: transform 0.6s ease;
           position: relative;
           overflow: hidden;
         }
-        .villa-card:nth-child(1) .villa-img-bg { background: linear-gradient(135deg, #111111 0%, #222222 50%, #0a0a0a 100%); }
-        .villa-card:nth-child(2) .villa-img-bg { background: linear-gradient(135deg, #1a1a1a 0%, #2e2e2e 50%, #141414 100%); }
-        .villa-card:nth-child(3) .villa-img-bg { background: linear-gradient(135deg, #262626 0%, #3a3a3a 50%, #1e1e1e 100%); }
+        .shelter-card:nth-child(1) .shelter-img-bg { background: linear-gradient(135deg, #111111 0%, #222222 50%, #0a0a0a 100%); }
+        .shelter-card:nth-child(2) .shelter-img-bg { background: linear-gradient(135deg, #1a1a1a 0%, #2e2e2e 50%, #141414 100%); }
+        .shelter-card:nth-child(3) .shelter-img-bg { background: linear-gradient(135deg, #262626 0%, #3a3a3a 50%, #1e1e1e 100%); }
 
-        /* Decorative villa illustrations */
-        .villa-decoration {
+        /* Decorative shelter illustrations */
+        .shelter-decoration {
           position: absolute;
           inset: 0;
           display: flex;
@@ -1354,7 +1354,7 @@ const ModernRefuge: React.FC = () => {
           font-size: 6rem;
         }
 
-        .villa-overlay {
+        .shelter-overlay {
           position: absolute;
           inset: 0;
           background: linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.88) 100%);
@@ -1365,7 +1365,7 @@ const ModernRefuge: React.FC = () => {
           justify-content: flex-end;
           padding: 36px;
         }
-        .villa-category {
+        .shelter-category {
           font-family: 'Inter', sans-serif;
           font-size: 0.58rem;
           letter-spacing: 0.3em;
@@ -1373,7 +1373,7 @@ const ModernRefuge: React.FC = () => {
           color: var(--croc-gold);
           margin-bottom: 10px;
         }
-        .villa-name {
+        .shelter-name {
           font-family: 'Playfair Display', serif;
           font-size: 1.6rem;
           font-weight: 700;
@@ -1381,14 +1381,14 @@ const ModernRefuge: React.FC = () => {
           margin-bottom: 10px;
           line-height: 1.2;
         }
-        .villa-detail {
+        .shelter-detail {
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.95rem;
           font-style: italic;
           color: rgba(240,240,240,0.65);
           margin-bottom: 20px;
         }
-        .villa-price {
+        .shelter-price {
           display: flex;
           align-items: baseline;
           gap: 8px;
@@ -1405,7 +1405,7 @@ const ModernRefuge: React.FC = () => {
           letter-spacing: 0.1em;
           color: rgba(240,240,240,0.4);
         }
-        .villa-btn {
+        .shelter-btn {
           font-family: 'Inter', sans-serif;
           font-size: 0.62rem;
           letter-spacing: 0.2em;
@@ -1418,7 +1418,7 @@ const ModernRefuge: React.FC = () => {
           width: fit-content;
           transition: background 0.3s;
         }
-        .villa-btn:hover { background: var(--croc-amber); }
+        .shelter-btn:hover { background: var(--croc-amber); }
 
         /* AMENITIES SECTION */
         .amenities-section {
@@ -2132,7 +2132,7 @@ const ModernRefuge: React.FC = () => {
           .booking-result-section { padding: 80px 24px; }
           .price-summary { padding: 24px; }
           .avail-result { padding: 28px 24px; }
-          .villas-grid, .villa-row-2 { grid-template-columns: 1fr; }
+          .shelters-grid, .shelter-row-2 { grid-template-columns: 1fr; }
           .amenities-grid, .amenities-row2 { grid-template-columns: repeat(3, 1fr); }
           .experience-inner { grid-template-columns: 1fr; }
           .testimonials-grid { grid-template-columns: 1fr 1fr; }
@@ -2148,7 +2148,7 @@ const ModernRefuge: React.FC = () => {
           .calendar-grid { grid-template-columns: 1fr; }
           .footer-top { grid-template-columns: 1fr; }
           footer { padding: 60px 24px 40px; }
-          .amenities-section, .villas-section, .experience-section, .testimonials-section { padding: 80px 24px; }
+          .amenities-section, .shelters-section, .experience-section, .testimonials-section { padding: 80px 24px; }
           .hamburger { display: flex; }
           .nav-links { display: none; }
           .nav-book { display: none; }
@@ -2178,7 +2178,7 @@ const ModernRefuge: React.FC = () => {
         </Link>
         <ul className="nav-links">
           <li>
-            <a href="#villas">Villas</a>
+            <a href="#shelters">Shelters</a>
           </li>
           <li>
             <Link to="/gallery">Gallery</Link>
@@ -2208,8 +2208,8 @@ const ModernRefuge: React.FC = () => {
         >
           ✕
         </button>
-        <a href="#villas" onClick={() => setMobileMenuOpen(false)}>
-          Villas
+        <a href="#shelters" onClick={() => setMobileMenuOpen(false)}>
+          Shelters
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
           Gallery
@@ -2291,8 +2291,8 @@ const ModernRefuge: React.FC = () => {
         </div>
       </section>
 
-      {/* VILLAS */}
-      <section className="villas-section" id="villas">
+      {/* SHELTERS */}
+      <section className="shelters-section" id="shelters">
         <div className="section-header reveal" style={{ marginBottom: "40px" }}>
           <div className="section-tag">Accommodation</div>
           <h2 className="section-title">
@@ -2301,14 +2301,17 @@ const ModernRefuge: React.FC = () => {
           </h2>
         </div>
 
-        <div className="villas-grid">
-          {VILLAS.map((villa, index) => (
+        <div className="shelters-grid">
+          {SHELTERS.map((shelter, index) => (
             <div
-              key={villa.id}
+              key={shelter.id}
               className="reveal"
               style={{ transitionDelay: `${index * 0.1}s` }}
             >
-              <VillaCard villa={villa} onSelectVilla={handleSelectVilla} />
+              <ShelterCard
+                shelter={shelter}
+                onSelectShelter={handleSelectShelter}
+              />
             </div>
           ))}
         </div>

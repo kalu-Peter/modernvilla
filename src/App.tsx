@@ -8,7 +8,7 @@ import WhatsAppFloat from "./components/WhatsAppFloat";
 // Lazy-load every page so each is a separate JS chunk loaded on demand
 const ModernRefuge = lazy(() => import("./CrocodileLodge"));
 const Gallery = lazy(() => import("./Gallery"));
-const VillaDetailsPage = lazy(() => import("./pages/VillaDetailsPage"));
+const ShelterDetailsPage = lazy(() => import("./pages/ShelterDetailsPage"));
 const SearchResultsPage = lazy(() => import("./pages/SearchResultsPage"));
 const ReservationPage = lazy(() => import("./pages/ReservationPage"));
 const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage"));
@@ -29,7 +29,10 @@ function App() {
               <Routes>
                 <Route path="/" element={<ModernRefuge />} />
                 <Route path="/gallery" element={<Gallery />} />
-                <Route path="/villa/:villaId" element={<VillaDetailsPage />} />
+                <Route
+                  path="/shelter/:shelterId"
+                  element={<ShelterDetailsPage />}
+                />
                 <Route path="/search" element={<SearchResultsPage />} />
                 <Route path="/reservation" element={<ReservationPage />} />
                 <Route path="/admin" element={<AdminLoginPage />} />

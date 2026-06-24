@@ -1,20 +1,70 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { VILLAS } from "../types";
+import { SHELTERS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
 import SEO from "../components/SEO";
 
 const WA_NUMBER = "";
 
-const VillaDetailsPage: React.FC = () => {
-  const { villaId } = useParams<{ villaId: string }>();
+const ShelterDetailsPage: React.FC = () => {
+  const { shelterId } = useParams<{ shelterId: string }>();
 
-  const villa = VILLAS.find((v) => v.id === villaId);
+  const shelter = SHELTERS.find((s) => s.id === shelterId);
 
   const [activeImg, setActiveImg] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navVisible, setNavVisible] = useState(true);
   const touchStartX = useRef<number | null>(null);
+
+  if (!shelter) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#ffffff",
+          color: "#0a0a0a",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              fontSize: "2rem",
+            }}
+          >
+            Shelter not found
+          </h2>
+          <Link
+            to="/"
+            style={{
+              color: "#b8913e",
+              fontFamily: "'Josefin Sans', sans-serif",
+              fontSize: "0.8rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+            }}
+          >
+            ← Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const images =
+    shelter.gallery && shelter.gallery.length > 0
+      ? shelter.gallery
+      : [shelter.image];
 
   // Nav hide/show on scroll
   useEffect(() => {
@@ -41,7 +91,7 @@ const VillaDetailsPage: React.FC = () => {
     touchStartX.current = null;
   };
 
-  if (!villa) {
+  if (!shelter) {
     return (
       <div
         style={{
@@ -67,7 +117,7 @@ const VillaDetailsPage: React.FC = () => {
               fontSize: "2rem",
             }}
           >
-            Villa not found
+            Shelter not found
           </h2>
           <Link
             to="/"
@@ -86,20 +136,17 @@ const VillaDetailsPage: React.FC = () => {
     );
   }
 
-  const images =
-    villa.gallery && villa.gallery.length > 0 ? villa.gallery : [villa.image];
-
   const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-    `Hi, I'm interested in booking the ${villa.name}. Could you please provide availability and pricing details?`,
+    `Hi, I'm interested in booking the ${shelter.name}. Could you please provide availability and pricing details?`,
   )}`;
 
   return (
     <>
       <SEO
-        title={villa.name}
-        description={`${villa.name} at Alsace Hideaways, Alsace — sleeps up to ${villa.maxGuests} guests. Luxury vacation rental in France.`}
-        image={villa.image}
-        url={`/villa/${villa.id}`}
+        title={shelter.name}
+        description={`${shelter.name} at Alsace Hideaways, Alsace — sleeps up to ${shelter.maxGuests} guests. Luxury vacation rental in France.`}
+        image={shelter.image}
+        url={`/shelter/${shelter.id}`}
         type="article"
       />
       <style>{`
@@ -164,7 +211,7 @@ const VillaDetailsPage: React.FC = () => {
         }
         .mobile-menu a:hover, .mobile-menu button:hover { color: #b8913e; }
 
-        /* ── VILLA DETAILS PAGE ── */
+        /* ── SHELTER DETAILS PAGE ── */
         .vdp-page { min-height: 100vh; background: #f5f6fa; padding-top: 70px; }
 
         /* ── PAGE HEADER (replaces hero) ── */
@@ -352,7 +399,7 @@ const VillaDetailsPage: React.FC = () => {
         </Link>
         <ul className="nav-links">
           <li>
-            <a href="/#villas">Villas</a>
+            <a href="/#shelters">Shelters</a>
           </li>
           <li>
             <Link to="/gallery">Gallery</Link>
@@ -375,8 +422,8 @@ const VillaDetailsPage: React.FC = () => {
 
       {/* MOBILE MENU */}
       <div className={`mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
-        <a href="/#villas" onClick={() => setMobileMenuOpen(false)}>
-          Villas
+        <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
+          Shelters
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
           Gallery
@@ -389,20 +436,21 @@ const VillaDetailsPage: React.FC = () => {
       <div className="vdp-page">
         {/* PAGE HEADER */}
         <div className="vdp-header">
-          <div className="vdp-type">{villa.type}</div>
-          <h1 className="vdp-title">{villa.name}</h1>
+          <div className="vdp-type">{shelter.type}</div>
+          <h1 className="vdp-title">{shelter.name}</h1>
           <div className="vdp-meta">
-            {villa.bedrooms && (
+            {shelter.bedrooms && (
               <span>
-                {villa.bedrooms} Bedroom{villa.bedrooms > 1 ? "s" : ""}
+                🛏 {shelter.bedrooms} Bedroom{shelter.bedrooms > 1 ? "s" : ""}
               </span>
             )}
-            {villa.bathrooms && (
+            {shelter.bathrooms && (
               <span>
-                {villa.bathrooms} Bathroom{villa.bathrooms > 1 ? "s" : ""}
+                🚿 {shelter.bathrooms} Bathroom
+                {shelter.bathrooms > 1 ? "s" : ""}
               </span>
             )}
-            <span>Up to {villa.maxGuests} guests</span>
+            <span>Up to {shelter.maxGuests} guests</span>
           </div>
         </div>
 
@@ -415,7 +463,7 @@ const VillaDetailsPage: React.FC = () => {
           >
             <img
               src={images[activeImg]}
-              alt={`${villa.name} — photo ${activeImg + 1}`}
+              alt={`${shelter.name} — photo ${activeImg + 1}`}
               decoding="async"
             />
             {activeImg > 0 && (
@@ -468,7 +516,7 @@ const VillaDetailsPage: React.FC = () => {
             {/* Name + stats header */}
             <div className="vdp-info-header">
               <div className="vdp-info-stats">
-                {villa.bedrooms && (
+                {shelter.bedrooms && (
                   <span className="vdp-info-stat">
                     <svg
                       width="14"
@@ -485,43 +533,44 @@ const VillaDetailsPage: React.FC = () => {
                       <path d="M10 9V5" />
                       <path d="M2 14h20" />
                     </svg>
-                    {villa.bedrooms} Bed{villa.bedrooms > 1 ? "s" : ""}
+                    {shelter.bedrooms} Bed{shelter.bedrooms > 1 ? "s" : ""}
                   </span>
                 )}
-                {villa.bedrooms && <span className="vdp-info-dot" />}
-                <span className="vdp-info-stat">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    <path d="M21 21v-2a4 4 0 0 0-3-3.85" />
-                  </svg>
-                  Up to {villa.maxGuests} guests
-                </span>
+                {shelter.bathrooms && (
+                  <span className="vdp-info-stat">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M4 7h16M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z" />
+                      <circle cx="10" cy="13" r="1" fill="currentColor" />
+                      <circle cx="14" cy="13" r="1" fill="currentColor" />
+                    </svg>
+                    {shelter.bathrooms} Bathroom
+                    {shelter.bathrooms > 1 ? "s" : ""}
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Description */}
             <p className="vdp-description" style={{ whiteSpace: "pre-line" }}>
-              {villa.description}
+              {shelter.description}
             </p>
 
             {/* Amenities */}
-            {villa.amenities && villa.amenities.length > 0 && (
+            {shelter.amenities && shelter.amenities.length > 0 && (
               <div className="vdp-amenities">
                 <div className="vdp-amenities-group">
                   <div className="vdp-amenities-group-title">Features</div>
                   <div className="vdp-amenities-items">
-                    {villa.amenities.map((amenity) => (
+                    {shelter.amenities.map((amenity) => (
                       <div key={amenity} className="vdp-amenity-chip">
                         {amenity}
                       </div>
@@ -534,7 +583,7 @@ const VillaDetailsPage: React.FC = () => {
 
           {/* Reserve / WhatsApp button */}
           <div style={{ marginTop: 36 }}>
-            {villa.contactOnly ? (
+            {shelter.contactOnly ? (
               <a
                 className="btn-reserve-now"
                 href={waLink}
@@ -561,7 +610,7 @@ const VillaDetailsPage: React.FC = () => {
               </a>
             ) : (
               <Link
-                to={`/reservation?villaId=${villa.id}`}
+                to={`/reservation?shelterId=${shelter.id}`}
                 className="btn-reserve-now"
                 style={{
                   display: "block",
@@ -579,4 +628,4 @@ const VillaDetailsPage: React.FC = () => {
   );
 };
 
-export default VillaDetailsPage;
+export default ShelterDetailsPage;

@@ -28,13 +28,17 @@ const AdminLoginPage: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.trim(), password }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        sessionStorage.setItem("adminSecret", data.secret);
-        sessionStorage.setItem("adminUser", data.username);
+      const response = await res.json();
+      if (res.ok && response.data) {
+        sessionStorage.setItem("adminSecret", response.data.secret);
+        sessionStorage.setItem("adminUser", response.data.username);
         navigate("/admin/dashboard", { replace: true });
       } else {
-        setError(data.error ?? "Invalid credentials. Please try again.");
+        setError(
+          response.error ??
+            response.message ??
+            "Invalid credentials. Please try again.",
+        );
       }
     } catch {
       setError("Connection error. Is the server running?");

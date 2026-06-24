@@ -82,7 +82,7 @@ GET /api/properties
 **Check Availability**
 
 ```
-GET /api/availability?property=Blue%20Villa&checkin=2024-01-15&checkout=2024-01-20
+GET /api/availability?property=Shelter%20A&checkin=2024-01-15&checkout=2024-01-20
 ```
 
 **Create Reservation**
@@ -92,7 +92,7 @@ POST /api/reservations
 Content-Type: application/json
 
 {
-  "property_name": "Blue Villa",
+  "property_name": "Shelter A",
   "guests": 4,
   "checkin": "2024-01-15",
   "checkout": "2024-01-20",
@@ -107,7 +107,7 @@ Content-Type: application/json
 
 ```
 GET /api/seasonal-price
-GET /api/seasonal-price?villa_id=blue-villa
+GET /api/seasonal-price?shelterId=shelter-a
 ```
 
 ### Payment Endpoints
@@ -168,7 +168,7 @@ Content-Type: application/json
 x-admin-secret: your_secret_here
 
 {
-  "villa_id": "blue-villa",
+  "shelter_id": "shelter-a",
   "start_date": "2024-03-01",
   "end_date": "2024-03-31",
   "price_per_night": 8000,

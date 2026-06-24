@@ -11,22 +11,22 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://themodernrefuge.co.ke/villa/shelter-a</loc>
+    <loc>https://themodernrefuge.co.ke/shelter/shelter-a</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://themodernrefuge.co.ke/villa/shelter-b</loc>
+    <loc>https://themodernrefuge.co.ke/shelter/shelter-b</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://themodernrefuge.co.ke/villa/la-maison-modern</loc>
+    <loc>https://themodernrefuge.co.ke/shelter/la-maison-modern</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://themodernrefuge.co.ke/villa/refuge-de-la-martre</loc>
+    <loc>https://themodernrefuge.co.ke/shelter/refuge-de-la-martre</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
