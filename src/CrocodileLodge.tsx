@@ -2274,20 +2274,6 @@ const ModernRefuge: React.FC = () => {
               </button>
             </div>
           </div>
-
-          {/* HERO TAGLINE */}
-          <div className="hero-tagline">
-            <p>
-              Discover our handpicked collection of exceptional properties
-              across Strasbourg, France each a sanctuary of calm, comfort, and
-              character.
-            </p>
-            <p>
-              From secluded countryside retreats to elegant woodland escapes,
-              every shelter is designed to make you feel truly at home.
-            </p>
-            <p>Send us a message, and we'll help you find your perfect stay.</p>
-          </div>
         </div>
       </section>
 
