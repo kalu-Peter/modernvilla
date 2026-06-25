@@ -1885,18 +1885,23 @@ const ModernRefuge: React.FC = () => {
         }
 
         @media (max-width: 600px) {
-          .hero { min-height: auto; padding-top: 140px; background-image: url('/images/hero.jpg'); }
+          .hero { min-height: 50vh; padding-top: 140px; padding-bottom: 48px; background-image: url('/images/hero.jpg'); }
           .amenities-grid, .amenities-row2 { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: 1fr; }
           .hero-stats { display: none; }
           .calendar-grid { grid-template-columns: 1fr; }
           .footer-top { grid-template-columns: 1fr; }
           footer { padding: 60px 24px 40px; }
-          .amenities-section, .shelters-section, .experience-section, .testimonials-section { padding: 80px 24px; }
+          .amenities-section, .experience-section, .testimonials-section { padding: 80px 24px; }
+          .shelters-section { padding: 40px 24px 80px; }
           .hero-content { align-items: center; padding: 0 16px; }
           .booking-bar-hero { width: 100%; display: flex; justify-content: center; }
-          .booking-bar { grid-template-columns: 1fr; width: 100%; }
-          .booking-submit { border-radius: 0 0 16px 16px; }
+          .booking-bar { grid-template-columns: 1fr; width: 100%; max-width: 360px; }
+          .booking-field { padding: 16px 20px; border-right: none; border-bottom: 1px solid rgba(10,10,10,0.12); }
+          .booking-bar .booking-field:last-of-type { border-bottom: none; }
+          .booking-field label { font-size: 0.6rem; }
+          .booking-field input, .booking-field select { font-size: 1rem; }
+          .booking-submit { padding: 16px; font-size: 0.7rem; border-radius: 0 0 16px 16px; }
         }
       `}</style>
 
