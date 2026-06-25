@@ -69,7 +69,7 @@ const Header: React.FC = () => {
           align-items: center;
           gap: 10px;
         }
-        .nav-logo span { color: #c9a84c; }
+        .nav-logo span { color: #1a1a2e; }
 
         .nav-links {
           display: flex;
