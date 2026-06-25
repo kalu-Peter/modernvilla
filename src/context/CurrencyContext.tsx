@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export interface Currency {
   code: string;
@@ -37,6 +38,7 @@ interface CurrencyContextValue {
 const CurrencyContext = createContext<CurrencyContextValue | null>(null);
 
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
+  const { i18n } = useTranslation();
   const [currency, setCurrency] = useState<Currency>(
     SUPPORTED_CURRENCIES.find((c) => c.code === "EUR") ?? SUPPORTED_CURRENCIES[0]
   );
@@ -59,10 +61,11 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const formatPrice = (eur: number): string => {
     const rate = rates[currency.code] ?? 1;
     const converted = eur * rate;
+    const locale = i18n.language === "fr" ? "fr-FR" : "en-GB";
     const formatted =
       ["TZS","UGX","CLP"].includes(currency.code)
-        ? Math.round(converted).toLocaleString()
-        : converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        ? Math.round(converted).toLocaleString(locale)
+        : converted.toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `${currency.symbol} ${formatted}`;
   };
 

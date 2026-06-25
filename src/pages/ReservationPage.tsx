@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation, Trans } from "react-i18next";
 import { SHELTERS, getPropertyNameForShelter } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
 
@@ -29,13 +30,16 @@ function minCheckout(checkin: string, shelterId: string) {
   return d.toISOString().split("T")[0];
 }
 
-function formatDate(d: string) {
+function formatDate(d: string, locale: string) {
   if (!d) return "";
-  return new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return new Date(d + "T00:00:00").toLocaleDateString(
+    locale === "fr" ? "fr-FR" : "en-GB",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  );
 }
 
 interface PropertyPricing {
@@ -99,6 +103,7 @@ function calculateDetailedPrice(
 }
 
 const ReservationPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -216,28 +221,31 @@ const ReservationPage: React.FC = () => {
 
   const validate = () => {
     if (!checkin || !checkout || nights <= 0) {
-      setSubmitError("Please select valid check-in and check-out dates.");
+      setSubmitError(t("reservation.errorInvalidDates"));
       return false;
     }
     if (nights < minNights) {
       setSubmitError(
-        `${shelter.name} requires a minimum stay of ${minNights} nights.`,
+        t("reservation.errorMinNights", {
+          shelterName: shelter.name,
+          count: minNights,
+        }),
       );
       return false;
     }
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
-      setSubmitError("Please enter your full name.");
+      setSubmitError(t("reservation.errorFullName"));
       return false;
     }
     if (
       !formData.email.trim() ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
     ) {
-      setSubmitError("Please enter a valid email address.");
+      setSubmitError(t("reservation.errorInvalidEmail"));
       return false;
     }
     if (!formData.phone.trim()) {
-      setSubmitError("Please enter your phone number.");
+      setSubmitError(t("reservation.errorPhone"));
       return false;
     }
     return true;
@@ -251,7 +259,7 @@ const ReservationPage: React.FC = () => {
     try {
       const propertyName = getPropertyNameForShelter(shelter.id);
       if (!propertyName) {
-        setSubmitError("Property not found");
+        setSubmitError(t("reservation.errorPropertyNotFound"));
         setSubmitting(false);
         return;
       }
@@ -273,15 +281,13 @@ const ReservationPage: React.FC = () => {
         error?: string;
       };
       if (!res.ok) {
-        setSubmitError(data.error ?? "Something went wrong. Please try again.");
+        setSubmitError(data.error ?? t("reservation.errorGeneric"));
         return;
       }
       setConfirmationId(data.reservation?.id ?? "");
       setSubmitted(true);
     } catch {
-      setSubmitError(
-        "Network error. Please check your connection and try again.",
-      );
+      setSubmitError(t("reservation.errorNetwork"));
     } finally {
       setSubmitting(false);
     }
@@ -290,14 +296,14 @@ const ReservationPage: React.FC = () => {
   // ── Success screen ──────────────────────────────────────────────────────────
   if (submitted) {
     const waMessage = encodeURIComponent(
-      `Hi! I just submitted a booking request to Alsace Hideaways.\n\n` +
-        `Property: ${getPropertyNameForShelter(shelter.id) ?? shelter.name}\n` +
-        `Check-in: ${formatDate(checkin)}\n` +
-        `Check-out: ${formatDate(checkout)}\n` +
-        `Guests: ${guestCount}\n` +
-        `Name: ${formData.firstName} ${formData.lastName}\n` +
-        `Total: ${formatPrice(total)}\n\n` +
-        `Please confirm my reservation. Thank you!`,
+      t("reservation.waSuccessMessage", {
+        property: getPropertyNameForShelter(shelter.id) ?? shelter.name,
+        checkin: formatDate(checkin, i18n.language),
+        checkout: formatDate(checkout, i18n.language),
+        guests: guestCount,
+        name: `${formData.firstName} ${formData.lastName}`,
+        total: formatPrice(total),
+      }),
     );
 
     return (
@@ -323,24 +329,32 @@ const ReservationPage: React.FC = () => {
         <div className="success-wrap">
           <div className="success-box">
             <div className="success-check">✓</div>
-            <h1>Booking Request Sent</h1>
+            <h1>{t("reservation.successTitle")}</h1>
             <p>
-              Thank you, <strong>{formData.firstName}</strong>! Your booking
-              request for <strong>{shelter.name}</strong> has been received. A
-              confirmation email is on its way to{" "}
-              <strong>{formData.email}</strong>.
+              <Trans
+                i18nKey="reservation.successBody"
+                values={{
+                  firstName: formData.firstName,
+                  shelterName: shelter.name,
+                  email: formData.email,
+                }}
+              >
+                Thank you, <strong>{{ firstName: formData.firstName }}</strong>!
+                Your booking request for{" "}
+                <strong>{{ shelterName: shelter.name }}</strong> has been
+                received. A confirmation email is on its way to{" "}
+                <strong>{{ email: formData.email }}</strong>.
+              </Trans>
             </p>
             {confirmationId && (
               <div className="success-id">
-                Reference # {confirmationId.substring(0, 8).toUpperCase()}
+                {t("reservation.referenceNumber", {
+                  id: confirmationId.substring(0, 8).toUpperCase(),
+                })}
               </div>
             )}
             <hr className="success-divider" />
-            <p className="success-note">
-              For the quickest response and to confirm your reservation, reach
-              out to us on WhatsApp. We'll send you an invoice and finalise the
-              details.
-            </p>
+            <p className="success-note">{t("reservation.successNote")}</p>
             <div
               style={{
                 display: "flex",
@@ -363,10 +377,10 @@ const ReservationPage: React.FC = () => {
                 >
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
-                Contact us on WhatsApp
+                {t("common.contactWhatsapp")}
               </a>
               <button className="btn-home" onClick={() => navigate("/")}>
-                Back to Home
+                {t("reservation.backToHomeBtn")}
               </button>
             </div>
           </div>
@@ -452,18 +466,16 @@ const ReservationPage: React.FC = () => {
       <div className="rp-wrap">
         {/* ── Left: form ── */}
         <div className="rp-left">
-          <h1>Complete Your Booking</h1>
-          <p className="rp-subtitle">
-            Fill in your details and we'll send you an invoice via email.
-          </p>
+          <h1>{t("reservation.completeBooking")}</h1>
+          <p className="rp-subtitle">{t("reservation.completeBookingSub")}</p>
 
           <form onSubmit={handleSubmit}>
             {/* Trip dates */}
             <div className="rp-section">
-              <div className="rp-section-title">Trip Details</div>
+              <div className="rp-section-title">{t("reservation.tripDetails")}</div>
               <div className="rp-row">
                 <div className="rp-field">
-                  <label>Check-In</label>
+                  <label>{t("reservation.checkIn")}</label>
                   <input
                     type="date"
                     value={checkin}
@@ -476,7 +488,7 @@ const ReservationPage: React.FC = () => {
                   />
                 </div>
                 <div className="rp-field">
-                  <label>Check-Out</label>
+                  <label>{t("reservation.checkOut")}</label>
                   <input
                     type="date"
                     value={checkout}
@@ -489,7 +501,7 @@ const ReservationPage: React.FC = () => {
                 </div>
               </div>
               <div className="rp-field">
-                <label>Guests</label>
+                <label>{t("reservation.guests")}</label>
                 <select
                   value={guestCount}
                   onChange={(e) => setGuestCount(Number(e.target.value))}
@@ -499,7 +511,7 @@ const ReservationPage: React.FC = () => {
                     (_, i) => i + 1,
                   ).map((n) => (
                     <option key={n} value={n}>
-                      {n} Guest{n > 1 ? "s" : ""}
+                      {t("common.guest", { count: n })}
                     </option>
                   ))}
                 </select>
@@ -508,10 +520,10 @@ const ReservationPage: React.FC = () => {
 
             {/* Guest details */}
             <div className="rp-section">
-              <div className="rp-section-title">Your Details</div>
+              <div className="rp-section-title">{t("reservation.yourDetails")}</div>
               <div className="rp-row">
                 <div className="rp-field">
-                  <label>First Name</label>
+                  <label>{t("reservation.firstName")}</label>
                   <input
                     type="text"
                     name="firstName"
@@ -522,7 +534,7 @@ const ReservationPage: React.FC = () => {
                   />
                 </div>
                 <div className="rp-field">
-                  <label>Last Name</label>
+                  <label>{t("reservation.lastName")}</label>
                   <input
                     type="text"
                     name="lastName"
@@ -534,7 +546,7 @@ const ReservationPage: React.FC = () => {
                 </div>
               </div>
               <div className="rp-field">
-                <label>Email Address</label>
+                <label>{t("reservation.emailAddress")}</label>
                 <input
                   type="email"
                   name="email"
@@ -545,7 +557,7 @@ const ReservationPage: React.FC = () => {
                 />
               </div>
               <div className="rp-field">
-                <label>Phone Number</label>
+                <label>{t("reservation.phoneNumber")}</label>
                 <div className="rp-phone-wrap">
                   <span className="rp-phone-prefix">+33</span>
                   <input
@@ -563,14 +575,13 @@ const ReservationPage: React.FC = () => {
             {submitError && <div className="rp-error">{submitError}</div>}
 
             <button className="rp-submit" type="submit" disabled={submitting}>
-              {submitting ? "Sending Request…" : "Request Booking"}
+              {submitting ? t("reservation.sendingRequest") : t("reservation.requestBooking")}
             </button>
 
             <div className="rp-invoice-note">
               <p>
-                <strong>How it works:</strong> Once you submit, we'll send an
-                invoice to your email and our team will confirm your
-                reservation. For the fastest response, contact us on WhatsApp at{" "}
+                <strong>{t("reservation.invoiceNoteHow")}</strong>{" "}
+                {t("reservation.invoiceNoteBody")}{" "}
                 <strong>+33 6 01 94 33 48</strong>.
               </p>
             </div>
@@ -581,20 +592,19 @@ const ReservationPage: React.FC = () => {
         <div className="rp-card">
           <div className="rp-card-shelter">{shelter.name}</div>
           <div className="rp-card-loc">
-            Diani Beach, Kwale County · {shelter.bedrooms ?? 1} bed
-            {(shelter.bedrooms ?? 1) > 1 ? "s" : ""}
+            {t("reservation.locationLine")} · {t("common.bed", { count: shelter.bedrooms ?? 1 })}
           </div>
 
           {checkin && checkout && nights > 0 ? (
             <>
               <div className="rp-card-dates">
                 <div className="rp-card-date">
-                  <div className="rp-card-date-label">Check-In</div>
-                  <div className="rp-card-date-val">{formatDate(checkin)}</div>
+                  <div className="rp-card-date-label">{t("reservation.checkIn")}</div>
+                  <div className="rp-card-date-val">{formatDate(checkin, i18n.language)}</div>
                 </div>
                 <div className="rp-card-date">
-                  <div className="rp-card-date-label">Check-Out</div>
-                  <div className="rp-card-date-val">{formatDate(checkout)}</div>
+                  <div className="rp-card-date-label">{t("reservation.checkOut")}</div>
+                  <div className="rp-card-date-val">{formatDate(checkout, i18n.language)}</div>
                 </div>
               </div>
 
@@ -602,7 +612,7 @@ const ReservationPage: React.FC = () => {
 
               <div className="rp-card-line">
                 <span>
-                  Room charges{" "}
+                  {t("reservation.roomCharges")}{" "}
                   {nights > 0 && (
                     <span className="rp-card-nights-badge">{nights}n</span>
                   )}
@@ -613,27 +623,27 @@ const ReservationPage: React.FC = () => {
               </div>
               {priceBreakdown?.breakdown?.guestCharges > 0 && (
                 <div className="rp-card-line">
-                  <span>Extra guests</span>
+                  <span>{t("reservation.extraGuests")}</span>
                   <span>
                     {formatPrice(priceBreakdown?.breakdown?.guestCharges ?? 0)}
                   </span>
                 </div>
               )}
               <div className="rp-card-line">
-                <span>Cleaning fee</span>
+                <span>{t("reservation.cleaningFee")}</span>
                 <span>
                   {formatPrice(priceBreakdown?.breakdown?.cleaningFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">
-                <span>Monetary fee</span>
+                <span>{t("reservation.monetaryFee")}</span>
                 <span>
                   {formatPrice(priceBreakdown?.breakdown?.monetaryFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">
                 <span>
-                  Tax ({priceBreakdown?.breakdown?.taxPercentage ?? 0}%)
+                  {t("reservation.tax", { pct: priceBreakdown?.breakdown?.taxPercentage ?? 0 })}
                 </span>
                 <span>
                   {formatPrice(priceBreakdown?.breakdown?.taxAmount ?? 0)}
@@ -641,7 +651,7 @@ const ReservationPage: React.FC = () => {
               </div>
 
               <div className="rp-card-line total">
-                <span>Total</span>
+                <span>{t("reservation.total")}</span>
                 <span>{formatPrice(total)}</span>
               </div>
 
@@ -654,18 +664,18 @@ const ReservationPage: React.FC = () => {
                   lineHeight: 1.5,
                 }}
               >
-                Invoice will be sent to your email after booking.
+                {t("reservation.invoiceSentNote")}
               </p>
             </>
           ) : (
-            <div className="rp-card-zero">Select dates to see pricing</div>
+            <div className="rp-card-zero">{t("reservation.selectDatesPricing")}</div>
           )}
 
           <div className="rp-wa-pill">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
             </svg>
-            Quick reply: +33 6 01 94 33 48
+            {t("reservation.quickReply", { phone: "+33 6 01 94 33 48" })}
           </div>
         </div>
       </div>

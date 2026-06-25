@@ -1,0 +1,141 @@
+{
+  "nav": {
+    "shelters": "Shelters",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "home": "Home",
+    "about": "About",
+    "bookDirect": "Book Direct — Best Rate",
+    "toggleMenu": "Toggle menu",
+    "closeMenu": "Close menu"
+  },
+  "topbar": {
+    "address": "Strasbourg, France"
+  },
+  "common": {
+    "viewDetails": "View Details",
+    "reserve": "Reserve",
+    "reserveNow": "Reserve Now",
+    "whatsapp": "WhatsApp",
+    "contactWhatsapp": "Contact Us on WhatsApp",
+    "contactUs": "contact us",
+    "selectCurrency": "Select currency",
+    "selectLanguage": "Select language",
+    "facebook": "Facebook",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "sitemap": "Sitemap",
+    "amenityAC": "AC",
+    "amenityKitchen": "Kitchen",
+    "amenityWifi": "WiFi",
+    "amenityLaundry": "Laundry",
+    "upToGuests": "Up to {{count}} guests",
+    "max": "Max {{count}}",
+    "bedroom_one": "{{count}} Bedroom",
+    "bedroom_other": "{{count}} Bedrooms",
+    "bed_one": "{{count}} Bed",
+    "bed_other": "{{count}} Beds",
+    "bath_one": "{{count}} Bath",
+    "bath_other": "{{count}} Baths",
+    "bathroom_one": "{{count}} Bathroom",
+    "bathroom_other": "{{count}} Bathrooms",
+    "guest_one": "{{count}} Guest",
+    "guest_other": "{{count}} Guests",
+    "night_one": "{{count}} night",
+    "night_other": "{{count}} nights",
+    "backToHome": "← Back to Home"
+  },
+  "home": {
+    "checkIn": "Check In",
+    "checkOut": "Check Out",
+    "guests": "Guests",
+    "search": "Search",
+    "alertSelectDates": "Please select check-in and check-out dates.",
+    "alertCheckoutAfterCheckin": "Check-out must be after check-in.",
+    "accommodation": "Accommodation",
+    "findUs": "Find Us",
+    "ourLocations": "Our Locations",
+    "locationsDesc": "Alsace Hideaways properties are nestled across Strasbourg, France — each one a quiet escape from the everyday.",
+    "mapCard1Title": "La Maison Moderne",
+    "mapCard2Title": "Le Refuge de la Martre"
+  },
+  "footer": {
+    "locationLabel": "Location",
+    "address": "Griesheim-près-Molsheim, France",
+    "phoneLabel": "Phone",
+    "copyright": "© 2026 Alsace Hideaways. All rights reserved."
+  },
+  "shelterCard": {
+    "openingSoon": "Opening Soon"
+  },
+  "gallery": {
+    "eyebrow": "Our Collections",
+    "title": "Photo Gallery",
+    "backToGallery": "← Back to gallery"
+  },
+  "shelterDetails": {
+    "notFound": "Shelter not found",
+    "features": "Features",
+    "waMessage": "Hi, I'm interested in booking the {{shelterName}}. Could you please provide availability and pricing details?"
+  },
+  "searchResults": {
+    "title": "Available Shelters",
+    "checkingAvailability": "Checking availability…",
+    "noSheltersPrefix": "No shelters available for the selected dates. Try different dates or",
+    "available": "Available",
+    "perNight": "/ night",
+    "waMessage_one": "Hi, I'd like to book {{shelterName}} from {{checkin}} to {{checkout}} for {{count}} guest.",
+    "waMessage_other": "Hi, I'd like to book {{shelterName}} from {{checkin}} to {{checkout}} for {{count}} guests."
+  },
+  "reservation": {
+    "successTitle": "Booking Request Sent",
+    "successBody": "Thank you, <0>{{firstName}}</0>! Your booking request for <1>{{shelterName}}</1> has been received. A confirmation email is on its way to <2>{{email}}</2>.",
+    "referenceNumber": "Reference # {{id}}",
+    "successNote": "For the quickest response and to confirm your reservation, reach out to us on WhatsApp. We'll send you an invoice and finalise the details.",
+    "waSuccessMessage": "Hi! I just submitted a booking request to Alsace Hideaways.\n\nProperty: {{property}}\nCheck-in: {{checkin}}\nCheck-out: {{checkout}}\nGuests: {{guests}}\nName: {{name}}\nTotal: {{total}}\n\nPlease confirm my reservation. Thank you!",
+    "backToHomeBtn": "Back to Home",
+    "completeBooking": "Complete Your Booking",
+    "completeBookingSub": "Fill in your details and we'll send you an invoice via email.",
+    "tripDetails": "Trip Details",
+    "checkIn": "Check-In",
+    "checkOut": "Check-Out",
+    "guests": "Guests",
+    "yourDetails": "Your Details",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "emailAddress": "Email Address",
+    "phoneNumber": "Phone Number",
+    "errorInvalidDates": "Please select valid check-in and check-out dates.",
+    "errorMinNights_one": "{{shelterName}} requires a minimum stay of {{count}} night.",
+    "errorMinNights_other": "{{shelterName}} requires a minimum stay of {{count}} nights.",
+    "errorFullName": "Please enter your full name.",
+    "errorInvalidEmail": "Please enter a valid email address.",
+    "errorPhone": "Please enter your phone number.",
+    "errorPropertyNotFound": "Property not found",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorNetwork": "Network error. Please check your connection and try again.",
+    "sendingRequest": "Sending Request…",
+    "requestBooking": "Request Booking",
+    "invoiceNoteHow": "How it works:",
+    "invoiceNoteBody": "Once you submit, we'll send an invoice to your email and our team will confirm your reservation. For the fastest response, contact us on WhatsApp at",
+    "locationLine": "Diani Beach, Kwale County",
+    "roomCharges": "Room charges",
+    "extraGuests": "Extra guests",
+    "cleaningFee": "Cleaning fee",
+    "monetaryFee": "Monetary fee",
+    "tax": "Tax ({{pct}}%)",
+    "total": "Total",
+    "invoiceSentNote": "Invoice will be sent to your email after booking.",
+    "selectDatesPricing": "Select dates to see pricing",
+    "quickReply": "Quick reply: {{phone}}"
+  },
+  "whatsapp": {
+    "chatWithUs": "Chat with us",
+    "chatAriaLabel": "Chat on WhatsApp"
+  },
+  "seo": {
+    "defaultTitle": "Alsace Hideaways — Luxury Holiday Rentals in Strasbourg, France",
+    "titleSuffix": "— Alsace Hideaways, Strasbourg, France",
+    "defaultDescription": "Discover exceptional holiday properties across Strasbourg, France. Alsace Hideaways offers handpicked retreats — from serene countryside shelters to elegant woodland escapes."
+  }
+}

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { SHELTERS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import { useCurrency } from "../context/CurrencyContext";
 
 function nightsBetween(a: string, b: string) {
@@ -12,13 +14,16 @@ function nightsBetween(a: string, b: string) {
   );
 }
 
-function fmtDate(d: string) {
+function fmtDate(d: string, locale: string) {
   if (!d) return "";
-  return new Date(d + "T00:00:00").toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return new Date(d + "T00:00:00").toLocaleDateString(
+    locale === "fr" ? "fr-FR" : "en-GB",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    },
+  );
 }
 
 interface ShelterStatus {
@@ -30,6 +35,7 @@ interface ShelterStatus {
 }
 
 const SearchResultsPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { formatPrice } = useCurrency();
@@ -171,6 +177,14 @@ const SearchResultsPage: React.FC = () => {
         .sr-nav-links { display:flex; gap:36px; list-style:none; }
         .sr-nav-links a { font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:#fff; text-decoration:none; opacity:0.75; transition:opacity 0.2s; }
         .sr-nav-links a:hover { opacity:1; }
+        .language-selector { display:flex; align-items:center; gap:6px; margin-right:8px; }
+        .language-selector select {
+          font-family:'Inter',sans-serif; font-size:0.7rem; font-weight:500; letter-spacing:0.06em;
+          text-transform:uppercase; background:transparent; border:1px solid rgba(255,255,255,0.4);
+          color:#fff; padding:6px 10px; cursor:pointer; outline:none; border-radius:4px; transition:border-color 0.2s;
+        }
+        .language-selector select option { background:#1a1a2e; color:#fff; }
+        .language-selector select:hover { border-color:#fff; }
         .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; }
         .hamburger span { width:22px; height:2px; background:#fff; display:block; }
         .mobile-menu { display:none; position:fixed; inset:0; background:rgba(26,26,46,0.98); z-index:50; flex-direction:column; align-items:center; justify-content:center; gap:28px; }
@@ -225,20 +239,21 @@ const SearchResultsPage: React.FC = () => {
         </Link>
         <ul className="sr-nav-links">
           <li>
-            <a href="/#shelters">Shelters</a>
+            <a href="/#shelters">{t("nav.shelters")}</a>
           </li>
           <li>
-            <Link to="/gallery">Gallery</Link>
+            <Link to="/gallery">{t("nav.gallery")}</Link>
           </li>
           <li>
-            <a href="/#contact">Contact</a>
+            <a href="/#contact">{t("nav.contact")}</a>
           </li>
         </ul>
         <CurrencySelector />
+        <LanguageSwitcher />
         <button
           className="hamburger"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Menu"
+          aria-label={t("nav.toggleMenu")}
         >
           <span />
           <span />
@@ -248,33 +263,33 @@ const SearchResultsPage: React.FC = () => {
 
       <div className={`mobile-menu${mobileMenuOpen ? " open" : ""}`}>
         <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
-          Shelters
+          {t("nav.shelters")}
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          Gallery
+          {t("nav.gallery")}
         </Link>
         <a href="/#contact" onClick={() => setMobileMenuOpen(false)}>
-          Contact
+          {t("nav.contact")}
         </a>
       </div>
 
       <div className="sr-wrap">
         <div className="sr-header">
-          <h1 className="sr-title">Available Shelters</h1>
+          <h1 className="sr-title">{t("searchResults.title")}</h1>
           <div className="sr-subtitle">
-            {fmtDate(checkin)} — {fmtDate(checkout)} &nbsp;·&nbsp; {nights}{" "}
-            night{nights !== 1 ? "s" : ""} &nbsp;·&nbsp; {guests} guest
-            {guests !== 1 ? "s" : ""}
+            {fmtDate(checkin, i18n.language)} — {fmtDate(checkout, i18n.language)} &nbsp;·&nbsp;{" "}
+            {t("common.night", { count: nights })} &nbsp;·&nbsp;{" "}
+            {t("common.guest", { count: guests })}
           </div>
         </div>
 
         {loading ? (
-          <div className="sr-loading">Checking availability…</div>
+          <div className="sr-loading">{t("searchResults.checkingAvailability")}</div>
         ) : visibleShelters.length === 0 ? (
           <div className="sr-loading">
-            No shelters available for the selected dates. Try different dates or{" "}
+            {t("searchResults.noSheltersPrefix")}{" "}
             <a href="https://wa.me/33601943348" style={{ color: "#c9a84c" }}>
-              contact us
+              {t("common.contactUs")}
             </a>
             .
           </div>
@@ -302,32 +317,29 @@ const SearchResultsPage: React.FC = () => {
                       loading="lazy"
                       decoding="async"
                     />
-                    <span className="sr-card-badge available">Available</span>
+                    <span className="sr-card-badge available">{t("searchResults.available")}</span>
                   </div>
                   <div className="sr-card-body">
                     <div className="sr-card-type">{shelter.type}</div>
                     <div className="sr-card-name">{shelter.name}</div>
                     <div className="sr-card-meta">
                       {shelter.bedrooms && (
-                        <span>
-                          {shelter.bedrooms} Bed
-                          {shelter.bedrooms > 1 ? "s" : ""}
-                        </span>
+                        <span>{t("common.bed", { count: shelter.bedrooms })}</span>
                       )}
-                      <span>Up to {shelter.maxGuests} guests</span>
+                      <span>{t("common.upToGuests", { count: shelter.maxGuests })}</span>
                     </div>
                     <div className="sr-card-amenities">
-                      <span className="sr-card-amenity">AC</span>
-                      <span className="sr-card-amenity">Kitchen</span>
-                      <span className="sr-card-amenity">WiFi</span>
-                      <span className="sr-card-amenity">Laundry</span>
+                      <span className="sr-card-amenity">{t("common.amenityAC")}</span>
+                      <span className="sr-card-amenity">{t("common.amenityKitchen")}</span>
+                      <span className="sr-card-amenity">{t("common.amenityWifi")}</span>
+                      <span className="sr-card-amenity">{t("common.amenityLaundry")}</span>
                     </div>
                     <div className="sr-card-price">
                       <div className="sr-card-price-total">
                         {formatPrice(totalWithFees)}
                       </div>
                       <div className="sr-card-price-sub">
-                        {formatPrice(pricePerNight)} / night
+                        {formatPrice(pricePerNight)} {t("searchResults.perNight")}
                       </div>
                     </div>
                     <div
@@ -356,11 +368,11 @@ const SearchResultsPage: React.FC = () => {
                           transition: "opacity 0.2s",
                         }}
                       >
-                        View Details
+                        {t("common.viewDetails")}
                       </Link>
                       {shelter.contactOnly ? (
                         <a
-                          href={`https://wa.me/33601943348?text=${encodeURIComponent(`Hi, I'd like to book ${shelter.name} from ${checkin} to ${checkout} for ${guests} guest${guests !== 1 ? "s" : ""}.`)}`}
+                          href={`https://wa.me/33601943348?text=${encodeURIComponent(t("searchResults.waMessage", { shelterName: shelter.name, checkin, checkout, count: guests }))}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
@@ -379,7 +391,7 @@ const SearchResultsPage: React.FC = () => {
                             whiteSpace: "nowrap",
                           }}
                         >
-                          WhatsApp
+                          {t("common.whatsapp")}
                         </a>
                       ) : (
                         <button
@@ -387,7 +399,7 @@ const SearchResultsPage: React.FC = () => {
                           style={{ width: "auto", padding: "10px 20px" }}
                           onClick={() => handleReserve(shelter.id)}
                         >
-                          Reserve
+                          {t("common.reserve")}
                         </button>
                       )}
                     </div>

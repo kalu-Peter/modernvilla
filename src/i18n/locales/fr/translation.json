@@ -1,0 +1,141 @@
+{
+  "nav": {
+    "shelters": "Hébergements",
+    "gallery": "Galerie",
+    "contact": "Contact",
+    "home": "Accueil",
+    "about": "À propos",
+    "bookDirect": "Réservez en direct — Meilleur tarif",
+    "toggleMenu": "Basculer le menu",
+    "closeMenu": "Fermer le menu"
+  },
+  "topbar": {
+    "address": "Strasbourg, France"
+  },
+  "common": {
+    "viewDetails": "Voir les détails",
+    "reserve": "Réserver",
+    "reserveNow": "Réserver maintenant",
+    "whatsapp": "WhatsApp",
+    "contactWhatsapp": "Contactez-nous sur WhatsApp",
+    "contactUs": "nous contacter",
+    "selectCurrency": "Choisir la devise",
+    "selectLanguage": "Choisir la langue",
+    "facebook": "Facebook",
+    "privacyPolicy": "Politique de confidentialité",
+    "termsOfUse": "Conditions d'utilisation",
+    "sitemap": "Plan du site",
+    "amenityAC": "Clim.",
+    "amenityKitchen": "Cuisine",
+    "amenityWifi": "WiFi",
+    "amenityLaundry": "Blanchisserie",
+    "upToGuests": "Jusqu'à {{count}} personnes",
+    "max": "Max {{count}}",
+    "bedroom_one": "{{count}} chambre",
+    "bedroom_other": "{{count}} chambres",
+    "bed_one": "{{count}} lit",
+    "bed_other": "{{count}} lits",
+    "bath_one": "{{count}} bain",
+    "bath_other": "{{count}} bains",
+    "bathroom_one": "{{count}} salle de bain",
+    "bathroom_other": "{{count}} salles de bain",
+    "guest_one": "{{count}} personne",
+    "guest_other": "{{count}} personnes",
+    "night_one": "{{count}} nuit",
+    "night_other": "{{count}} nuits",
+    "backToHome": "← Retour à l'accueil"
+  },
+  "home": {
+    "checkIn": "Arrivée",
+    "checkOut": "Départ",
+    "guests": "Voyageurs",
+    "search": "Rechercher",
+    "alertSelectDates": "Veuillez sélectionner les dates d'arrivée et de départ.",
+    "alertCheckoutAfterCheckin": "La date de départ doit être après la date d'arrivée.",
+    "accommodation": "Hébergement",
+    "findUs": "Nous trouver",
+    "ourLocations": "Nos adresses",
+    "locationsDesc": "Les propriétés Alsace Hideaways sont nichées à travers Strasbourg, en France — chacune une retraite paisible loin du quotidien.",
+    "mapCard1Title": "La Maison Moderne",
+    "mapCard2Title": "Le Refuge de la Martre"
+  },
+  "footer": {
+    "locationLabel": "Adresse",
+    "address": "Griesheim-près-Molsheim, France",
+    "phoneLabel": "Téléphone",
+    "copyright": "© 2026 Alsace Hideaways. Tous droits réservés."
+  },
+  "shelterCard": {
+    "openingSoon": "Ouverture prochaine"
+  },
+  "gallery": {
+    "eyebrow": "Nos collections",
+    "title": "Galerie photo",
+    "backToGallery": "← Retour à la galerie"
+  },
+  "shelterDetails": {
+    "notFound": "Hébergement introuvable",
+    "features": "Caractéristiques",
+    "waMessage": "Bonjour, je suis intéressé(e) par la réservation de {{shelterName}}. Pourriez-vous me communiquer les disponibilités et les tarifs ?"
+  },
+  "searchResults": {
+    "title": "Hébergements disponibles",
+    "checkingAvailability": "Vérification des disponibilités…",
+    "noSheltersPrefix": "Aucun hébergement disponible pour les dates sélectionnées. Essayez d'autres dates ou",
+    "available": "Disponible",
+    "perNight": "/ nuit",
+    "waMessage_one": "Bonjour, je souhaiterais réserver {{shelterName}} du {{checkin}} au {{checkout}} pour {{count}} personne.",
+    "waMessage_other": "Bonjour, je souhaiterais réserver {{shelterName}} du {{checkin}} au {{checkout}} pour {{count}} personnes."
+  },
+  "reservation": {
+    "successTitle": "Demande de réservation envoyée",
+    "successBody": "Merci, <0>{{firstName}}</0> ! Votre demande de réservation pour <1>{{shelterName}}</1> a bien été reçue. Un e-mail de confirmation est en route vers <2>{{email}}</2>.",
+    "referenceNumber": "Référence n° {{id}}",
+    "successNote": "Pour une réponse rapide et confirmer votre réservation, contactez-nous sur WhatsApp. Nous vous enverrons une facture et finaliserons les détails.",
+    "waSuccessMessage": "Bonjour ! Je viens de soumettre une demande de réservation à Alsace Hideaways.\n\nPropriété : {{property}}\nArrivée : {{checkin}}\nDépart : {{checkout}}\nVoyageurs : {{guests}}\nNom : {{name}}\nTotal : {{total}}\n\nMerci de confirmer ma réservation !",
+    "backToHomeBtn": "Retour à l'accueil",
+    "completeBooking": "Finalisez votre réservation",
+    "completeBookingSub": "Renseignez vos coordonnées et nous vous enverrons une facture par e-mail.",
+    "tripDetails": "Détails du séjour",
+    "checkIn": "Arrivée",
+    "checkOut": "Départ",
+    "guests": "Voyageurs",
+    "yourDetails": "Vos coordonnées",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "emailAddress": "Adresse e-mail",
+    "phoneNumber": "Numéro de téléphone",
+    "errorInvalidDates": "Veuillez sélectionner des dates d'arrivée et de départ valides.",
+    "errorMinNights_one": "{{shelterName}} nécessite un séjour minimum de {{count}} nuit.",
+    "errorMinNights_other": "{{shelterName}} nécessite un séjour minimum de {{count}} nuits.",
+    "errorFullName": "Veuillez entrer votre nom complet.",
+    "errorInvalidEmail": "Veuillez entrer une adresse e-mail valide.",
+    "errorPhone": "Veuillez entrer votre numéro de téléphone.",
+    "errorPropertyNotFound": "Propriété introuvable",
+    "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
+    "errorNetwork": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+    "sendingRequest": "Envoi de la demande…",
+    "requestBooking": "Demander la réservation",
+    "invoiceNoteHow": "Comment ça marche :",
+    "invoiceNoteBody": "Une fois votre demande envoyée, nous vous adresserons une facture par e-mail et notre équipe confirmera votre réservation. Pour une réponse plus rapide, contactez-nous sur WhatsApp au",
+    "locationLine": "Diani Beach, Kwale County",
+    "roomCharges": "Frais de séjour",
+    "extraGuests": "Voyageurs supplémentaires",
+    "cleaningFee": "Frais de ménage",
+    "monetaryFee": "Frais de service",
+    "tax": "Taxe ({{pct}}%)",
+    "total": "Total",
+    "invoiceSentNote": "La facture vous sera envoyée par e-mail après la réservation.",
+    "selectDatesPricing": "Sélectionnez des dates pour voir le tarif",
+    "quickReply": "Réponse rapide : {{phone}}"
+  },
+  "whatsapp": {
+    "chatWithUs": "Discutez avec nous",
+    "chatAriaLabel": "Discuter sur WhatsApp"
+  },
+  "seo": {
+    "defaultTitle": "Alsace Hideaways — Locations de vacances de luxe à Strasbourg, France",
+    "titleSuffix": "— Alsace Hideaways, Strasbourg, France",
+    "defaultDescription": "Découvrez des propriétés de vacances exceptionnelles à travers Strasbourg, en France. Alsace Hideaways propose des refuges triés sur le volet — des havres de campagne sereins aux escapades boisées élégantes."
+  }
+}

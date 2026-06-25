@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 
 interface SEOProps {
   title?: string;
@@ -18,12 +19,11 @@ export default function SEO({
   url,
   type = "website",
 }: SEOProps) {
+  const { t, i18n } = useTranslation();
   const fullTitle = title
-    ? `${title} — Alsace Hideaways, Strasbourg, France`
-    : "Alsace Hideaways — Luxury Holiday Rentals in Strasbourg, France";
-  const metaDesc =
-    description ??
-    "Discover exceptional holiday properties across Strasbourg, France. Alsace Hideaways offers handpicked retreats — from serene countryside shelters to elegant woodland escapes.";
+    ? `${title} ${t("seo.titleSuffix")}`
+    : t("seo.defaultTitle");
+  const metaDesc = description ?? t("seo.defaultDescription");
   const metaImage = image
     ? image.startsWith("http")
       ? image
@@ -32,7 +32,7 @@ export default function SEO({
   const canonical = url ? `${BASE_URL}${url}` : BASE_URL;
 
   return (
-    <Helmet>
+    <Helmet htmlAttributes={{ lang: i18n.language }}>
       <title>{fullTitle}</title>
       <meta name="description" content={metaDesc} />
       <link rel="canonical" href={canonical} />

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Shelter } from "../types";
 
 interface ShelterCardProps {
@@ -63,6 +64,7 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
   shelter,
   onSelectShelter,
 }) => {
+  const { t } = useTranslation();
   const images =
     shelter.gallery && shelter.gallery.length > 0
       ? shelter.gallery
@@ -118,10 +120,10 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
       <div className="shelter-card-header">
         <h3>{shelter.name}</h3>
         <div className="shelter-amenity-chips">
-          <span className="shelter-amenity-chip">AC</span>
-          <span className="shelter-amenity-chip">Kitchen</span>
-          <span className="shelter-amenity-chip">WiFi</span>
-          <span className="shelter-amenity-chip">Laundry</span>
+          <span className="shelter-amenity-chip">{t("common.amenityAC")}</span>
+          <span className="shelter-amenity-chip">{t("common.amenityKitchen")}</span>
+          <span className="shelter-amenity-chip">{t("common.amenityWifi")}</span>
+          <span className="shelter-amenity-chip">{t("common.amenityLaundry")}</span>
         </div>
       </div>
 
@@ -131,24 +133,24 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
           {shelter.bedrooms && (
             <span className="shelter-chip">
               <BedIcon />
-              {shelter.bedrooms} Bedroom{shelter.bedrooms > 1 ? "s" : ""}
+              {t("common.bedroom", { count: shelter.bedrooms })}
             </span>
           )}
           {shelter.beds && (
             <span className="shelter-chip">
               <BedIcon />
-              {shelter.beds} Bed{shelter.beds > 1 ? "s" : ""}
+              {t("common.bed", { count: shelter.beds })}
             </span>
           )}
           {shelter.bathrooms && (
             <span className="shelter-chip">
               <BathIcon />
-              {shelter.bathrooms} Bath
+              {t("common.bath", { count: shelter.bathrooms })}
             </span>
           )}
           <span className="shelter-chip">
             <GuestIcon />
-            Max {shelter.maxGuests}
+            {t("common.max", { count: shelter.maxGuests })}
           </span>
         </div>
 
@@ -167,7 +169,7 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
                 borderRadius: 4,
               }}
             >
-              Opening Soon
+              {t("shelterCard.openingSoon")}
             </span>
           ) : (
             <button
@@ -189,7 +191,7 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
                 transition: "background 0.2s, color 0.2s",
               }}
             >
-              View Details
+              {t("common.viewDetails")}
             </button>
           )}
         </div>

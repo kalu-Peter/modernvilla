@@ -1,7 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useCurrency, SUPPORTED_CURRENCIES } from "../context/CurrencyContext";
 
 const CurrencySelector: React.FC = () => {
+  const { t } = useTranslation();
   const { currency, setCurrency, loading } = useCurrency();
 
   return (
@@ -15,7 +17,7 @@ const CurrencySelector: React.FC = () => {
           if (found) setCurrency(found);
         }}
         disabled={loading}
-        aria-label="Select currency"
+        aria-label={t("common.selectCurrency")}
       >
         {SUPPORTED_CURRENCIES.map((c) => (
           <option key={c.code} value={c.code}>

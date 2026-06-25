@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { SHELTERS } from "../types";
 import CurrencySelector from "../components/CurrencySelector";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 import SEO from "../components/SEO";
 
 const WA_NUMBER = "";
 
 const ShelterDetailsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { shelterId } = useParams<{ shelterId: string }>();
 
   const shelter = SHELTERS.find((s) => s.id === shelterId);
@@ -42,7 +45,7 @@ const ShelterDetailsPage: React.FC = () => {
               fontSize: "2rem",
             }}
           >
-            Shelter not found
+            {t("shelterDetails.notFound")}
           </h2>
           <Link
             to="/"
@@ -54,7 +57,7 @@ const ShelterDetailsPage: React.FC = () => {
               textTransform: "uppercase",
             }}
           >
-            ← Back to Home
+            {t("common.backToHome")}
           </Link>
         </div>
       </div>
@@ -117,7 +120,7 @@ const ShelterDetailsPage: React.FC = () => {
               fontSize: "2rem",
             }}
           >
-            Shelter not found
+            {t("shelterDetails.notFound")}
           </h2>
           <Link
             to="/"
@@ -129,7 +132,7 @@ const ShelterDetailsPage: React.FC = () => {
               textTransform: "uppercase",
             }}
           >
-            ← Back to Home
+            {t("common.backToHome")}
           </Link>
         </div>
       </div>
@@ -137,7 +140,7 @@ const ShelterDetailsPage: React.FC = () => {
   }
 
   const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-    `Hi, I'm interested in booking the ${shelter.name}. Could you please provide availability and pricing details?`,
+    t("shelterDetails.waMessage", { shelterName: shelter.name }),
   )}`;
 
   return (
@@ -191,6 +194,30 @@ const ShelterDetailsPage: React.FC = () => {
           background: none; border: none; cursor: pointer; padding: 0;
         }
         .nav-links a:hover, .nav-links button:hover { opacity: 1; }
+
+        .language-selector {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-right: 8px;
+        }
+        .language-selector select {
+          font-family: 'Inter', sans-serif;
+          font-size: 0.7rem;
+          font-weight: 500;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.4);
+          color: #fff;
+          padding: 6px 10px;
+          cursor: pointer;
+          outline: none;
+          border-radius: 4px;
+          transition: border-color 0.2s;
+        }
+        .language-selector select option { background: #1a1a2e; color: #fff; }
+        .language-selector select:hover { border-color: #fff; }
 
         .hamburger { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; z-index: 101; }
         .hamburger span { width: 24px; height: 2px; background: #f0f0f0; transition: all 0.3s ease; display: block; }
@@ -399,20 +426,21 @@ const ShelterDetailsPage: React.FC = () => {
         </Link>
         <ul className="nav-links">
           <li>
-            <a href="/#shelters">Shelters</a>
+            <a href="/#shelters">{t("nav.shelters")}</a>
           </li>
           <li>
-            <Link to="/gallery">Gallery</Link>
+            <Link to="/gallery">{t("nav.gallery")}</Link>
           </li>
           <li>
-            <a href="/#contact">Contact</a>
+            <a href="/#contact">{t("nav.contact")}</a>
           </li>
         </ul>
         <CurrencySelector />
+        <LanguageSwitcher />
         <button
           className={`hamburger ${mobileMenuOpen ? "active" : ""}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={t("nav.toggleMenu")}
         >
           <span />
           <span />
@@ -423,13 +451,13 @@ const ShelterDetailsPage: React.FC = () => {
       {/* MOBILE MENU */}
       <div className={`mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
         <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
-          Shelters
+          {t("nav.shelters")}
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          Gallery
+          {t("nav.gallery")}
         </Link>
         <a href="/#contact" onClick={() => setMobileMenuOpen(false)}>
-          Contact
+          {t("nav.contact")}
         </a>
       </div>
 
@@ -440,17 +468,14 @@ const ShelterDetailsPage: React.FC = () => {
           <h1 className="vdp-title">{shelter.name}</h1>
           <div className="vdp-meta">
             {shelter.bedrooms && (
-              <span>
-                🛏 {shelter.bedrooms} Bedroom{shelter.bedrooms > 1 ? "s" : ""}
-              </span>
+              <span>🛏 {t("common.bedroom", { count: shelter.bedrooms })}</span>
             )}
             {shelter.bathrooms && (
               <span>
-                🚿 {shelter.bathrooms} Bathroom
-                {shelter.bathrooms > 1 ? "s" : ""}
+                🚿 {t("common.bathroom", { count: shelter.bathrooms })}
               </span>
             )}
-            <span>Up to {shelter.maxGuests} guests</span>
+            <span>{t("common.upToGuests", { count: shelter.maxGuests })}</span>
           </div>
         </div>
 
@@ -533,7 +558,7 @@ const ShelterDetailsPage: React.FC = () => {
                       <path d="M10 9V5" />
                       <path d="M2 14h20" />
                     </svg>
-                    {shelter.bedrooms} Bed{shelter.bedrooms > 1 ? "s" : ""}
+                    {t("common.bed", { count: shelter.bedrooms })}
                   </span>
                 )}
                 {shelter.bathrooms && (
@@ -552,8 +577,7 @@ const ShelterDetailsPage: React.FC = () => {
                       <circle cx="10" cy="13" r="1" fill="currentColor" />
                       <circle cx="14" cy="13" r="1" fill="currentColor" />
                     </svg>
-                    {shelter.bathrooms} Bathroom
-                    {shelter.bathrooms > 1 ? "s" : ""}
+                    {t("common.bathroom", { count: shelter.bathrooms })}
                   </span>
                 )}
               </div>
@@ -568,7 +592,7 @@ const ShelterDetailsPage: React.FC = () => {
             {shelter.amenities && shelter.amenities.length > 0 && (
               <div className="vdp-amenities">
                 <div className="vdp-amenities-group">
-                  <div className="vdp-amenities-group-title">Features</div>
+                  <div className="vdp-amenities-group-title">{t("shelterDetails.features")}</div>
                   <div className="vdp-amenities-items">
                     {shelter.amenities.map((amenity) => (
                       <div key={amenity} className="vdp-amenity-chip">
@@ -606,7 +630,7 @@ const ShelterDetailsPage: React.FC = () => {
                 >
                   <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.737 5.469 2.027 7.773L0 32l8.473-2.007A15.938 15.938 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 0 1-6.77-1.853l-.485-.29-5.027 1.19 1.213-4.903-.317-.503A13.267 13.267 0 0 1 2.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.87c-.397-.2-2.352-1.16-2.717-1.293-.364-.133-.63-.2-.896.2-.265.397-1.03 1.293-1.262 1.56-.232.265-.464.298-.86.1-.397-.2-1.676-.617-3.192-1.97-1.18-1.052-1.977-2.352-2.208-2.748-.232-.397-.025-.612.174-.81.179-.178.397-.464.596-.696.2-.232.265-.397.397-.663.133-.265.067-.497-.033-.696-.1-.2-.896-2.16-1.228-2.958-.323-.775-.65-.67-.896-.683l-.763-.013c-.265 0-.696.1-1.06.497-.364.397-1.393 1.36-1.393 3.317s1.427 3.847 1.626 4.113c.2.265 2.807 4.287 6.803 6.013.95.41 1.692.655 2.27.838.953.303 1.82.26 2.506.158.764-.114 2.352-.962 2.683-1.89.33-.928.33-1.724.232-1.89-.1-.165-.364-.265-.762-.464z" />
                 </svg>
-                Contact Us on WhatsApp
+                {t("common.contactWhatsapp")}
               </a>
             ) : (
               <Link
@@ -618,7 +642,7 @@ const ShelterDetailsPage: React.FC = () => {
                   textDecoration: "none",
                 }}
               >
-                Reserve Now
+                {t("common.reserveNow")}
               </Link>
             )}
           </div>

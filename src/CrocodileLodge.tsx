@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ShelterCard from "./components/ShelterCard";
 import CurrencySelector from "./components/CurrencySelector";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import SEO from "./components/SEO";
 import type { Shelter } from "./types";
 import { SHELTERS } from "./types";
 
 const ModernRefuge: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [checkin, setCheckin] = useState<string>("");
   const [checkout, setCheckout] = useState<string>("");
@@ -67,11 +70,11 @@ const ModernRefuge: React.FC = () => {
 
   const handleSearch = () => {
     if (!checkin || !checkout) {
-      alert("Please select check-in and check-out dates.");
+      alert(t("home.alertSelectDates"));
       return;
     }
     if (getNightsCount() <= 0) {
-      alert("Check-out must be after check-in.");
+      alert(t("home.alertCheckoutAfterCheckin"));
       return;
     }
     navigate(
@@ -250,6 +253,29 @@ const ModernRefuge: React.FC = () => {
         }
         .currency-selector select option { background: #1a1a2e; color: #fff; }
         .currency-selector select:hover { border-color: var(--croc-gold); color: var(--croc-gold); }
+
+        .language-selector {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-right: 8px;
+        }
+        .language-selector select {
+          font-family: 'Inter', sans-serif;
+          font-size: 0.65rem;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.3);
+          color: rgba(255,255,255,0.85);
+          padding: 6px 10px;
+          cursor: pointer;
+          outline: none;
+          border-radius: 2px;
+          transition: border-color 0.2s, color 0.2s;
+        }
+        .language-selector select option { background: #1a1a2e; color: #fff; }
+        .language-selector select:hover { border-color: var(--croc-gold); color: var(--croc-gold); }
 
         .nav-book {
           font-family: 'Inter', sans-serif;
@@ -2162,7 +2188,7 @@ const ModernRefuge: React.FC = () => {
 
       {/* TOP BAR */}
       <div className="topbar">
-        <span className="topbar-item topbar-addr">📍 Strasbourg, France</span>
+        <span className="topbar-item topbar-addr">📍 {t("topbar.address")}</span>
         <span className="topbar-divider"></span>
         <a href="tel:+33601943348" className="topbar-item">
           ☎ +33 6 01 94 33 48
@@ -2178,20 +2204,21 @@ const ModernRefuge: React.FC = () => {
         </Link>
         <ul className="nav-links">
           <li>
-            <a href="#shelters">Shelters</a>
+            <a href="#shelters">{t("nav.shelters")}</a>
           </li>
           <li>
-            <Link to="/gallery">Gallery</Link>
+            <Link to="/gallery">{t("nav.gallery")}</Link>
           </li>
           <li>
-            <a href="#contact">Contact</a>
+            <a href="#contact">{t("nav.contact")}</a>
           </li>
         </ul>
         <CurrencySelector />
+        <LanguageSwitcher />
         <button
           className={`hamburger ${mobileMenuOpen ? "active" : ""}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={t("nav.toggleMenu")}
         >
           <span></span>
           <span></span>
@@ -2204,28 +2231,28 @@ const ModernRefuge: React.FC = () => {
         <button
           className="mobile-menu-close"
           onClick={() => setMobileMenuOpen(false)}
-          aria-label="Close menu"
+          aria-label={t("nav.closeMenu")}
         >
           ✕
         </button>
         <a href="#shelters" onClick={() => setMobileMenuOpen(false)}>
-          Shelters
+          {t("nav.shelters")}
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          Gallery
+          {t("nav.gallery")}
         </Link>
         <a href="#about" onClick={() => setMobileMenuOpen(false)}>
-          About
+          {t("nav.about")}
         </a>
         <a href="#contact" onClick={() => setMobileMenuOpen(false)}>
-          Contact
+          {t("nav.contact")}
         </a>
         <a
           href="#availability"
           className="nav-book"
           onClick={() => setMobileMenuOpen(false)}
         >
-          Book Direct — Best Rate
+          {t("nav.bookDirect")}
         </a>
       </div>
 
@@ -2244,7 +2271,7 @@ const ModernRefuge: React.FC = () => {
           <div className="booking-bar-hero">
             <div className="booking-bar">
               <div className="booking-field">
-                <label>Check In</label>
+                <label>{t("home.checkIn")}</label>
                 <input
                   type="date"
                   value={checkin}
@@ -2252,7 +2279,7 @@ const ModernRefuge: React.FC = () => {
                 />
               </div>
               <div className="booking-field">
-                <label>Check Out</label>
+                <label>{t("home.checkOut")}</label>
                 <input
                   type="date"
                   value={checkout}
@@ -2260,7 +2287,7 @@ const ModernRefuge: React.FC = () => {
                 />
               </div>
               <div className="booking-field">
-                <label>Guests</label>
+                <label>{t("home.guests")}</label>
                 <input
                   type="number"
                   min="1"
@@ -2270,7 +2297,7 @@ const ModernRefuge: React.FC = () => {
                 />
               </div>
               <button className="booking-submit" onClick={handleSearch}>
-                Search
+                {t("home.search")}
               </button>
             </div>
           </div>
@@ -2280,7 +2307,7 @@ const ModernRefuge: React.FC = () => {
       {/* SHELTERS */}
       <section className="shelters-section" id="shelters">
         <div className="section-header reveal" style={{ marginBottom: "40px" }}>
-          <div className="section-tag">Accommodation</div>
+          <div className="section-tag">{t("home.accommodation")}</div>
           <h2 className="section-title">
             Alsace{" "}
             <em style={{ color: "#c9a84c", fontStyle: "italic" }}>Hideaways</em>
@@ -2307,22 +2334,19 @@ const ModernRefuge: React.FC = () => {
       <section className="location-section">
         <div className="location-inner">
           <div>
-            <div className="location-label">Find Us</div>
-            <h2 className="location-title">Our Locations</h2>
-            <p className="location-desc">
-              Alsace Hideaways properties are nestled across Strasbourg, France
-              each one a quiet escape from the everyday.
-            </p>
+            <div className="location-label">{t("home.findUs")}</div>
+            <h2 className="location-title">{t("home.ourLocations")}</h2>
+            <p className="location-desc">{t("home.locationsDesc")}</p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
-              <span className="location-detail-text">Strasbourg, France</span>
+              <span className="location-detail-text">{t("topbar.address")}</span>
             </div>
           </div>
         </div>
 
         <div className="location-maps-grid">
           <div className="location-map-card">
-            <h3>La Maison Moderne</h3>
+            <h3>{t("home.mapCard1Title")}</h3>
             <div className="location-map-wrapper">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2643.491860694221!2d7.5354!3d48.504635099999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4796b36cf283bb3d%3A0xde1f010315d01e95!2sLA%20MAISON%20MODERNE!5e0!3m2!1sen!2ske!4v1782225070587!5m2!1sen!2ske"
@@ -2335,7 +2359,7 @@ const ModernRefuge: React.FC = () => {
           </div>
 
           <div className="location-map-card">
-            <h3>Le Refuge de la Martre</h3>
+            <h3>{t("home.mapCard2Title")}</h3>
             <div className="location-map-wrapper">
               <iframe
                 src="https://www.google.com/maps?q=48.5009217,7.5311335&output=embed"
@@ -2359,14 +2383,14 @@ const ModernRefuge: React.FC = () => {
             <div className="footer-contact-item">
               <span className="contact-icon">📍</span>
               <div className="contact-text">
-                <strong>Location</strong>
-                <p>Griesheim-près-Molsheim, France</p>
+                <strong>{t("footer.locationLabel")}</strong>
+                <p>{t("footer.address")}</p>
               </div>
             </div>
             <div className="footer-contact-item">
               <span className="contact-icon">☎</span>
               <div className="contact-text">
-                <strong>Phone</strong>
+                <strong>{t("footer.phoneLabel")}</strong>
                 <p>
                   <a
                     href="tel:+33601943348"
@@ -2384,7 +2408,7 @@ const ModernRefuge: React.FC = () => {
               className="social-link"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Facebook"
+              aria-label={t("common.facebook")}
             >
               <svg
                 viewBox="0 0 24 24"
@@ -2399,13 +2423,11 @@ const ModernRefuge: React.FC = () => {
         </div>
 
         <div className="footer-bottom">
-          <span className="copyright">
-            © 2026 Alsace Hideaways. All rights reserved.
-          </span>
+          <span className="copyright">{t("footer.copyright")}</span>
           <div className="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
-            <a href="#">Sitemap</a>
+            <a href="#">{t("common.privacyPolicy")}</a>
+            <a href="#">{t("common.termsOfUse")}</a>
+            <a href="#">{t("common.sitemap")}</a>
           </div>
         </div>
       </footer>

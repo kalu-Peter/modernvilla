@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import SEO from "./components/SEO";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 
 const Gallery: React.FC = () => {
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string>("shelterA");
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -714,6 +717,30 @@ const Gallery: React.FC = () => {
         }
         .nav-book:hover { background: #f0f0f0; transform: translateY(-1px); }
 
+        .language-selector {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-right: 8px;
+        }
+        .language-selector select {
+          font-family: 'Inter', sans-serif;
+          font-size: 0.7rem;
+          font-weight: 500;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.4);
+          color: #fff;
+          padding: 6px 10px;
+          cursor: pointer;
+          outline: none;
+          border-radius: 4px;
+          transition: border-color 0.2s;
+        }
+        .language-selector select option { background: #1a1a2e; color: #fff; }
+        .language-selector select:hover { border-color: #fff; }
+
         /* HAMBURGER MENU */
         .hamburger {
           display: none;
@@ -1054,19 +1081,20 @@ const Gallery: React.FC = () => {
         </Link>
         <ul className="nav-links">
           <li>
-            <a href="/#shelters">Shelters</a>
+            <a href="/#shelters">{t("nav.shelters")}</a>
           </li>
           <li>
-            <Link to="/gallery">Gallery</Link>
+            <Link to="/gallery">{t("nav.gallery")}</Link>
           </li>
           <li>
-            <a href="/">Contact</a>
+            <a href="/">{t("nav.contact")}</a>
           </li>
         </ul>
+        <LanguageSwitcher />
         <button
           className={`hamburger ${mobileMenuOpen ? "active" : ""}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={t("nav.toggleMenu")}
         >
           <span></span>
           <span></span>
@@ -1077,34 +1105,34 @@ const Gallery: React.FC = () => {
       {/* MOBILE MENU */}
       <div className={`mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
         <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-          Home
+          {t("nav.home")}
         </Link>
         <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
-          Shelters
+          {t("nav.shelters")}
         </a>
         <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          Gallery
+          {t("nav.gallery")}
         </Link>
         <a href="/" onClick={() => setMobileMenuOpen(false)}>
-          About
+          {t("nav.about")}
         </a>
         <a href="/" onClick={() => setMobileMenuOpen(false)}>
-          Contact
+          {t("nav.contact")}
         </a>
         <a
           href="/"
           className="nav-book"
           onClick={() => setMobileMenuOpen(false)}
         >
-          Book Direct — Best Rate
+          {t("nav.bookDirect")}
         </a>
       </div>
 
       {/* GALLERY */}
       <section className="gallery-container">
         <div className="gallery-header">
-          <div className="gallery-eyebrow">Our Collections</div>
-          <h1 className="gallery-title">Photo Gallery</h1>
+          <div className="gallery-eyebrow">{t("gallery.eyebrow")}</div>
+          <h1 className="gallery-title">{t("gallery.title")}</h1>
         </div>
 
         {/* Section Tabs */}
@@ -1163,7 +1191,7 @@ const Gallery: React.FC = () => {
                 className="img-viewer-back"
                 onClick={() => setViewerOpen(false)}
               >
-                ← Back to gallery
+                {t("gallery.backToGallery")}
               </button>
               <span className="img-viewer-counter">
                 {viewerIndex + 1} / {currentImages.length}
