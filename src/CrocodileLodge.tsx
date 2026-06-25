@@ -105,7 +105,7 @@ const ModernRefuge: React.FC = () => {
         /* HERO */
         .hero {
           min-height: 100vh;
-          margin-top: 140px;
+          margin-top: 129px;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -115,7 +115,7 @@ const ModernRefuge: React.FC = () => {
           background: url('/images/hero.jpg') center center / cover no-repeat;
         }
         @media (max-width: 768px) {
-          .hero { margin-top: 130px; }
+          .hero { margin-top: 127px; }
         }
 
         .hero-gate-overlay {
