@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { SHELTERS } from "../types";
-import { useCurrency } from "../context/CurrencyContext";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { BlockDateModal } from "./BlockDateModal";
 import { IcalManagement } from "./IcalManagement";
@@ -14,8 +13,6 @@ import type {
 } from "../types/availability";
 
 export const AvailabilityTab: React.FC = () => {
-  const { formatPrice } = useCurrency();
-
   const [selectedProperty, setSelectedProperty] = useState<string>(
     SHELTERS[0]?.id || "",
   );

@@ -327,13 +327,8 @@ const ReservationPage: React.FC = () => {
                   shelterName: shelter.name,
                   email: formData.email,
                 }}
-              >
-                Thank you, <strong>{{ firstName: formData.firstName }}</strong>!
-                Your booking request for{" "}
-                <strong>{{ shelterName: shelter.name }}</strong> has been
-                received. A confirmation email is on its way to{" "}
-                <strong>{{ email: formData.email }}</strong>.
-              </Trans>
+                components={[<strong key="0" />, <strong key="1" />, <strong key="2" />]}
+              />
             </p>
             {confirmationId && (
               <div className="success-id">

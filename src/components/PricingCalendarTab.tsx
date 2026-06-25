@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { SHELTERS } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
 
 interface PricingOverride {
@@ -57,7 +56,7 @@ const PricingCalendarTab: React.FC = () => {
   const [overrides, setOverrides] = useState<Record<string, PricingOverride>>(
     {},
   );
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">(
@@ -259,7 +258,7 @@ const PricingCalendarTab: React.FC = () => {
       return {
         price: overrides[dateStr].price,
         isOverride: true,
-        reason: overrides[dateStr].reason,
+        reason: overrides[dateStr].reason ?? undefined,
       };
     }
 
@@ -362,7 +361,6 @@ const PricingCalendarTab: React.FC = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
         setOverrides((prev) => ({
           ...prev,
           [editModal.date]: {

@@ -15,7 +15,6 @@ interface IcalManagementProps {
 }
 
 export const IcalManagement: React.FC<IcalManagementProps> = ({
-  propertyId,
   sources,
   onAddSource,
   onDeleteSource,

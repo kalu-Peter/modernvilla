@@ -464,7 +464,7 @@ export interface SeasonalPricingRule {
   created_at: string;
 }
 
-export interface PricingTier {
+export interface PricingTierRecord {
   id: number;
   property_name: string;
   tier_type: "single_day" | "weekend" | "yearly";

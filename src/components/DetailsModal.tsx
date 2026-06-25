@@ -250,7 +250,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
                 </p>
                 <a
                   className="btn-reserve-now"
-                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi, I'm interested in booking the ${shelter.name}. Could you please provide availability and pricing details?`)}`}}
+                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi, I'm interested in booking the ${shelter.name}. Could you please provide availability and pricing details?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{

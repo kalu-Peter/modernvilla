@@ -12,15 +12,13 @@ interface AvailabilityCalendarProps {
 }
 
 export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
-  propertyId,
   blocks,
   events,
   onDateClick,
-  onDateRangeSelect,
   isLoading = false,
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [, setSelectedDate] = useState<string | null>(null);
 
   // Generate calendar days
   const calendarDays = useMemo(() => {
@@ -57,8 +55,6 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
     return days;
   }, [currentDate, blocks, events]);
-
-  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div>
