@@ -1885,7 +1885,7 @@ const ModernRefuge: React.FC = () => {
         }
 
         @media (max-width: 600px) {
-          .hero { background-image: url('/images/hero.jpg'); }
+          .hero { min-height: auto; padding-top: 140px; background-image: url('/images/hero.jpg'); }
           .amenities-grid, .amenities-row2 { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: 1fr; }
           .hero-stats { display: none; }
