@@ -105,6 +105,7 @@ const ModernRefuge: React.FC = () => {
         /* HERO */
         .hero {
           min-height: 100vh;
+          margin-top: 140px;
           position: relative;
           display: flex;
           flex-direction: column;
@@ -112,6 +113,9 @@ const ModernRefuge: React.FC = () => {
           justify-content: center;
           overflow: hidden;
           background: url('/images/hero.jpg') center center / cover no-repeat;
+        }
+        @media (max-width: 768px) {
+          .hero { margin-top: 130px; }
         }
 
         .hero-gate-overlay {
@@ -1885,7 +1889,7 @@ const ModernRefuge: React.FC = () => {
         }
 
         @media (max-width: 600px) {
-          .hero { min-height: 50vh; padding-top: 140px; padding-bottom: 48px; background-image: url('/images/hero.jpg'); }
+          .hero { min-height: 50vh; padding-bottom: 48px; background-image: url('/images/hero.jpg'); }
           .amenities-grid, .amenities-row2 { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: 1fr; }
           .hero-stats { display: none; }

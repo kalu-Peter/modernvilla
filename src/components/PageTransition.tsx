@@ -28,7 +28,7 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({
   }, [location.pathname]);
 
   return (
-    <div ref={ref} style={{ willChange: "opacity, transform" }}>
+    <div ref={ref} style={{ willChange: "opacity, transform", display: "flow-root" }}>
       {children}
     </div>
   );
