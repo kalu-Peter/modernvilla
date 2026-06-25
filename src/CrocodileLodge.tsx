@@ -477,7 +477,7 @@ const ModernRefuge: React.FC = () => {
           grid-template-columns: 1fr 1fr 1fr auto;
           gap: 0;
           background: var(--croc-sand);
-          border-radius: 12px;
+          border-radius: 18px;
           overflow: hidden;
           box-shadow: 0 8px 36px rgba(0,0,0,0.32);
         }
@@ -1901,7 +1901,7 @@ const ModernRefuge: React.FC = () => {
           .booking-bar .booking-field:last-of-type { border-bottom: none; }
           .booking-field label { font-size: 0.6rem; }
           .booking-field input, .booking-field select { font-size: 1rem; }
-          .booking-submit { padding: 16px; font-size: 0.7rem; border-radius: 0 0 16px 16px; }
+          .booking-submit { padding: 16px; font-size: 0.7rem; border-radius: 0 0 12px 12px; }
         }
       `}</style>
 
@@ -1991,7 +1991,9 @@ const ModernRefuge: React.FC = () => {
             <p className="location-desc">{t("home.locationsDesc")}</p>
             <div className="location-detail">
               <span className="location-detail-icon">📍</span>
-              <span className="location-detail-text">{t("topbar.address")}</span>
+              <span className="location-detail-text">
+                {t("topbar.address")}
+              </span>
             </div>
           </div>
         </div>
