@@ -6,7 +6,7 @@ import TopBar from "./components/TopBar";
 import Header from "./components/Header";
 import SEO from "./components/SEO";
 import type { Shelter } from "./types";
-import { SHELTERS } from "./types";
+import { SHELTERS, SHELTER_DISPLAY_NAMES } from "./types";
 
 const ModernRefuge: React.FC = () => {
   const { t } = useTranslation();
@@ -1998,7 +1998,7 @@ const ModernRefuge: React.FC = () => {
 
         <div className="location-maps-grid">
           <div className="location-map-card">
-            <h3>{t("home.mapCard1Title")}</h3>
+            <h3>{SHELTER_DISPLAY_NAMES["la-maison-modern"]}</h3>
             <div className="location-map-wrapper">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2643.491860694221!2d7.5354!3d48.504635099999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4796b36cf283bb3d%3A0xde1f010315d01e95!2sLA%20MAISON%20MODERNE!5e0!3m2!1sen!2ske!4v1782225070587!5m2!1sen!2ske"
@@ -2011,7 +2011,7 @@ const ModernRefuge: React.FC = () => {
           </div>
 
           <div className="location-map-card">
-            <h3>{t("home.mapCard2Title")}</h3>
+            <h3>{SHELTER_DISPLAY_NAMES["refuge-de-la-martre"]}</h3>
             <div className="location-map-wrapper">
               <iframe
                 src="https://www.google.com/maps?q=48.5009217,7.5311335&output=embed"

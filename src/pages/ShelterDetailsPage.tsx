@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { SHELTERS } from "../types";
+import { SHELTERS, SHELTER_DISPLAY_NAMES } from "../types";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import SEO from "../components/SEO";
@@ -67,6 +67,8 @@ const ShelterDetailsPage: React.FC = () => {
       ? shelter.gallery
       : [shelter.image];
 
+  const displayName = SHELTER_DISPLAY_NAMES[shelter.id] ?? shelter.name;
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -126,14 +128,14 @@ const ShelterDetailsPage: React.FC = () => {
   }
 
   const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
-    t("shelterDetails.waMessage", { shelterName: shelter.name }),
+    t("shelterDetails.waMessage", { shelterName: displayName }),
   )}`;
 
   return (
     <>
       <SEO
-        title={shelter.name}
-        description={`${shelter.name} at Alsace Hideaways, Alsace — sleeps up to ${shelter.maxGuests} guests. Luxury vacation rental in France.`}
+        title={displayName}
+        description={`${displayName} at Alsace Hideaways, Alsace — sleeps up to ${shelter.maxGuests} guests. Luxury vacation rental in France.`}
         image={shelter.image}
         url={`/shelter/${shelter.id}`}
         type="article"
@@ -345,7 +347,7 @@ const ShelterDetailsPage: React.FC = () => {
         {/* PAGE HEADER */}
         <div className="vdp-header">
           <div className="vdp-type">{shelter.type}</div>
-          <h1 className="vdp-title">{shelter.name}</h1>
+          <h1 className="vdp-title">{displayName}</h1>
           <div className="vdp-meta">
             {shelter.bedrooms && (
               <span>🛏 {t("common.bedroom", { count: shelter.bedrooms })}</span>
@@ -368,7 +370,7 @@ const ShelterDetailsPage: React.FC = () => {
           >
             <img
               src={images[activeImg]}
-              alt={`${shelter.name} — photo ${activeImg + 1}`}
+              alt={`${displayName} — photo ${activeImg + 1}`}
               decoding="async"
             />
             {activeImg > 0 && (

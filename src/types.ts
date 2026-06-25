@@ -374,6 +374,15 @@ export const getShelterPrice = (shelterId: string, guestCount: number): number |
   return tier.basePrice + (guestCount - tier.baseGuests) * tier.extraPersonFee;
 };
 
+// Mapping from shelter ID to its display title (same in every language —
+// these are fixed property/brand names, not translated UI strings)
+export const SHELTER_DISPLAY_NAMES: Record<string, string> = {
+  "shelter-a": "Le Refuge A",
+  "shelter-b": "Le Refuge B",
+  "la-maison-modern": "LA MAISON MODERNE Villa",
+  "refuge-de-la-martre": "LE REFUGE DE LA MARtRE",
+};
+
 // Mapping from shelter ID to property name in database
 export const getPropertyNameForShelter = (shelterId: string): string | null => {
   const mapping: Record<string, string> = {

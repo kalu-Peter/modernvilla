@@ -580,10 +580,10 @@ const Gallery: React.FC = () => {
     galleryData[activeSection as keyof typeof galleryData] ?? [];
 
   const sections = [
-    { id: "shelterA", label: "Shelter A", color: "#3b82f6" },
-    { id: "shelterB", label: "Shelter B", color: "#eab308" },
-    { id: "maisonModern", label: "La Maison Modern", color: "#10b981" },
-    { id: "martyrRefuge", label: "Refuge de la Martre", color: "#f59e0b" },
+    { id: "shelterA", label: "Le Refuge A", color: "#3b82f6" },
+    { id: "shelterB", label: "Le Refuge B", color: "#eab308" },
+    { id: "maisonModern", label: "LA MAISON MODERNE Villa", color: "#10b981" },
+    { id: "martyrRefuge", label: "LE REFUGE DE LA MARtRE", color: "#f59e0b" },
   ];
 
   return (

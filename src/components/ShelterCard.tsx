@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Shelter } from "../types";
+import { SHELTER_DISPLAY_NAMES } from "../types";
 
 interface ShelterCardProps {
   shelter: Shelter;
@@ -65,6 +66,7 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
   onSelectShelter,
 }) => {
   const { t } = useTranslation();
+  const displayName = SHELTER_DISPLAY_NAMES[shelter.id] ?? shelter.name;
   const images =
     shelter.gallery && shelter.gallery.length > 0
       ? shelter.gallery
@@ -89,7 +91,7 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
       <div className="shelter-card-image" style={{ position: "relative" }}>
         <img
           src={images[imgIndex]}
-          alt={shelter.name}
+          alt={displayName}
           loading="lazy"
           decoding="async"
         />
@@ -118,9 +120,11 @@ const ShelterCard: React.FC<ShelterCardProps> = ({
       </div>
 
       <div className="shelter-card-header">
-        <h3>{shelter.name}</h3>
+        <h3>{displayName}</h3>
         <div className="shelter-amenity-chips">
-          <span className="shelter-amenity-chip">{t("common.amenityAC")}</span>
+          {shelter.id !== "la-maison-modern" && (
+            <span className="shelter-amenity-chip">{t("common.amenityAC")}</span>
+          )}
           <span className="shelter-amenity-chip">{t("common.amenityKitchen")}</span>
           <span className="shelter-amenity-chip">{t("common.amenityWifi")}</span>
           <span className="shelter-amenity-chip">{t("common.amenityLaundry")}</span>

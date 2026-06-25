@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { SHELTERS } from "../types";
+import { SHELTERS, SHELTER_DISPLAY_NAMES } from "../types";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
@@ -212,6 +212,7 @@ const SearchResultsPage: React.FC = () => {
         ) : (
           <div className="sr-grid">
             {visibleShelters.map((shelter) => {
+              const displayName = SHELTER_DISPLAY_NAMES[shelter.id] ?? shelter.name;
               const status = statuses[shelter.id];
               const pricePerNight =
                 status?.price ?? shelter.pricing[0]?.basePrice ?? 0;
@@ -229,7 +230,7 @@ const SearchResultsPage: React.FC = () => {
                   <div className="sr-card-img">
                     <img
                       src={shelter.image}
-                      alt={shelter.name}
+                      alt={displayName}
                       loading="lazy"
                       decoding="async"
                     />
@@ -237,7 +238,7 @@ const SearchResultsPage: React.FC = () => {
                   </div>
                   <div className="sr-card-body">
                     <div className="sr-card-type">{shelter.type}</div>
-                    <div className="sr-card-name">{shelter.name}</div>
+                    <div className="sr-card-name">{displayName}</div>
                     <div className="sr-card-meta">
                       {shelter.bedrooms && (
                         <span>{t("common.bed", { count: shelter.bedrooms })}</span>
@@ -245,7 +246,9 @@ const SearchResultsPage: React.FC = () => {
                       <span>{t("common.upToGuests", { count: shelter.maxGuests })}</span>
                     </div>
                     <div className="sr-card-amenities">
-                      <span className="sr-card-amenity">{t("common.amenityAC")}</span>
+                      {shelter.id !== "la-maison-modern" && (
+                        <span className="sr-card-amenity">{t("common.amenityAC")}</span>
+                      )}
                       <span className="sr-card-amenity">{t("common.amenityKitchen")}</span>
                       <span className="sr-card-amenity">{t("common.amenityWifi")}</span>
                       <span className="sr-card-amenity">{t("common.amenityLaundry")}</span>
@@ -288,7 +291,7 @@ const SearchResultsPage: React.FC = () => {
                       </Link>
                       {shelter.contactOnly ? (
                         <a
-                          href={`https://wa.me/33601943348?text=${encodeURIComponent(t("searchResults.waMessage", { shelterName: shelter.name, checkin, checkout, count: guests }))}`}
+                          href={`https://wa.me/33601943348?text=${encodeURIComponent(t("searchResults.waMessage", { shelterName: displayName, checkin, checkout, count: guests }))}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{

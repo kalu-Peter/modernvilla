@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
-import { SHELTERS, getPropertyNameForShelter } from "../types";
+import { SHELTERS, SHELTER_DISPLAY_NAMES, getPropertyNameForShelter } from "../types";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
@@ -140,6 +140,8 @@ const ReservationPage: React.FC = () => {
 
   if (!shelter) return null;
 
+  const displayName = SHELTER_DISPLAY_NAMES[shelter.id] ?? shelter.name;
+
   // Fetch pricing from new API
   const [priceBreakdown, setPriceBreakdown] = React.useState<any>(null);
   const [pricing, setPricing] = React.useState<PropertyPricing | null>(null);
@@ -216,7 +218,7 @@ const ReservationPage: React.FC = () => {
     if (nights < minNights) {
       setSubmitError(
         t("reservation.errorMinNights", {
-          shelterName: shelter.name,
+          shelterName: displayName,
           count: minNights,
         }),
       );
@@ -286,7 +288,7 @@ const ReservationPage: React.FC = () => {
   if (submitted) {
     const waMessage = encodeURIComponent(
       t("reservation.waSuccessMessage", {
-        property: getPropertyNameForShelter(shelter.id) ?? shelter.name,
+        property: displayName,
         checkin: formatDate(checkin, i18n.language),
         checkout: formatDate(checkout, i18n.language),
         guests: guestCount,
@@ -324,7 +326,7 @@ const ReservationPage: React.FC = () => {
                 i18nKey="reservation.successBody"
                 values={{
                   firstName: formData.firstName,
-                  shelterName: shelter.name,
+                  shelterName: displayName,
                   email: formData.email,
                 }}
                 components={[<strong key="0" />, <strong key="1" />, <strong key="2" />]}
@@ -564,7 +566,7 @@ const ReservationPage: React.FC = () => {
 
         {/* ── Right: summary card ── */}
         <div className="rp-card">
-          <div className="rp-card-shelter">{shelter.name}</div>
+          <div className="rp-card-shelter">{displayName}</div>
           <div className="rp-card-loc">
             {t("reservation.locationLine")} · {t("common.bed", { count: shelter.bedrooms ?? 1 })}
           </div>
