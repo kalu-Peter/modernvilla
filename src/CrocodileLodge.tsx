@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ShelterCard from "./components/ShelterCard";
-import CurrencySelector from "./components/CurrencySelector";
-import LanguageSwitcher from "./components/LanguageSwitcher";
+import TopBar from "./components/TopBar";
+import Header from "./components/Header";
 import SEO from "./components/SEO";
 import type { Shelter } from "./types";
 import { SHELTERS } from "./types";
@@ -13,10 +13,7 @@ const ModernRefuge: React.FC = () => {
   const navigate = useNavigate();
   const [checkin, setCheckin] = useState<string>("");
   const [checkout, setCheckout] = useState<string>("");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [guests, setGuests] = useState<number>(1);
-  const [navVisible, setNavVisible] = useState<boolean>(true);
-  const [navScrolled, setNavScrolled] = useState<boolean>(false);
 
   // Set default dates on mount
   useEffect(() => {
@@ -27,19 +24,6 @@ const ModernRefuge: React.FC = () => {
     const fmt = (d: Date) => d.toISOString().split("T")[0];
     setCheckin(fmt(today));
     setCheckout(fmt(checkout));
-  }, []);
-
-  // Nav hide/show on scroll
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setNavScrolled(y > 80);
-      setNavVisible(y < lastY || y < 80);
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // Scroll Reveal Logic
@@ -116,270 +100,6 @@ const ModernRefuge: React.FC = () => {
           background: var(--croc-deep);
           color: var(--croc-cream);
           overflow-x: hidden;
-        }
-
-        /* TOP BAR */
-        .topbar {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          z-index: 101;
-          height: 42px;
-          background: #fff;
-          border-bottom: 1px solid rgba(0,0,0,0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 28px;
-          padding: 0 40px;
-        }
-        .topbar-item {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          font-family: 'Inter', sans-serif;
-          font-size: 0.7rem;
-          font-weight: 500;
-          letter-spacing: 0.03em;
-          color: rgba(10,10,10,0.5);
-          text-decoration: none;
-          white-space: nowrap;
-          transition: color 0.2s;
-        }
-        .topbar-item:hover { color: #1a1a2e; }
-        .topbar-divider { width: 1px; height: 14px; background: rgba(0,0,0,0.15); }
-        @media (max-width: 768px) {
-          .topbar { gap: 4px; padding: 8px 16px; flex-direction: column; align-items: center; height: 64px; justify-content: center; }
-          .topbar-item { font-size: 0.65rem; }
-          .topbar-divider { display: none; }
-        }
-        @media (max-width: 480px) {
-          .topbar-item.topbar-maps { display: none; }
-          .topbar-divider.topbar-div-maps { display: none; }
-        }
-
-        /* NAV */
-        nav {
-          position: fixed;
-          top: 42px; left: 0; right: 0;
-          z-index: 100;
-          padding: 28px 60px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(201,168,76,0.92);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(255,255,255,0.15);
-          transition: transform 0.35s ease, background 0.35s ease, padding 0.35s ease;
-        }
-        nav.nav-hidden { transform: translateY(-100%); }
-        nav.nav-scrolled {
-          background: rgba(201,168,76,0.98);
-          backdrop-filter: blur(12px);
-          padding: 18px 60px;
-          box-shadow: 0 2px 24px rgba(0,0,0,0.4);
-        }
-        @media (max-width: 768px) {
-          nav { position: fixed; top: 64px; padding: 16px 24px; }
-        }
-
-        .nav-logo {
-          font-family: 'Playfair Display', serif;
-          font-size: 1.4rem;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          color: var(--croc-cream);
-          text-decoration: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .nav-logo-img {
-          height: 40px;
-          width: 40px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 2px solid rgba(255,255,255,0.3);
-          flex-shrink: 0;
-        }
-        .nav-logo span { color: var(--croc-gold); }
-
-        .nav-links {
-          display: flex;
-          gap: 44px;
-          list-style: none;
-        }
-        .nav-links a, .nav-links button {
-          font-family: 'Inter', sans-serif;
-          font-size: 0.7rem;
-          font-weight: 500;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--croc-cream);
-          text-decoration: none;
-          opacity: 0.85;
-          transition: opacity 0.3s, color 0.3s;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-        }
-        .nav-links a:hover, .nav-links button:hover { opacity: 1; color: var(--croc-gold); }
-
-        .currency-selector {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-right: 8px;
-        }
-        .currency-selector .currency-icon { font-size: 0.85rem; }
-        .currency-selector select {
-          font-family: 'Inter', sans-serif;
-          font-size: 0.65rem;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.3);
-          color: rgba(255,255,255,0.85);
-          padding: 6px 10px;
-          cursor: pointer;
-          outline: none;
-          border-radius: 2px;
-          transition: border-color 0.2s, color 0.2s;
-        }
-        .currency-selector select option { background: #1a1a2e; color: #fff; }
-        .currency-selector select:hover { border-color: var(--croc-gold); color: var(--croc-gold); }
-
-        .language-selector {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-right: 8px;
-        }
-        .language-selector select {
-          font-family: 'Inter', sans-serif;
-          font-size: 0.65rem;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.3);
-          color: rgba(255,255,255,0.85);
-          padding: 6px 10px;
-          cursor: pointer;
-          outline: none;
-          border-radius: 2px;
-          transition: border-color 0.2s, color 0.2s;
-        }
-        .language-selector select option { background: #1a1a2e; color: #fff; }
-        .language-selector select:hover { border-color: var(--croc-gold); color: var(--croc-gold); }
-
-        .nav-book {
-          font-family: 'Inter', sans-serif;
-          font-size: 0.65rem;
-          font-weight: 600;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          color: var(--croc-deep);
-          background: var(--croc-gold);
-          padding: 12px 28px;
-          text-decoration: none;
-          transition: background 0.3s, transform 0.2s;
-        }
-        .nav-book:hover { background: var(--croc-amber); transform: translateY(-1px); }
-
-        /* HAMBURGER MENU */
-        .hamburger {
-          display: none;
-          flex-direction: column;
-          gap: 6px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          z-index: 101;
-        }
-
-        .hamburger span {
-          width: 24px;
-          height: 2px;
-          background: var(--croc-cream);
-          transition: all 0.3s ease;
-          display: block;
-        }
-
-        .hamburger.active span:nth-child(1) {
-          transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-          opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-          transform: rotate(-45deg) translate(7px, -7px);
-        }
-
-        .mobile-menu {
-          display: none;
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: #fff;
-          z-index: 102;
-          padding-top: 100px;
-          flex-direction: column;
-          align-items: center;
-          gap: 30px;
-        }
-
-        .mobile-menu.active {
-          display: flex;
-        }
-
-        .mobile-menu-close {
-          position: absolute;
-          top: 20px;
-          right: 20px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 1.6rem;
-          color: rgba(10,10,10,0.5);
-          line-height: 1;
-          padding: 4px 8px;
-          transition: color 0.2s;
-        }
-        .mobile-menu-close:hover { color: var(--croc-deep); }
-
-        .mobile-menu a, .mobile-menu button:not(.mobile-menu-close) {
-          font-family: 'Inter', sans-serif;
-          font-size: 1rem;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: var(--croc-deep);
-          text-decoration: none;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          transition: color 0.3s;
-        }
-
-        .mobile-menu a:hover, .mobile-menu button:not(.mobile-menu-close):hover {
-          color: var(--croc-moss);
-        }
-
-        .mobile-menu .nav-book {
-          display: inline-block;
-          margin-top: 20px;
-          font-size: 0.75rem;
-          color: var(--croc-forest) !important;
         }
 
         /* HERO */
@@ -2148,8 +1868,6 @@ const ModernRefuge: React.FC = () => {
 
         /* Responsive */
         @media (max-width: 1024px) {
-          nav { padding: 24px 30px; }
-          .nav-links { display: none; }
           .hero-content { padding-left: 6%; }
           .hero-stats { right: 6%; gap: 30px; }
           .booking-bar { grid-template-columns: 1fr 1fr; }
@@ -2175,10 +1893,6 @@ const ModernRefuge: React.FC = () => {
           .footer-top { grid-template-columns: 1fr; }
           footer { padding: 60px 24px 40px; }
           .amenities-section, .shelters-section, .experience-section, .testimonials-section { padding: 80px 24px; }
-          .hamburger { display: flex; }
-          .nav-links { display: none; }
-          .nav-book { display: none; }
-          nav { padding: 16px 24px; position: fixed; top: 64px; }
           .hero-content { align-items: center; padding: 0 16px; }
           .booking-bar-hero { width: 100%; display: flex; justify-content: center; }
           .booking-bar { grid-template-columns: 1fr; width: 100%; }
@@ -2186,75 +1900,8 @@ const ModernRefuge: React.FC = () => {
         }
       `}</style>
 
-      {/* TOP BAR */}
-      <div className="topbar">
-        <span className="topbar-item topbar-addr">📍 {t("topbar.address")}</span>
-        <span className="topbar-divider"></span>
-        <a href="tel:+33601943348" className="topbar-item">
-          ☎ +33 6 01 94 33 48
-        </a>
-      </div>
-
-      {/* NAV */}
-      <nav
-        className={`${navScrolled ? "nav-scrolled" : ""} ${!navVisible ? "nav-hidden" : ""}`}
-      >
-        <Link to="/" className="nav-logo">
-          Alsace<span> Hideaways</span>
-        </Link>
-        <ul className="nav-links">
-          <li>
-            <a href="#shelters">{t("nav.shelters")}</a>
-          </li>
-          <li>
-            <Link to="/gallery">{t("nav.gallery")}</Link>
-          </li>
-          <li>
-            <a href="#contact">{t("nav.contact")}</a>
-          </li>
-        </ul>
-        <CurrencySelector />
-        <LanguageSwitcher />
-        <button
-          className={`hamburger ${mobileMenuOpen ? "active" : ""}`}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={t("nav.toggleMenu")}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </nav>
-
-      {/* MOBILE MENU */}
-      <div className={`mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
-        <button
-          className="mobile-menu-close"
-          onClick={() => setMobileMenuOpen(false)}
-          aria-label={t("nav.closeMenu")}
-        >
-          ✕
-        </button>
-        <a href="#shelters" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.shelters")}
-        </a>
-        <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.gallery")}
-        </Link>
-        <a href="#about" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.about")}
-        </a>
-        <a href="#contact" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.contact")}
-        </a>
-        <a
-          href="#availability"
-          className="nav-book"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          {t("nav.bookDirect")}
-        </a>
-      </div>
+      <TopBar />
+      <Header />
 
       {/* HERO */}
       <section className="hero" id="availability">

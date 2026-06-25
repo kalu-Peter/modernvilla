@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SHELTERS } from "../types";
-import CurrencySelector from "../components/CurrencySelector";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import TopBar from "../components/TopBar";
+import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
 
 function nightsBetween(a: string, b: string) {
@@ -47,20 +47,6 @@ const SearchResultsPage: React.FC = () => {
 
   const [statuses, setStatuses] = useState<Record<string, ShelterStatus>>({});
   const [loading, setLoading] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [navVisible, setNavVisible] = useState(true);
-
-  // Nav hide/show on scroll
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setNavVisible(y < lastY || y < 80);
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     if (!checkin || !checkout) {
@@ -162,36 +148,7 @@ const SearchResultsPage: React.FC = () => {
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Cormorant Garamond',serif; background:#dbdbdb; color:#1a1a2e; }
 
-        .sr-nav {
-          position:fixed; top:0; left:0; right:0; z-index:100;
-          padding:22px 60px; display:flex; align-items:center; justify-content:space-between;
-          background:rgba(201,168,76,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-          border-bottom:1px solid rgba(255,255,255,0.18);
-          box-shadow:0 2px 16px rgba(0,0,0,0.08);
-          transition: transform 0.35s ease;
-        }
-        .sr-nav.nav-hidden { transform: translateY(-100%); }
-        .sr-nav-logo { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#fff; text-decoration:none; display:flex; align-items:center; gap:10px; }
-        .sr-nav-logo span { color:rgba(255,255,255,0.65); }
-        .sr-nav-logo-img { height:36px; width:36px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); flex-shrink:0; }
-        .sr-nav-links { display:flex; gap:36px; list-style:none; }
-        .sr-nav-links a { font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:#fff; text-decoration:none; opacity:0.75; transition:opacity 0.2s; }
-        .sr-nav-links a:hover { opacity:1; }
-        .language-selector { display:flex; align-items:center; gap:6px; margin-right:8px; }
-        .language-selector select {
-          font-family:'Inter',sans-serif; font-size:0.7rem; font-weight:500; letter-spacing:0.06em;
-          text-transform:uppercase; background:transparent; border:1px solid rgba(255,255,255,0.4);
-          color:#fff; padding:6px 10px; cursor:pointer; outline:none; border-radius:4px; transition:border-color 0.2s;
-        }
-        .language-selector select option { background:#1a1a2e; color:#fff; }
-        .language-selector select:hover { border-color:#fff; }
-        .hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; }
-        .hamburger span { width:22px; height:2px; background:#fff; display:block; }
-        .mobile-menu { display:none; position:fixed; inset:0; background:rgba(26,26,46,0.98); z-index:50; flex-direction:column; align-items:center; justify-content:center; gap:28px; }
-        .mobile-menu.open { display:flex; }
-        .mobile-menu a { font-family:'Inter',sans-serif; font-size:1rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:#fff; text-decoration:none; }
-
-        .sr-wrap { max-width:1200px; margin:0 auto; padding:110px 40px 80px; }
+        .sr-wrap { max-width:1200px; margin:0 auto; padding:160px 40px 80px; }
 
         .sr-header { margin-bottom:40px; }
         .sr-title { font-family:'Playfair Display',serif; font-size:clamp(1.6rem,4vw,2.4rem); font-weight:700; margin-bottom:8px; color:#1a1a2e; }
@@ -224,54 +181,13 @@ const SearchResultsPage: React.FC = () => {
         .sr-loading { text-align:center; padding:80px 0; font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:500; color:#9098a9; }
 
         @media(max-width:768px) {
-          .sr-nav { padding:18px 20px; }
-          .sr-nav-links { display:none; }
-          .hamburger { display:flex; }
-          .sr-wrap { padding:90px 20px 60px; }
+          .sr-wrap { padding:140px 20px 60px; }
           .sr-grid { grid-template-columns:1fr; }
         }
       `}</style>
 
-      {/* NAV */}
-      <nav className={`sr-nav ${!navVisible ? "nav-hidden" : ""}`}>
-        <Link to="/" className="sr-nav-logo">
-          Alsace <span>Hideaways</span>
-        </Link>
-        <ul className="sr-nav-links">
-          <li>
-            <a href="/#shelters">{t("nav.shelters")}</a>
-          </li>
-          <li>
-            <Link to="/gallery">{t("nav.gallery")}</Link>
-          </li>
-          <li>
-            <a href="/#contact">{t("nav.contact")}</a>
-          </li>
-        </ul>
-        <CurrencySelector />
-        <LanguageSwitcher />
-        <button
-          className="hamburger"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={t("nav.toggleMenu")}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-      </nav>
-
-      <div className={`mobile-menu${mobileMenuOpen ? " open" : ""}`}>
-        <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.shelters")}
-        </a>
-        <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.gallery")}
-        </Link>
-        <a href="/#contact" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.contact")}
-        </a>
-      </div>
+      <TopBar />
+      <Header />
 
       <div className="sr-wrap">
         <div className="sr-header">

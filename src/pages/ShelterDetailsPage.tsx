@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SHELTERS } from "../types";
-import CurrencySelector from "../components/CurrencySelector";
-import LanguageSwitcher from "../components/LanguageSwitcher";
+import TopBar from "../components/TopBar";
+import Header from "../components/Header";
 import SEO from "../components/SEO";
 
 const WA_NUMBER = "";
@@ -15,8 +15,6 @@ const ShelterDetailsPage: React.FC = () => {
   const shelter = SHELTERS.find((s) => s.id === shelterId);
 
   const [activeImg, setActiveImg] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [navVisible, setNavVisible] = useState(true);
   const touchStartX = useRef<number | null>(null);
 
   if (!shelter) {
@@ -68,18 +66,6 @@ const ShelterDetailsPage: React.FC = () => {
     shelter.gallery && shelter.gallery.length > 0
       ? shelter.gallery
       : [shelter.image];
-
-  // Nav hide/show on scroll
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setNavVisible(y < lastY || y < 80);
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -171,75 +157,11 @@ const ShelterDetailsPage: React.FC = () => {
         html { scroll-behavior: smooth; }
         body { font-family: 'Cormorant Garamond', serif; background: #dbdbdb; color: #1a1a2e; overflow-x: hidden; }
 
-        nav {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-          padding: 22px 60px; display: flex; justify-content: space-between; align-items: center;
-          background: rgba(201,168,76,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255,255,255,0.18);
-          box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-          transition: transform 0.35s ease;
-        }
-        nav.nav-hidden { transform: translateY(-100%); }
-        .nav-logo {
-          font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700;
-          letter-spacing: 0.05em; color: #f0f0f0; text-decoration: none;
-          background: none; border: none; cursor: pointer; padding: 0;
-        }
-        .nav-logo span { color: #909090; }
-        .nav-links { display: flex; gap: 44px; list-style: none; }
-        .nav-links a, .nav-links button {
-          font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 500;
-          letter-spacing: 0.06em; text-transform: uppercase; color: #fff;
-          text-decoration: none; opacity: 0.75; transition: opacity 0.2s;
-          background: none; border: none; cursor: pointer; padding: 0;
-        }
-        .nav-links a:hover, .nav-links button:hover { opacity: 1; }
-
-        .language-selector {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-right: 8px;
-        }
-        .language-selector select {
-          font-family: 'Inter', sans-serif;
-          font-size: 0.7rem;
-          font-weight: 500;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.4);
-          color: #fff;
-          padding: 6px 10px;
-          cursor: pointer;
-          outline: none;
-          border-radius: 4px;
-          transition: border-color 0.2s;
-        }
-        .language-selector select option { background: #1a1a2e; color: #fff; }
-        .language-selector select:hover { border-color: #fff; }
-
-        .hamburger { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; padding: 0; z-index: 101; }
-        .hamburger span { width: 24px; height: 2px; background: #f0f0f0; transition: all 0.3s ease; display: block; }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(8px, 8px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
-
-        .mobile-menu {
-          display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(10,10,10,0.97); z-index: 50; padding-top: 100px;
-          flex-direction: column; align-items: center; gap: 30px;
-        }
-        .mobile-menu.active { display: flex; }
-        .mobile-menu a, .mobile-menu button {
-          font-family: 'Josefin Sans', sans-serif; font-size: 1rem; letter-spacing: 0.2em;
-          text-transform: uppercase; color: #f0f0f0; text-decoration: none;
-          background: none; border: none; cursor: pointer; padding: 0; transition: color 0.3s;
-        }
-        .mobile-menu a:hover, .mobile-menu button:hover { color: #b8913e; }
-
         /* ── SHELTER DETAILS PAGE ── */
-        .vdp-page { min-height: 100vh; background: #f5f6fa; padding-top: 70px; }
+        .vdp-page { min-height: 100vh; background: #f5f6fa; padding-top: 140px; }
+        @media (max-width: 768px) {
+          .vdp-page { padding-top: 130px; }
+        }
 
         /* ── PAGE HEADER (replaces hero) ── */
         .vdp-header {
@@ -283,9 +205,6 @@ const ShelterDetailsPage: React.FC = () => {
         .vdp-thumb:hover, .vdp-thumb.active { opacity: 1; border-color: #b8913e; }
 
         @media(max-width:768px) {
-          nav { padding: 18px 20px; }
-          .nav-links { display: none; }
-          .hamburger { display: flex; }
           .vdp-header { padding: 24px 20px 16px; }
           .vdp-gallery { padding: 0 20px; }
           .vdp-gallery-main { height: 240px; }
@@ -419,47 +338,8 @@ const ShelterDetailsPage: React.FC = () => {
         .vdp-page .unavailable-message { color: rgba(10,10,10,0.55); }
       `}</style>
 
-      {/* NAV */}
-      <nav className={!navVisible ? "nav-hidden" : ""}>
-        <Link to="/" className="nav-logo">
-          Alsace <span>Hideaways</span>
-        </Link>
-        <ul className="nav-links">
-          <li>
-            <a href="/#shelters">{t("nav.shelters")}</a>
-          </li>
-          <li>
-            <Link to="/gallery">{t("nav.gallery")}</Link>
-          </li>
-          <li>
-            <a href="/#contact">{t("nav.contact")}</a>
-          </li>
-        </ul>
-        <CurrencySelector />
-        <LanguageSwitcher />
-        <button
-          className={`hamburger ${mobileMenuOpen ? "active" : ""}`}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={t("nav.toggleMenu")}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-      </nav>
-
-      {/* MOBILE MENU */}
-      <div className={`mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
-        <a href="/#shelters" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.shelters")}
-        </a>
-        <Link to="/gallery" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.gallery")}
-        </Link>
-        <a href="/#contact" onClick={() => setMobileMenuOpen(false)}>
-          {t("nav.contact")}
-        </a>
-      </div>
+      <TopBar />
+      <Header />
 
       <div className="vdp-page">
         {/* PAGE HEADER */}

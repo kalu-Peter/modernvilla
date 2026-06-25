@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation, Trans } from "react-i18next";
 import { SHELTERS, getPropertyNameForShelter } from "../types";
+import TopBar from "../components/TopBar";
+import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
 
 function nightsBetween(a: string, b: string) {
@@ -131,19 +133,6 @@ const ReservationPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [confirmationId, setConfirmationId] = useState("");
-  const [navVisible, setNavVisible] = useState(true);
-
-  // Nav hide/show on scroll
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setNavVisible(y < lastY || y < 80);
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     if (!shelterId) navigate("/");
@@ -397,12 +386,7 @@ const ReservationPage: React.FC = () => {
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Cormorant Garamond',serif; background:#dbdbdb; color:#1a1a2e; }
 
-        .rp-nav { position:fixed; top:0; left:0; right:0; z-index:100; padding:22px 60px; display:flex; align-items:center; gap:20px; background:rgba(201,168,76,0.97); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.18); box-shadow:0 2px 16px rgba(0,0,0,0.08); transition: transform 0.35s ease; }
-        .rp-nav.nav-hidden { transform: translateY(-100%); }
-        .rp-nav-logo { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#fff; text-decoration:none; cursor:pointer; }
-        .rp-nav-logo span { color:rgba(255,255,255,0.65); }
-
-        .rp-wrap { max-width:1100px; margin:0 auto; padding:110px 40px 80px; display:grid; grid-template-columns:1fr 380px; gap:56px; align-items:start; }
+        .rp-wrap { max-width:1100px; margin:0 auto; padding:160px 40px 80px; display:grid; grid-template-columns:1fr 380px; gap:56px; align-items:start; }
 
         /* Left column – form */
         .rp-left h1 { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; margin-bottom:8px; color:#1a1a2e; }
@@ -450,18 +434,13 @@ const ReservationPage: React.FC = () => {
         .rp-wa-pill { display:flex; align-items:center; gap:8px; margin-top:20px; padding:12px 16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-family:'Inter',sans-serif; font-size:0.75rem; color:#065f46; font-weight:500; }
 
         @media (max-width: 900px) {
-          .rp-wrap { grid-template-columns:1fr; padding:90px 20px 60px; gap:32px; }
+          .rp-wrap { grid-template-columns:1fr; padding:140px 20px 60px; gap:32px; }
           .rp-card { position:static; }
-          .rp-nav { padding:18px 24px; }
         }
       `}</style>
 
-      {/* Nav */}
-      <div className={`rp-nav ${!navVisible ? "nav-hidden" : ""}`}>
-        <div className="rp-nav-logo" onClick={() => navigate("/")}>
-          Alsace <span>Hideaways</span>
-        </div>
-      </div>
+      <TopBar />
+      <Header />
 
       <div className="rp-wrap">
         {/* ── Left: form ── */}
