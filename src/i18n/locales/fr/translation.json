@@ -41,6 +41,8 @@
     "bathroom_other": "{{count}} salles de bain",
     "guest_one": "{{count}} personne",
     "guest_other": "{{count}} personnes",
+    "guestWord_one": "personne",
+    "guestWord_other": "personnes",
     "night_one": "{{count}} nuit",
     "night_other": "{{count}} nuits",
     "backToHome": "← Retour à l'accueil"
@@ -74,7 +76,18 @@
   "shelterDetails": {
     "notFound": "Hébergement introuvable",
     "features": "Caractéristiques",
-    "waMessage": "Bonjour, je suis intéressé(e) par la réservation de {{shelterName}}. Pourriez-vous me communiquer les disponibilités et les tarifs ?"
+    "waMessage": "Bonjour, je suis intéressé(e) par la réservation de {{shelterName}}. Pourriez-vous me communiquer les disponibilités et les tarifs ?",
+    "openGallery": "Ouvrir la galerie photo",
+    "closeGallery": "Fermer la galerie",
+    "photos": "{{count}} photos",
+    "maximumGuests": "Capacité maximale",
+    "aboutProperty": "À propos de cet hébergement",
+    "bestPrice": "Meilleur prix",
+    "contactOnlyNote": "Cet hébergement se réserve directement auprès des propriétaires. Contactez-nous sur WhatsApp pour vérifier les disponibilités et organiser votre séjour.",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "removeGuest": "Retirer un voyageur",
+    "addGuest": "Ajouter un voyageur"
   },
   "searchResults": {
     "title": "Hébergements disponibles",
@@ -116,7 +129,7 @@
     "requestBooking": "Demander la réservation",
     "invoiceNoteHow": "Comment ça marche :",
     "invoiceNoteBody": "Une fois votre demande envoyée, nous vous adresserons une facture par e-mail et notre équipe confirmera votre réservation. Pour une réponse plus rapide, contactez-nous sur WhatsApp au",
-    "locationLine": "Diani Beach, Kwale County",
+    "locationLine": "Griesheim-près-Molsheim, France",
     "roomCharges": "Frais de séjour",
     "extraGuests": "Voyageurs supplémentaires",
     "cleaningFee": "Frais de ménage",

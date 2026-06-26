@@ -41,6 +41,8 @@
     "bathroom_other": "{{count}} Bathrooms",
     "guest_one": "{{count}} Guest",
     "guest_other": "{{count}} Guests",
+    "guestWord_one": "guest",
+    "guestWord_other": "guests",
     "night_one": "{{count}} night",
     "night_other": "{{count}} nights",
     "backToHome": "← Back to Home"
@@ -74,7 +76,18 @@
   "shelterDetails": {
     "notFound": "Shelter not found",
     "features": "Features",
-    "waMessage": "Hi, I'm interested in booking the {{shelterName}}. Could you please provide availability and pricing details?"
+    "waMessage": "Hi, I'm interested in booking the {{shelterName}}. Could you please provide availability and pricing details?",
+    "openGallery": "Open photo gallery",
+    "closeGallery": "Close gallery",
+    "photos": "{{count}} Photos",
+    "maximumGuests": "Maximum Guests",
+    "aboutProperty": "About this property",
+    "bestPrice": "Best Price",
+    "contactOnlyNote": "This property is booked directly with the owners. Contact us on WhatsApp to check availability and arrange your stay.",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "removeGuest": "Remove guest",
+    "addGuest": "Add guest"
   },
   "searchResults": {
     "title": "Available Shelters",
@@ -116,7 +129,7 @@
     "requestBooking": "Request Booking",
     "invoiceNoteHow": "How it works:",
     "invoiceNoteBody": "Once you submit, we'll send an invoice to your email and our team will confirm your reservation. For the fastest response, contact us on WhatsApp at",
-    "locationLine": "Diani Beach, Kwale County",
+    "locationLine": "Griesheim-près-Molsheim, France",
     "roomCharges": "Room charges",
     "extraGuests": "Extra guests",
     "cleaningFee": "Cleaning fee",
