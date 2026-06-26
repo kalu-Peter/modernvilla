@@ -218,35 +218,30 @@ class PricingController
                 return;
             }
 
-            // For single_day: upsert by (property_name, tier_type, specific_date)
-            // For weekend/yearly: upsert by (property_name, tier_type)
-            if ($tierType === 'single_day') {
-                $stmt = $pdo->prepare('
-                    INSERT INTO pricing_tiers (property_name, tier_type, specific_date, base_price, extra_person_fee)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON CONFLICT (property_name, tier_type, specific_date) 
-                    DO UPDATE SET 
-                        base_price = EXCLUDED.base_price,
-                        extra_person_fee = EXCLUDED.extra_person_fee,
-                        updated_at = NOW()
-                    RETURNING id, property_name, tier_type, specific_date, base_price, extra_person_fee, updated_at
-                ');
-                $stmt->execute([$propertyName, $tierType, $specificDate, $basePrice, $extraPersonFee]);
-            } else {
-                $stmt = $pdo->prepare('
-                    INSERT INTO pricing_tiers (property_name, tier_type, base_price, extra_person_fee)
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT (property_name, tier_type) 
-                    DO UPDATE SET 
-                        base_price = EXCLUDED.base_price,
-                        extra_person_fee = EXCLUDED.extra_person_fee,
-                        updated_at = NOW()
-                    RETURNING id, property_name, tier_type, specific_date, base_price, extra_person_fee, updated_at
-                ');
-                $stmt->execute([$propertyName, $tierType, $basePrice, $extraPersonFee]);
-            }
+            // Upsert by the table's single unique key (property_name, tier_type,
+            // specific_date_key) — a generated column that normalizes
+            // specific_date to a constant sentinel for weekend/yearly rows, so
+            // one INSERT ... ON DUPLICATE KEY UPDATE covers both cases (see
+            // schema.sql for why: MySQL has no partial/filtered unique index
+            // like the two separate Postgres conflict targets this used to need).
+            $stmt = $pdo->prepare('
+                INSERT INTO pricing_tiers (property_name, tier_type, specific_date, base_price, extra_person_fee)
+                VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    base_price = VALUES(base_price),
+                    extra_person_fee = VALUES(extra_person_fee),
+                    updated_at = NOW()
+            ');
+            $stmt->execute([$propertyName, $tierType, $specificDate, $basePrice, $extraPersonFee]);
 
+            $stmt = $pdo->prepare('
+                SELECT id, property_name, tier_type, specific_date, base_price, extra_person_fee, updated_at
+                FROM pricing_tiers
+                WHERE property_name = ? AND tier_type = ? AND specific_date_key = ?
+            ');
+            $stmt->execute([$propertyName, $tierType, $specificDate ?? '0001-01-01']);
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
             Response::success($result, 'Pricing tier saved successfully', 201);
         } catch (\Exception $e) {
             Response::error('Failed to save pricing tier', [$e->getMessage()], 500);

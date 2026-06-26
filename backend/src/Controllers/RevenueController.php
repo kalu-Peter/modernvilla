@@ -25,7 +25,7 @@ class RevenueController
             $pdo = Connection::getInstance();
 
             $stmt = $pdo->prepare("
-                SELECT EXTRACT(MONTH FROM checkin)::int AS month,
+                SELECT EXTRACT(MONTH FROM checkin) AS month,
                        COALESCE(SUM(total_price), 0) AS revenue,
                        COUNT(*) AS bookings_count
                 FROM reservations
@@ -52,7 +52,7 @@ class RevenueController
             }
 
             $stmt = $pdo->query("
-                SELECT EXTRACT(YEAR FROM checkin)::int AS year,
+                SELECT EXTRACT(YEAR FROM checkin) AS year,
                        COALESCE(SUM(total_price), 0) AS revenue,
                        COUNT(*) AS bookings_count
                 FROM reservations

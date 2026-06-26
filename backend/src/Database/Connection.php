@@ -20,12 +20,12 @@ class Connection
     private static function connect(): PDO
     {
         $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $port = $_ENV['DB_PORT'] ?? '5054';
+        $port = $_ENV['DB_PORT'] ?? '3306';
         $dbname = $_ENV['DB_NAME'] ?? 'shelter';
-        $user = $_ENV['DB_USER'] ?? 'postgres';
+        $user = $_ENV['DB_USER'] ?? 'root';
         $password = $_ENV['DB_PASSWORD'] ?? '';
 
-        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+        $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
 
         try {
             $pdo = new PDO($dsn, $user, $password, [

@@ -15,6 +15,7 @@ return [
         '/api/pricing/calendar' => 'PricingCalendarController@getCalendar',
         '/api/admin/reservations' => 'ReservationsController@update',
         '/api/admin/revenue' => 'RevenueController@getSummary',
+        '/api/admin/users' => 'AdminController@manageUsers',
     ],
 
     'POST' => [
@@ -23,6 +24,7 @@ return [
         '/api/payments/callback' => 'PaymentController@callback',
         '/api/admin/auth' => 'AdminController@login',
         '/api/admin/login' => 'AdminController@login',
+        '/api/admin/users' => 'AdminController@manageUsers',
         '/api/pricing/save_override' => 'PricingCalendarController@saveOverride',
         '/api/pricing/update_base' => 'PricingCalendarController@updateBasePricing',
         '/api/availability/create_block' => 'AvailabilityController@createBlock',
@@ -40,5 +42,6 @@ return [
         '/api/pricing/delete_override' => 'PricingCalendarController@deleteOverride',
         '/api/availability/delete_block' => 'AvailabilityController@deleteBlock',
         '/api/availability/delete_ical' => 'AvailabilityController@deleteIcal',
+        '/api/admin/users' => 'AdminController@manageUsers',
     ],
 ];

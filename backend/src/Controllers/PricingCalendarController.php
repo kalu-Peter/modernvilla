@@ -121,24 +121,27 @@ class PricingCalendarController
                 return Response::error('Property not found', null, 404);
             }
 
-            // UPSERT: Insert or update using PostgreSQL ON CONFLICT
+            // UPSERT: Insert or update using MySQL's ON DUPLICATE KEY UPDATE
             $stmt = $pdo->prepare('
                 INSERT INTO pricing_overrides (property_id, override_date, price, reason, updated_at)
                 VALUES (?, ?, ?, ?, NOW())
-                ON CONFLICT (property_id, override_date)
-                DO UPDATE SET
-                    price = EXCLUDED.price,
-                    reason = EXCLUDED.reason,
+                ON DUPLICATE KEY UPDATE
+                    price = VALUES(price),
+                    reason = VALUES(reason),
                     updated_at = NOW()
-                RETURNING override_date, price, reason
             ');
             $stmt->execute([$propertyId, $overrideDate, $price, $reason]);
 
-            if ($stmt->rowCount() === 0) {
+            $stmt = $pdo->prepare('
+                SELECT override_date, price, reason FROM pricing_overrides
+                WHERE property_id = ? AND override_date = ?
+            ');
+            $stmt->execute([$propertyId, $overrideDate]);
+            $saved = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$saved) {
                 return Response::error('Failed to save override', null, 500);
             }
-
-            $saved = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             return Response::success([
                 'message' => 'Price override saved',
@@ -173,7 +176,6 @@ class PricingCalendarController
             $stmt = $pdo->prepare('
                 DELETE FROM pricing_overrides
                 WHERE property_id = ? AND override_date = ?
-                RETURNING override_date
             ');
             $stmt->execute([$propertyId, $overrideDate]);
 
@@ -224,17 +226,15 @@ class PricingCalendarController
                 return Response::error('Property not found', null, 404);
             }
 
-            // UPSERT: Insert or update using PostgreSQL ON CONFLICT
+            // UPSERT: Insert or update using MySQL's ON DUPLICATE KEY UPDATE
             $stmt = $pdo->prepare('
                 INSERT INTO property_pricing (property_id, weekday_price, weekend_price, extra_person_fee, updated_at)
                 VALUES (?, ?, ?, ?, NOW())
-                ON CONFLICT (property_id)
-                DO UPDATE SET
-                    weekday_price = EXCLUDED.weekday_price,
-                    weekend_price = EXCLUDED.weekend_price,
-                    extra_person_fee = EXCLUDED.extra_person_fee,
+                ON DUPLICATE KEY UPDATE
+                    weekday_price = VALUES(weekday_price),
+                    weekend_price = VALUES(weekend_price),
+                    extra_person_fee = VALUES(extra_person_fee),
                     updated_at = NOW()
-                RETURNING property_id, weekday_price, weekend_price, extra_person_fee
             ');
             $stmt->execute([
                 $propertyId,
@@ -243,11 +243,16 @@ class PricingCalendarController
                 $extraPersonFee !== null ? floatval($extraPersonFee) : 0
             ]);
 
-            if ($stmt->rowCount() === 0) {
+            $stmt = $pdo->prepare('
+                SELECT property_id, weekday_price, weekend_price, extra_person_fee
+                FROM property_pricing WHERE property_id = ?
+            ');
+            $stmt->execute([$propertyId]);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$result) {
                 return Response::error('Failed to update base pricing', null, 500);
             }
-
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             return Response::success([
                 'message' => 'Base pricing updated',

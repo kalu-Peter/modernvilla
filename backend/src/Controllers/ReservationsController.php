@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Database\Connection;
 use App\Helpers\Response;
 use App\Helpers\Request;
+use App\Helpers\Uuid;
 
 class ReservationsController
 {
@@ -44,15 +45,26 @@ class ReservationsController
                 return;
             }
 
-            // Create reservation
+            // Resolve property_id alongside property_name so the
+            // AvailabilityController overlap checks (which filter by
+            // property_id) can see this reservation.
+            $propIdStmt = $pdo->prepare('SELECT id FROM properties WHERE name = ?');
+            $propIdStmt->execute([$body['property_name']]);
+            $propertyId = $propIdStmt->fetchColumn() ?: null;
+
+            // Create reservation. id is generated here (not by the database —
+            // MySQL has no equivalent to Postgres's gen_random_uuid() default).
+            $id = Uuid::v4();
             $stmt = $pdo->prepare('
-                INSERT INTO reservations 
-                (property_name, guests, checkin, checkout, name, phone, email, total_price, payment_status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO reservations
+                (id, property_name, property_id, guests, checkin, checkout, name, phone, email, total_price, payment_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ');
 
             $stmt->execute([
+                $id,
                 $body['property_name'],
+                $propertyId,
                 $body['guests'],
                 $body['checkin'],
                 $body['checkout'],

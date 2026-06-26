@@ -5,7 +5,7 @@
 ### 1. Requirements
 
 - PHP 8.1 or higher
-- PostgreSQL/Supabase
+- MySQL 8.0+ or MariaDB 10.2+
 - Composer (optional, for dependency management)
 
 ### 2. Setup Environment
@@ -13,12 +13,16 @@
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with your Supabase credentials
+# Edit .env with your MySQL credentials
 ```
 
 ### 3. Database
 
-Run the SQL schema in `schema.sql` against your Supabase database to create tables.
+Run the SQL schema in `schema.sql` against your MySQL database to create tables:
+
+```bash
+mysql -u root -p shelter < schema.sql
+```
 
 ### 4. Start Development Server
 

@@ -54,13 +54,13 @@ class AvailabilityController
 
             // Check for overlapping reservations (not cancelled)
             $stmt = $pdo->prepare('
-                SELECT COUNT(*) as count FROM reservations 
-                WHERE property_id = ? 
+                SELECT COUNT(*) as count FROM reservations
+                WHERE property_id = ?
                 AND cancelled = false
                 AND (
-                    (checkin::date < ?::date AND checkout::date > ?::date) OR
-                    (checkin::date <= ?::date AND checkout::date >= ?::date) OR
-                    (checkin::date < ?::date AND checkout::date > ?::date)
+                    (checkin < ? AND checkout > ?) OR
+                    (checkin <= ? AND checkout >= ?) OR
+                    (checkin < ? AND checkout > ?)
                 )
             ');
 
@@ -126,13 +126,13 @@ class AvailabilityController
 
                 // Check for overlapping reservations
                 $stmt = $pdo->prepare('
-                    SELECT COUNT(*) as count FROM reservations 
-                    WHERE property_id = ? 
+                    SELECT COUNT(*) as count FROM reservations
+                    WHERE property_id = ?
                     AND cancelled = false
                     AND (
-                        (checkin::date < ?::date AND checkout::date > ?::date) OR
-                        (checkin::date <= ?::date AND checkout::date >= ?::date) OR
-                        (checkin::date < ?::date AND checkout::date > ?::date)
+                        (checkin < ? AND checkout > ?) OR
+                        (checkin <= ? AND checkout >= ?) OR
+                        (checkin < ? AND checkout > ?)
                     )
                 ');
 
@@ -278,9 +278,15 @@ class AvailabilityController
             $stmt = $pdo->prepare('
                 INSERT INTO property_blocks (property_id, start_date, end_date, block_type, notes)
                 VALUES (?, ?, ?, ?, ?)
-                RETURNING id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
             ');
             $stmt->execute([$propertyId, $startDate, $endDate, $blockType, $notes]);
+            $newId = $pdo->lastInsertId();
+
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
+                FROM property_blocks WHERE id = ?
+            ');
+            $stmt->execute([$newId]);
             $block = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             Response::success($block, 'Block created', 201);
@@ -355,9 +361,14 @@ class AvailabilityController
             $stmt = $pdo->prepare('
                 UPDATE property_blocks SET ' . implode(', ', $updates) . '
                 WHERE id = ?
-                RETURNING id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
             ');
             $stmt->execute($params);
+
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, start_date, end_date, block_type, source_reference, notes, created_at, updated_at
+                FROM property_blocks WHERE id = ?
+            ');
+            $stmt->execute([$id]);
             $block = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             Response::success($block, 'Block updated');
@@ -380,7 +391,7 @@ class AvailabilityController
             }
 
             $pdo = Connection::getInstance();
-            $stmt = $pdo->prepare("DELETE FROM property_blocks WHERE id = ? RETURNING id");
+            $stmt = $pdo->prepare("DELETE FROM property_blocks WHERE id = ?");
             $stmt->execute([$id]);
 
             if ($stmt->rowCount() === 0) {
@@ -433,11 +444,15 @@ class AvailabilityController
             $stmt = $pdo->prepare('
                 INSERT INTO property_ical_sources (property_id, provider, ical_url)
                 VALUES (?, ?, ?)
-                ON CONFLICT (property_id, provider)
-                DO UPDATE SET ical_url = EXCLUDED.ical_url, updated_at = NOW()
-                RETURNING id, property_id, provider, ical_url, last_sync_at, created_at, updated_at
+                ON DUPLICATE KEY UPDATE ical_url = VALUES(ical_url), updated_at = NOW()
             ');
             $stmt->execute([$propertyId, $provider, $icalUrl]);
+
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, provider, ical_url, last_sync_at, created_at, updated_at
+                FROM property_ical_sources WHERE property_id = ? AND provider = ?
+            ');
+            $stmt->execute([$propertyId, $provider]);
             $source = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             Response::success($source, 'iCal source saved');
@@ -460,7 +475,8 @@ class AvailabilityController
             }
 
             $pdo = Connection::getInstance();
-            $stmt = $pdo->prepare('DELETE FROM property_ical_sources WHERE id = ? RETURNING id, property_id, provider');
+
+            $stmt = $pdo->prepare('SELECT id, property_id, provider FROM property_ical_sources WHERE id = ?');
             $stmt->execute([$id]);
             $deleted = $stmt->fetch(\PDO::FETCH_ASSOC);
 
@@ -468,6 +484,9 @@ class AvailabilityController
                 Response::error('iCal source not found', null, 404);
                 return;
             }
+
+            $stmt = $pdo->prepare('DELETE FROM property_ical_sources WHERE id = ?');
+            $stmt->execute([$id]);
 
             $stmt = $pdo->prepare('
                 DELETE FROM imported_calendar_events WHERE property_id = ? AND source_provider = ?
@@ -520,11 +539,10 @@ class AvailabilityController
                         INSERT INTO imported_calendar_events
                             (property_id, external_uid, source_provider, start_date, end_date, summary, last_seen_at)
                         VALUES (?, ?, ?, ?, ?, ?, NOW())
-                        ON CONFLICT (external_uid, property_id, source_provider)
-                        DO UPDATE SET
-                            start_date = EXCLUDED.start_date,
-                            end_date = EXCLUDED.end_date,
-                            summary = EXCLUDED.summary,
+                        ON DUPLICATE KEY UPDATE
+                            start_date = VALUES(start_date),
+                            end_date = VALUES(end_date),
+                            summary = VALUES(summary),
                             last_seen_at = NOW()
                     ');
                     $stmt->execute([
@@ -706,10 +724,12 @@ class AvailabilityController
             $stmt = $pdo->prepare('
                 INSERT INTO blocked_dates (property_name, blocked_date, reason)
                 VALUES (?, ?, ?)
-                RETURNING id, property_name, blocked_date, reason, created_at
             ');
-
             $stmt->execute([$property, $blockedDate, $reason]);
+            $newId = $pdo->lastInsertId();
+
+            $stmt = $pdo->prepare('SELECT id, property_name, blocked_date, reason, created_at FROM blocked_dates WHERE id = ?');
+            $stmt->execute([$newId]);
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             Response::success($result, 'Blocked date created', 201);
