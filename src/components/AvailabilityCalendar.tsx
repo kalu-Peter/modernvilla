@@ -1,11 +1,17 @@
 import React, { useState, useMemo } from "react";
-import type { PropertyBlock, ImportedCalendarEvent, CalendarDay } from "../types/availability";
+import type {
+  PropertyBlock,
+  ImportedCalendarEvent,
+  CalendarReservation,
+  CalendarDay,
+} from "../types/availability";
 import { BLOCK_COLORS } from "../types/availability";
 
 interface AvailabilityCalendarProps {
   propertyId: number;
   blocks: PropertyBlock[];
   events: ImportedCalendarEvent[];
+  reservations: CalendarReservation[];
   onDateClick: (date: string, block?: PropertyBlock) => void;
   onDateRangeSelect?: (startDate: string, endDate: string) => void;
   isLoading?: boolean;
@@ -14,6 +20,7 @@ interface AvailabilityCalendarProps {
 export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   blocks,
   events,
+  reservations,
   onDateClick,
   isLoading = false,
 }) => {
@@ -37,24 +44,24 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
 
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const date = new Date(year, month - 1, prevMonthLastDay - i);
-      days.push(createCalendarDay(date, false, blocks, events));
+      days.push(createCalendarDay(date, false, blocks, events, reservations));
     }
 
     // Add current month days
     for (let i = 1; i <= daysInMonth; i++) {
       const date = new Date(year, month, i);
-      days.push(createCalendarDay(date, true, blocks, events));
+      days.push(createCalendarDay(date, true, blocks, events, reservations));
     }
 
     // Add next month days
     const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
       const date = new Date(year, month + 1, i);
-      days.push(createCalendarDay(date, false, blocks, events));
+      days.push(createCalendarDay(date, false, blocks, events, reservations));
     }
 
     return days;
-  }, [currentDate, blocks, events]);
+  }, [currentDate, blocks, events, reservations]);
 
   return (
     <div>
@@ -244,7 +251,12 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
                   marginTop: "auto",
                 }}
               >
-                {day.status.charAt(0).toUpperCase() + day.status.slice(1)}
+                {day.status === "reserved" && day.reservation
+                  ? day.reservation.name
+                  : day.status === "synced" && day.event
+                    ? day.event.source_provider.charAt(0).toUpperCase() +
+                      day.event.source_provider.slice(1)
+                    : day.status.charAt(0).toUpperCase() + day.status.slice(1)}
               </span>
             )}
           </button>
@@ -276,11 +288,18 @@ function createCalendarDay(
   isCurrentMonth: boolean,
   blocks: PropertyBlock[],
   events: ImportedCalendarEvent[],
+  reservations: CalendarReservation[],
 ): CalendarDay {
   const dateStr = formatLocalDate(date);
   const today = formatLocalDate(new Date());
 
-  // Check for blocks in priority order: Booking, Airbnb, Manual, Maintenance
+  // Priority (most specific/certain first): a confirmed reservation on this
+  // site outranks everything else, then manual blocks (an admin's explicit,
+  // deliberate call), then a synced external-calendar event (automatic,
+  // could be stale since the last sync).
+  const reservation = reservations.find((r) =>
+    isDateInRange(dateStr, r.checkin, r.checkout),
+  );
   const bookingBlock = blocks.find(
     (b) =>
       b.block_type === "booking" &&
@@ -301,6 +320,20 @@ function createCalendarDay(
       b.block_type === "maintenance" &&
       isDateInRange(dateStr, b.start_date, b.end_date),
   );
+  const event = events.find((e) =>
+    isDateInRange(dateStr, e.start_date, e.end_date),
+  );
+
+  if (reservation) {
+    return {
+      date: dateStr,
+      dayOfMonth: date.getDate(),
+      isCurrentMonth,
+      isToday: dateStr === today,
+      status: "reserved",
+      reservation,
+    };
+  }
 
   if (bookingBlock) {
     return {
@@ -346,10 +379,16 @@ function createCalendarDay(
     };
   }
 
-  // Check for events
-  const event = events.find((e) =>
-    isDateInRange(dateStr, e.start_date, e.end_date),
-  );
+  if (event) {
+    return {
+      date: dateStr,
+      dayOfMonth: date.getDate(),
+      isCurrentMonth,
+      isToday: dateStr === today,
+      status: "synced",
+      event,
+    };
+  }
 
   return {
     date: dateStr,
@@ -357,7 +396,6 @@ function createCalendarDay(
     isCurrentMonth,
     isToday: dateStr === today,
     status: "available",
-    event,
   };
 }
 

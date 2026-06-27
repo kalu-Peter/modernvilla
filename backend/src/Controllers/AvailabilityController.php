@@ -206,10 +206,24 @@ class AvailabilityController
             $stmt->execute([$propertyId]);
             $importedEvents = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
+            // Confirmed (non-cancelled) reservations on this property, for
+            // showing actually-booked dates on the calendar. Guest contact
+            // details (email/phone) are deliberately left out — the
+            // calendar only needs to show that a date is taken.
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, checkin, checkout, name, guests, payment_status
+                FROM reservations
+                WHERE property_id = ? AND cancelled = false
+                ORDER BY checkin
+            ');
+            $stmt->execute([$propertyId]);
+            $reservations = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
             Response::success([
                 'blocks' => $blocks,
                 'ical_sources' => $icalSources,
                 'imported_events' => $importedEvents,
+                'reservations' => $reservations,
             ]);
         } catch (\Exception $e) {
             Response::error('Failed to fetch calendar data', [$e->getMessage()], 500);

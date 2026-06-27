@@ -4,6 +4,8 @@ import { BLOCK_LABELS, BLOCK_COLORS } from "../types/availability";
 export const AvailabilityLegend: React.FC = () => {
   const statuses = [
     "available",
+    "reserved",
+    "synced",
     "manual",
     "airbnb",
     "booking",

@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { SHELTERS } from "../types";
+import { SHELTER_TO_PROPERTY_ID } from "../utils/pricing";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { BlockDateModal } from "./BlockDateModal";
 import { IcalManagement } from "./IcalManagement";
@@ -8,6 +9,7 @@ import type {
   PropertyBlock,
   IcalSource,
   ImportedCalendarEvent,
+  CalendarReservation,
   BlockFormData,
   AvailabilityCalendarData,
 } from "../types/availability";
@@ -23,6 +25,7 @@ export const AvailabilityTab: React.FC = () => {
   const [importedEvents, setImportedEvents] = useState<ImportedCalendarEvent[]>(
     [],
   );
+  const [reservations, setReservations] = useState<CalendarReservation[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
@@ -33,14 +36,6 @@ export const AvailabilityTab: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Map shelter ID to property ID
-  const shelterToPropertyMap: Record<string, number> = {
-    "shelter-a": 1,
-    "shelter-b": 2,
-    "la-maison-modern": 3,
-    "refuge-de-la-martre": 4,
-  };
-
   // Fetch calendar data
   const fetchCalendarData = useCallback(async () => {
     try {
@@ -48,7 +43,7 @@ export const AvailabilityTab: React.FC = () => {
       setError("");
 
       const propertyId =
-        shelterToPropertyMap[selectedProperty] || selectedPropertyId;
+        SHELTER_TO_PROPERTY_ID[selectedProperty] || selectedPropertyId;
 
       const res = await fetch(
         `/api/availability/calendar?property_id=${propertyId}`,
@@ -62,6 +57,7 @@ export const AvailabilityTab: React.FC = () => {
       setBlocks(calendarData.blocks || []);
       setIcalSources(calendarData.ical_sources || []);
       setImportedEvents(calendarData.imported_events || []);
+      setReservations(calendarData.reservations || []);
       setSelectedPropertyId(propertyId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error loading calendar");
@@ -295,6 +291,7 @@ export const AvailabilityTab: React.FC = () => {
           propertyId={selectedPropertyId}
           blocks={blocks}
           events={importedEvents}
+          reservations={reservations}
           onDateClick={handleDateClick}
           isLoading={loading}
         />
