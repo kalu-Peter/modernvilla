@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { SHELTERS, SHELTER_DISPLAY_NAMES } from "../types";
+import { SHELTERS, SHELTER_DISPLAY_NAMES, getPropertyNameForShelter } from "../types";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
@@ -32,7 +32,18 @@ interface ShelterStatus {
   price: number | null;
   cleaningFee?: number;
   monetaryFee?: number;
+  extraPersonFee?: number;
 }
+
+// Mirrors AvailabilityController::getFeesForProperty — used only as a
+// fallback when the live pricing API is unreachable.
+const FALLBACK_MONETARY_FEE = 40;
+const FALLBACK_CLEANING_FEE_BY_SHELTER: Record<string, number> = {
+  "shelter-a": 80,
+  "shelter-b": 80,
+  "la-maison-modern": 40,
+  "refuge-de-la-martre": 40,
+};
 
 const SearchResultsPage: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -69,16 +80,25 @@ const SearchResultsPage: React.FC = () => {
         if (res.ok) {
           const data = await res.json();
 
-          // Map the batch results to shelters
+          // Map the batch results to shelters. The backend's properties.name
+          // is the plain DB name ("Shelter A"), not shelter.name (the long
+          // display string with location baked in, e.g. "Shelter A -
+          // Griesheim-près-Molsheim, France") — those never matched, so
+          // propertyData was always undefined and every card silently fell
+          // back to the static base price instead of live pricing.
           SHELTERS.forEach((shelter) => {
+            const propertyName = getPropertyNameForShelter(shelter.id);
             const propertyData = data.data.properties.find(
-              (p: any) => p.name === shelter.name,
+              (p: any) => p.name === propertyName,
             );
 
             let available = shelter.isAvailable !== false;
             let price: number | null = null;
-            let cleaningFee = 5200;
-            let monetaryFee = 5200;
+            const fallbackCleaningFee =
+              FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE;
+            let cleaningFee = fallbackCleaningFee;
+            let monetaryFee = FALLBACK_MONETARY_FEE;
+            let extraPersonFee = 0;
 
             if (propertyData) {
               available = propertyData.available;
@@ -93,8 +113,9 @@ const SearchResultsPage: React.FC = () => {
                   ? propertyData.pricing.weekend_price
                   : propertyData.pricing.weekday_price;
 
-                cleaningFee = propertyData.pricing.cleaning_fee || 5200;
-                monetaryFee = propertyData.pricing.monetary_fee || 5200;
+                cleaningFee = propertyData.pricing.cleaning_fee || fallbackCleaningFee;
+                monetaryFee = propertyData.pricing.monetary_fee || FALLBACK_MONETARY_FEE;
+                extraPersonFee = propertyData.pricing.extra_person_fee || 0;
               }
             }
 
@@ -104,6 +125,7 @@ const SearchResultsPage: React.FC = () => {
               price,
               cleaningFee,
               monetaryFee,
+              extraPersonFee,
             };
           });
         }
@@ -115,8 +137,9 @@ const SearchResultsPage: React.FC = () => {
             shelterId: shelter.id,
             available: true,
             price: null,
-            cleaningFee: 5200,
-            monetaryFee: 5200,
+            cleaningFee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE,
+            monetaryFee: FALLBACK_MONETARY_FEE,
+            extraPersonFee: 0,
           };
         });
       }
@@ -216,9 +239,14 @@ const SearchResultsPage: React.FC = () => {
               const status = statuses[shelter.id];
               const pricePerNight =
                 status?.price ?? shelter.pricing[0]?.basePrice ?? 0;
-              const totalBase = pricePerNight * nights;
-              const cleaningFee = status?.cleaningFee ?? 5200;
-              const monetaryFee = status?.monetaryFee ?? 5200;
+              const baseGuests = shelter.pricing[0]?.baseGuests ?? 6;
+              const extraGuestCharges =
+                guests > baseGuests
+                  ? (guests - baseGuests) * (status?.extraPersonFee ?? 0) * nights
+                  : 0;
+              const totalBase = pricePerNight * nights + extraGuestCharges;
+              const cleaningFee = status?.cleaningFee ?? 40;
+              const monetaryFee = status?.monetaryFee ?? 40;
               const taxPercentage = 5.5;
               const subtotal = totalBase + cleaningFee + monetaryFee;
               const taxAmount =
@@ -270,7 +298,7 @@ const SearchResultsPage: React.FC = () => {
                       }}
                     >
                       <Link
-                        to={`/shelter/${shelter.id}`}
+                        to={`/shelter/${shelter.id}?checkin=${checkin}&checkout=${checkout}&guestCount=${guests}`}
                         style={{
                           display: "inline-block",
                           fontFamily: "'Inter',sans-serif",

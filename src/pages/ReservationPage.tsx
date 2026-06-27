@@ -5,6 +5,7 @@ import { SHELTERS, SHELTER_DISPLAY_NAMES, getPropertyNameForShelter } from "../t
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
+import { getDefaultDateRange } from "../utils/dates";
 
 function nightsBetween(a: string, b: string) {
   if (!a || !b) return 0;
@@ -114,12 +115,13 @@ const ReservationPage: React.FC = () => {
   const shelterId = queryParams.get("shelterId") ?? "";
   const shelter = SHELTERS.find((s) => s.id === shelterId);
 
-  const [checkin, setCheckin] = useState(
-    queryParams.get("checkin") ?? queryParams.get("checkIn") ?? "",
-  );
-  const [checkout, setCheckout] = useState(
-    queryParams.get("checkout") ?? queryParams.get("checkOut") ?? "",
-  );
+  // Same 3-night default the home hero search uses, applied whenever this
+  // page is opened without dates already chosen (e.g. a direct link).
+  const queryCheckin = queryParams.get("checkin") ?? queryParams.get("checkIn");
+  const queryCheckout = queryParams.get("checkout") ?? queryParams.get("checkOut");
+  const dateDefaults = getDefaultDateRange();
+  const [checkin, setCheckin] = useState(queryCheckin ?? dateDefaults.checkin);
+  const [checkout, setCheckout] = useState(queryCheckout ?? dateDefaults.checkout);
   const [guestCount, setGuestCount] = useState(
     Number(queryParams.get("guestCount") ?? 1),
   );

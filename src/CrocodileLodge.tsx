@@ -7,24 +7,15 @@ import Header from "./components/Header";
 import SEO from "./components/SEO";
 import type { Shelter } from "./types";
 import { SHELTERS, SHELTER_DISPLAY_NAMES } from "./types";
+import { getDefaultDateRange } from "./utils/dates";
 
 const ModernRefuge: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [checkin, setCheckin] = useState<string>("");
-  const [checkout, setCheckout] = useState<string>("");
+  const defaultDates = getDefaultDateRange();
+  const [checkin, setCheckin] = useState<string>(defaultDates.checkin);
+  const [checkout, setCheckout] = useState<string>(defaultDates.checkout);
   const [guests, setGuests] = useState<number>(1);
-
-  // Set default dates on mount
-  useEffect(() => {
-    const today = new Date();
-    const checkout = new Date(today);
-    checkout.setDate(today.getDate() + 3);
-
-    const fmt = (d: Date) => d.toISOString().split("T")[0];
-    setCheckin(fmt(today));
-    setCheckout(fmt(checkout));
-  }, []);
 
   // Scroll Reveal Logic
   useEffect(() => {
@@ -67,7 +58,9 @@ const ModernRefuge: React.FC = () => {
   };
 
   const handleSelectShelter = (shelter: Shelter) => {
-    navigate(`/shelter/${shelter.id}?checkin=${checkin}&checkout=${checkout}`);
+    navigate(
+      `/shelter/${shelter.id}?checkin=${checkin}&checkout=${checkout}&guestCount=${guests}`,
+    );
   };
 
   return (

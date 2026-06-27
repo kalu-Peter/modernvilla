@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SHELTERS, SHELTER_DISPLAY_NAMES } from "../types";
 import { getShelterPrice } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
+import { getDefaultDateRange } from "../utils/dates";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import SEO from "../components/SEO";
@@ -115,6 +116,7 @@ function getAmenityIcon(label: string) {
 const ShelterDetailsPage: React.FC = () => {
   const { t } = useTranslation();
   const { shelterId } = useParams<{ shelterId: string }>();
+  const [searchParams] = useSearchParams();
   const { formatPrice } = useCurrency();
 
   const shelter = SHELTERS.find((s) => s.id === shelterId);
@@ -124,9 +126,24 @@ const ShelterDetailsPage: React.FC = () => {
   const [descExpanded, setDescExpanded] = useState(false);
   const [descMaxHeight, setDescMaxHeight] = useState<string>("7.2em");
   const [needsClamp, setNeedsClamp] = useState(true);
-  const [checkin, setCheckin] = useState("");
-  const [checkout, setCheckout] = useState("");
-  const [guestCount, setGuestCount] = useState(1);
+
+  // Carry check-in/check-out/guests over from wherever the user came from
+  // (home hero search, search results list); fall back to the same 3-night
+  // default the home hero uses so every page agrees on what "default dates"
+  // means.
+  const initialDates = (() => {
+    const qsCheckin = searchParams.get("checkin");
+    const qsCheckout = searchParams.get("checkout");
+    if (qsCheckin && qsCheckout) return { checkin: qsCheckin, checkout: qsCheckout };
+    return getDefaultDateRange();
+  })();
+  const [checkin, setCheckin] = useState(initialDates.checkin);
+  const [checkout, setCheckout] = useState(initialDates.checkout);
+  const clampGuestCount = (count: number) =>
+    Math.max(1, Math.min(count, shelter?.maxGuests ?? count));
+  const [guestCount, setGuestCount] = useState(
+    clampGuestCount(Number(searchParams.get("guestCount") ?? 1)),
+  );
 
   const touchStartX = useRef<number | null>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
@@ -139,9 +156,9 @@ const ShelterDetailsPage: React.FC = () => {
     setActiveImg(0);
     setLightboxOpen(false);
     setDescExpanded(false);
-    setCheckin("");
-    setCheckout("");
-    setGuestCount(1);
+    setCheckin(initialDates.checkin);
+    setCheckout(initialDates.checkout);
+    setGuestCount(clampGuestCount(Number(searchParams.get("guestCount") ?? 1)));
   }
 
   useEffect(() => {
