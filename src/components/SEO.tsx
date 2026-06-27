@@ -9,8 +9,8 @@ interface SEOProps {
   type?: string;
 }
 
-const BASE_URL = "https://themodernrefuge.co.ke";
-const DEFAULT_IMAGE = `${BASE_URL}/images/The Aloe Refuge/IMG_20201002_165212.jpg`;
+const BASE_URL = "https://alsacehideaways.fr";
+const DEFAULT_IMAGE = `${BASE_URL}/images/hero.jpg`;
 
 export default function SEO({
   title,

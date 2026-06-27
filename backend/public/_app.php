@@ -85,17 +85,20 @@ $routes = require dirname(__DIR__) . '/routes.php';
 $method = Request::getMethod();
 $path = Request::getPath();
 
-// Debug logging
-$logDir = dirname(__DIR__) . '/logs';
-if (!is_dir($logDir)) {
-    mkdir($logDir, 0755, true);
+// Debug logging (development only — logs every request, so keeping this on
+// in production would grow logs/debug.log forever for no benefit).
+if (($_ENV['ENVIRONMENT'] ?? '') === 'development') {
+    $logDir = dirname(__DIR__) . '/logs';
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0755, true);
+    }
+    file_put_contents($logDir . '/debug.log',
+        date('Y-m-d H:i:s') . " - $method $path\n" .
+        "Full URI: {$_SERVER['REQUEST_URI']}\n" .
+        "Routes available: " . json_encode(array_keys($routes[$method] ?? [])) . "\n\n",
+        FILE_APPEND
+    );
 }
-file_put_contents($logDir . '/debug.log', 
-    date('Y-m-d H:i:s') . " - $method $path\n" .
-    "Full URI: {$_SERVER['REQUEST_URI']}\n" .
-    "Routes available: " . json_encode(array_keys($routes[$method] ?? [])) . "\n\n",
-    FILE_APPEND
-);
 
 // Remove query string from path if present
 $path = strtok($path, '?');
