@@ -9,12 +9,10 @@ use App\Helpers\Request;
 class PricingController
 {
     /**
-     * Get hardcoded cleaning and monetary fees for a property
-     * Fees in EUR
-     * - Shelter A (1): 80 EUR
-     * - Shelter B (2): 80 EUR
-     * - La Maison Modern (3): 40 EUR
-     * - Refuge de la Martre (4): 40 EUR
+     * Fallback cleaning/monetary fees, only used for a property that has no
+     * property_pricing row at all yet. Once a row exists, cleaning_fee and
+     * monetary_fee are real columns on it (set via /api/pricing/update_base)
+     * instead of being hardcoded here.
      */
     private function getFeesForProperty(int $propertyId): array
     {
@@ -55,16 +53,15 @@ class PricingController
 
             // Get pricing
             $stmt = $pdo->prepare('
-                SELECT weekday_price, weekend_price, extra_person_fee, updated_at
+                SELECT weekday_price, weekend_price, extra_person_fee, cleaning_fee, monetary_fee, updated_at
                 FROM property_pricing
                 WHERE property_id = ?
             ');
             $stmt->execute([$propertyId]);
             $pricing = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            $fees = $this->getFeesForProperty($propertyId);
-
             if (!$pricing) {
+                $fees = $this->getFeesForProperty($propertyId);
                 Response::success([
                     'property_id' => $propertyId,
                     'property_name' => $property['name'],
@@ -84,8 +81,8 @@ class PricingController
                 'weekday_price' => floatval($pricing['weekday_price']),
                 'weekend_price' => floatval($pricing['weekend_price']),
                 'extra_person_fee' => floatval($pricing['extra_person_fee']),
-                'cleaning_fee' => $fees['cleaning_fee'],
-                'monetary_fee' => $fees['monetary_fee'],
+                'cleaning_fee' => floatval($pricing['cleaning_fee']),
+                'monetary_fee' => floatval($pricing['monetary_fee']),
                 'updated_at' => $pricing['updated_at']
             ]);
         } catch (\Exception $e) {

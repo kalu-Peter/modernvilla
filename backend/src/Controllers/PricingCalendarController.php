@@ -9,6 +9,22 @@ use App\Helpers\Request;
 class PricingCalendarController
 {
     /**
+     * Fallback cleaning/monetary fees, only used for a property that has no
+     * property_pricing row at all yet (so the admin sees a sensible
+     * starting point instead of 0 when first setting up a property).
+     */
+    private function getFeesForProperty(int $propertyId): array
+    {
+        $fees = [
+            1 => ['cleaning_fee' => 80, 'monetary_fee' => 80],  // Shelter A
+            2 => ['cleaning_fee' => 80, 'monetary_fee' => 80],  // Shelter B
+            3 => ['cleaning_fee' => 40, 'monetary_fee' => 40],  // La Maison Modern
+            4 => ['cleaning_fee' => 40, 'monetary_fee' => 40],  // Refuge de la Martre
+        ];
+        return $fees[$propertyId] ?? ['cleaning_fee' => 40, 'monetary_fee' => 40];
+    }
+
+    /**
      * GET /api/pricing/calendar?property_id=1&month=2026-12
      * Returns calendar data with base pricing and overrides
      */
@@ -42,16 +58,23 @@ class PricingCalendarController
 
             // Get base pricing
             $stmt = $pdo->prepare('
-                SELECT weekday_price, weekend_price, extra_person_fee
+                SELECT weekday_price, weekend_price, extra_person_fee, cleaning_fee, monetary_fee
                 FROM property_pricing
                 WHERE property_id = ?
             ');
             $stmt->execute([$propertyId]);
-            $basePricing = $stmt->fetch(\PDO::FETCH_ASSOC) ?: [
-                'weekday_price' => null,
-                'weekend_price' => null,
-                'extra_person_fee' => 0
-            ];
+            $basePricing = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$basePricing) {
+                $fees = $this->getFeesForProperty((int) $propertyId);
+                $basePricing = [
+                    'weekday_price' => null,
+                    'weekend_price' => null,
+                    'extra_person_fee' => 0,
+                    'cleaning_fee' => $fees['cleaning_fee'],
+                    'monetary_fee' => $fees['monetary_fee'],
+                ];
+            }
 
             // Get overrides for the month
             $startDate = $month . '-01';
@@ -203,6 +226,8 @@ class PricingCalendarController
             $weekdayPrice = Request::getBodyParam('weekday_price');
             $weekendPrice = Request::getBodyParam('weekend_price');
             $extraPersonFee = Request::getBodyParam('extra_person_fee');
+            $cleaningFee = Request::getBodyParam('cleaning_fee');
+            $monetaryFee = Request::getBodyParam('monetary_fee');
 
             if (!$propertyId || !$weekdayPrice || !$weekendPrice) {
                 return Response::error('Missing required fields: property_id, weekday_price, weekend_price', null, 400);
@@ -217,6 +242,14 @@ class PricingCalendarController
                 return Response::error('Extra person fee cannot be negative', null, 400);
             }
 
+            if ($cleaningFee !== null && floatval($cleaningFee) < 0) {
+                return Response::error('Cleaning fee cannot be negative', null, 400);
+            }
+
+            if ($monetaryFee !== null && floatval($monetaryFee) < 0) {
+                return Response::error('Monetary fee cannot be negative', null, 400);
+            }
+
             $pdo = Connection::getInstance();
 
             // Verify property exists
@@ -226,25 +259,46 @@ class PricingCalendarController
                 return Response::error('Property not found', null, 404);
             }
 
+            // extra_person_fee/cleaning_fee/monetary_fee are all optional on
+            // this request (the form may only be touching weekday/weekend
+            // price) — when omitted, keep whatever the property already
+            // has, falling back to the legacy per-property fee defaults
+            // only if it has no pricing row yet at all (extra_person_fee
+            // has no such legacy default, so it falls back to 0).
+            $stmt = $pdo->prepare('SELECT extra_person_fee, cleaning_fee, monetary_fee FROM property_pricing WHERE property_id = ?');
+            $stmt->execute([$propertyId]);
+            $existing = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $feeDefaults = $existing ?: $this->getFeesForProperty((int) $propertyId);
+
+            $extraPersonFeeValue = $extraPersonFee !== null
+                ? floatval($extraPersonFee)
+                : floatval($existing['extra_person_fee'] ?? 0);
+            $cleaningFeeValue = $cleaningFee !== null ? floatval($cleaningFee) : floatval($feeDefaults['cleaning_fee']);
+            $monetaryFeeValue = $monetaryFee !== null ? floatval($monetaryFee) : floatval($feeDefaults['monetary_fee']);
+
             // UPSERT: Insert or update using MySQL's ON DUPLICATE KEY UPDATE
             $stmt = $pdo->prepare('
-                INSERT INTO property_pricing (property_id, weekday_price, weekend_price, extra_person_fee, updated_at)
-                VALUES (?, ?, ?, ?, NOW())
+                INSERT INTO property_pricing (property_id, weekday_price, weekend_price, extra_person_fee, cleaning_fee, monetary_fee, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, NOW())
                 ON DUPLICATE KEY UPDATE
                     weekday_price = VALUES(weekday_price),
                     weekend_price = VALUES(weekend_price),
                     extra_person_fee = VALUES(extra_person_fee),
+                    cleaning_fee = VALUES(cleaning_fee),
+                    monetary_fee = VALUES(monetary_fee),
                     updated_at = NOW()
             ');
             $stmt->execute([
                 $propertyId,
                 floatval($weekdayPrice),
                 floatval($weekendPrice),
-                $extraPersonFee !== null ? floatval($extraPersonFee) : 0
+                $extraPersonFeeValue,
+                $cleaningFeeValue,
+                $monetaryFeeValue
             ]);
 
             $stmt = $pdo->prepare('
-                SELECT property_id, weekday_price, weekend_price, extra_person_fee
+                SELECT property_id, weekday_price, weekend_price, extra_person_fee, cleaning_fee, monetary_fee
                 FROM property_pricing WHERE property_id = ?
             ');
             $stmt->execute([$propertyId]);
@@ -259,7 +313,9 @@ class PricingCalendarController
                 'property_id' => $result['property_id'],
                 'weekday_price' => floatval($result['weekday_price']),
                 'weekend_price' => floatval($result['weekend_price']),
-                'extra_person_fee' => floatval($result['extra_person_fee'])
+                'extra_person_fee' => floatval($result['extra_person_fee']),
+                'cleaning_fee' => floatval($result['cleaning_fee']),
+                'monetary_fee' => floatval($result['monetary_fee'])
             ]);
         } catch (\Exception $e) {
             return Response::error('Error updating base pricing: ' . $e->getMessage(), null, 500);

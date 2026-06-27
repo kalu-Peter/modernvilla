@@ -11,6 +11,8 @@ interface BasePricing {
   weekday_price: number | null;
   weekend_price: number | null;
   extra_person_fee: number;
+  cleaning_fee: number;
+  monetary_fee: number;
 }
 
 interface PropertyInfo {
@@ -43,6 +45,8 @@ interface BasePricingModalState {
   weekdayPrice: string;
   weekendPrice: string;
   extraPersonFee: string;
+  cleaningFee: string;
+  monetaryFee: string;
 }
 
 const PricingCalendarTab: React.FC = () => {
@@ -78,6 +82,8 @@ const PricingCalendarTab: React.FC = () => {
       weekdayPrice: "",
       weekendPrice: "",
       extraPersonFee: "",
+      cleaningFee: "",
+      monetaryFee: "",
     });
 
   const secret = sessionStorage.getItem("adminSecret") ?? "";
@@ -172,6 +178,14 @@ const PricingCalendarTab: React.FC = () => {
         ? basePricing.extra_person_fee * rate
         : 0
       ).toFixed(2),
+      cleaningFee: (basePricing.cleaning_fee
+        ? basePricing.cleaning_fee * rate
+        : 0
+      ).toFixed(2),
+      monetaryFee: (basePricing.monetary_fee
+        ? basePricing.monetary_fee * rate
+        : 0
+      ).toFixed(2),
     });
   };
 
@@ -181,6 +195,8 @@ const PricingCalendarTab: React.FC = () => {
       weekdayPrice: "",
       weekendPrice: "",
       extraPersonFee: "",
+      cleaningFee: "",
+      monetaryFee: "",
     });
   };
 
@@ -206,6 +222,12 @@ const PricingCalendarTab: React.FC = () => {
       const extraFeeInEUR = convertToEUR(
         parseFloat(basePricingModal.extraPersonFee) || 0,
       );
+      const cleaningFeeInEUR = convertToEUR(
+        parseFloat(basePricingModal.cleaningFee) || 0,
+      );
+      const monetaryFeeInEUR = convertToEUR(
+        parseFloat(basePricingModal.monetaryFee) || 0,
+      );
 
       const response = await fetch("/api/pricing/update_base", {
         method: "POST",
@@ -218,6 +240,8 @@ const PricingCalendarTab: React.FC = () => {
           weekday_price: weekdayInEUR,
           weekend_price: weekendInEUR,
           extra_person_fee: extraFeeInEUR,
+          cleaning_fee: cleaningFeeInEUR,
+          monetary_fee: monetaryFeeInEUR,
         }),
       });
 
@@ -227,6 +251,8 @@ const PricingCalendarTab: React.FC = () => {
           weekday_price: data.data.weekday_price,
           weekend_price: data.data.weekend_price,
           extra_person_fee: data.data.extra_person_fee,
+          cleaning_fee: data.data.cleaning_fee,
+          monetary_fee: data.data.monetary_fee,
         });
         setMessage("Base pricing updated successfully");
         setMessageType("success");
@@ -958,6 +984,18 @@ const PricingCalendarTab: React.FC = () => {
                     : "Not set"}
                 </div>
               </div>
+              <div className="pricing-base-pricing-item">
+                <div className="pricing-base-pricing-label">Cleaning Fee</div>
+                <div className="pricing-base-pricing-price">
+                  {formatPrice(basePricing.cleaning_fee)}
+                </div>
+              </div>
+              <div className="pricing-base-pricing-item">
+                <div className="pricing-base-pricing-label">Monetary Fee</div>
+                <div className="pricing-base-pricing-price">
+                  {formatPrice(basePricing.monetary_fee)}
+                </div>
+              </div>
             </div>
           </div>
           <button
@@ -1187,6 +1225,40 @@ const PricingCalendarTab: React.FC = () => {
                   })
                 }
                 placeholder={`Enter extra person fee in ${currency.code}`}
+              />
+            </div>
+
+            <div className="pricing-modal-form-group">
+              <label>Cleaning Fee ({currency.code})</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={basePricingModal.cleaningFee}
+                onChange={(e) =>
+                  setBasePricingModal({
+                    ...basePricingModal,
+                    cleaningFee: e.target.value,
+                  })
+                }
+                placeholder={`Enter cleaning fee in ${currency.code}`}
+              />
+            </div>
+
+            <div className="pricing-modal-form-group">
+              <label>Monetary Fee ({currency.code})</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={basePricingModal.monetaryFee}
+                onChange={(e) =>
+                  setBasePricingModal({
+                    ...basePricingModal,
+                    monetaryFee: e.target.value,
+                  })
+                }
+                placeholder={`Enter monetary fee in ${currency.code}`}
               />
             </div>
 

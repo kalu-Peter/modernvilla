@@ -49,6 +49,12 @@ CREATE TABLE IF NOT EXISTS property_pricing (
     extra_person_fee DECIMAL(10,2) NOT NULL DEFAULT 0
         CHECK (extra_person_fee >= 0),
 
+    cleaning_fee DECIMAL(10,2) NOT NULL DEFAULT 40
+        CHECK (cleaning_fee >= 0),
+
+    monetary_fee DECIMAL(10,2) NOT NULL DEFAULT 40
+        CHECK (monetary_fee >= 0),
+
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_property_pricing_property
