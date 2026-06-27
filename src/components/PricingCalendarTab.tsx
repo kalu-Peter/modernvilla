@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useCurrency } from "../context/CurrencyContext";
 
+// Formats using local calendar fields — date.toISOString() converts to UTC
+// first, which shifts the date back a day in timezones ahead of UTC (e.g.
+// France), causing calendar cells/months/overrides to resolve to the wrong date.
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 interface PricingOverride {
   override_date: string;
   price: number;
@@ -127,7 +137,7 @@ const PricingCalendarTab: React.FC = () => {
 
       setLoading(true);
       try {
-        const month = date.toISOString().slice(0, 7); // YYYY-MM
+        const month = formatLocalDate(date).slice(0, 7); // YYYY-MM
         const response = await fetch(
           `/api/pricing/calendar?property_id=${propertyId}&month=${month}`,
         );
@@ -275,7 +285,7 @@ const PricingCalendarTab: React.FC = () => {
   const getEffectivePrice = (
     date: Date,
   ): { price: number | null; isOverride: boolean; reason?: string } => {
-    const dateStr = date.toISOString().slice(0, 10);
+    const dateStr = formatLocalDate(date);
     const dayOfWeek = date.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
@@ -311,7 +321,7 @@ const PricingCalendarTab: React.FC = () => {
     const current = new Date(startDate);
 
     while (current <= lastDay || days.length % 7 !== 0) {
-      const dateStr = current.toISOString().slice(0, 10);
+      const dateStr = formatLocalDate(current);
       const isCurrentMonth = current.getMonth() === month;
       const dayOfWeek = current.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;

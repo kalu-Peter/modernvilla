@@ -2,9 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SHELTERS, SHELTER_DISPLAY_NAMES } from "../types";
-import { getShelterPrice } from "../types";
 import { useCurrency } from "../context/CurrencyContext";
 import { getDefaultDateRange } from "../utils/dates";
+import {
+  SHELTER_TO_PROPERTY_ID,
+  calculateDetailedPrice,
+  fetchPropertyPricing,
+  nightsBetween,
+  type PropertyPricing,
+} from "../utils/pricing";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import SEO from "../components/SEO";
@@ -38,53 +44,6 @@ import {
 } from "lucide-react";
 
 const WA_NUMBER = "";
-
-// Static fee table — the live backend pricing endpoint used by the
-// Reservation page returns null/zero room rates in this environment, which
-// makes its price breakdown show all €0.00. Rather than depend on that
-// flaky endpoint here, these known-correct values are applied directly.
-const TAX_PERCENTAGE = 5.5;
-const MONETARY_FEE = 40;
-const CLEANING_FEE_BY_SHELTER: Record<string, number> = {
-  "shelter-a": 80,
-  "shelter-b": 80,
-  "la-maison-modern": 40,
-  "refuge-de-la-martre": 40,
-};
-
-function nightsBetween(a: string, b: string) {
-  if (!a || !b) return 0;
-  const diff = new Date(b).getTime() - new Date(a).getTime();
-  return Math.max(0, Math.round(diff / 86400000));
-}
-
-// Mirrors the shape of ReservationPage's price breakdown (room charges,
-// cleaning fee, monetary fee, tax, total) but driven by the static, reliable
-// per-night rate already used elsewhere on this page instead of the backend.
-function calculateStaticBreakdown(
-  shelterId: string,
-  pricePerNight: number | null,
-  nights: number,
-) {
-  if (pricePerNight === null || nights <= 0) return null;
-
-  const roomCharges = pricePerNight * nights;
-  const cleaningFee = CLEANING_FEE_BY_SHELTER[shelterId] ?? MONETARY_FEE;
-  const monetaryFee = MONETARY_FEE;
-
-  const subtotal = roomCharges + cleaningFee + monetaryFee;
-  const taxAmount = Math.round(subtotal * (TAX_PERCENTAGE / 100) * 100) / 100;
-  const totalPrice = Math.round((subtotal + taxAmount) * 100) / 100;
-
-  return {
-    roomCharges,
-    cleaningFee,
-    monetaryFee,
-    taxAmount,
-    taxPercentage: TAX_PERCENTAGE,
-    totalPrice,
-  };
-}
 
 const AMENITY_ICONS: { match: string[]; Icon: React.ElementType }[] = [
   { match: ["wifi"], Icon: Wifi },
@@ -144,9 +103,24 @@ const ShelterDetailsPage: React.FC = () => {
   const [guestCount, setGuestCount] = useState(
     clampGuestCount(Number(searchParams.get("guestCount") ?? 1)),
   );
+  const [livePricing, setLivePricing] = useState<PropertyPricing | null>(null);
 
   const touchStartX = useRef<number | null>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
+
+  // Same live pricing source as the Reservation page, so the total shown
+  // here matches what the guest is actually charged when they book.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const propertyId = shelterId ? SHELTER_TO_PROPERTY_ID[shelterId] : undefined;
+      const result = propertyId ? await fetchPropertyPricing(propertyId) : null;
+      if (!cancelled) setLivePricing(result);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [shelterId]);
 
   // Reset transient UI state when navigating between shelters (React's
   // "adjust state during render" pattern — avoids an extra effect render pass)
@@ -278,10 +252,15 @@ const ShelterDetailsPage: React.FC = () => {
   )}`;
 
   const nights = nightsBetween(checkin, checkout);
-  const price = getShelterPrice(shelter.id, guestCount);
   const thumbs = images.slice(1, 5);
 
-  const breakdown = calculateStaticBreakdown(shelter.id, price, nights);
+  const breakdown = calculateDetailedPrice(
+    livePricing,
+    checkin,
+    checkout,
+    guestCount,
+    shelter.pricing[0]?.baseGuests,
+  );
 
   return (
     <>
@@ -786,6 +765,12 @@ const ShelterDetailsPage: React.FC = () => {
                           </span>
                           <span>{formatPrice(breakdown.roomCharges)}</span>
                         </div>
+                        {breakdown.guestCharges > 0 && (
+                          <div className="rp-card-line">
+                            <span>{t("reservation.extraGuests")}</span>
+                            <span>{formatPrice(breakdown.guestCharges)}</span>
+                          </div>
+                        )}
                         <div className="rp-card-line">
                           <span>{t("reservation.cleaningFee")}</span>
                           <span>{formatPrice(breakdown.cleaningFee)}</span>

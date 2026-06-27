@@ -5,15 +5,14 @@ import { SHELTERS, SHELTER_DISPLAY_NAMES, getPropertyNameForShelter } from "../t
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
-import { getDefaultDateRange } from "../utils/dates";
-
-function nightsBetween(a: string, b: string) {
-  if (!a || !b) return 0;
-  return Math.max(
-    0,
-    Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000),
-  );
-}
+import { formatDate as formatLocalDate, getDefaultDateRange } from "../utils/dates";
+import {
+  SHELTER_TO_PROPERTY_ID,
+  calculateDetailedPrice,
+  fetchPropertyPricing,
+  nightsBetween,
+  type PropertyPricing,
+} from "../utils/pricing";
 
 const MIN_NIGHTS: Record<string, number> = {
   "shelter-a": 2,
@@ -43,66 +42,6 @@ function formatDate(d: string, locale: string) {
       year: "numeric",
     },
   );
-}
-
-interface PropertyPricing {
-  weekday_price: number | null;
-  weekend_price: number | null;
-  extra_person_fee: number;
-  cleaning_fee: number;
-  monetary_fee: number;
-}
-
-function isWeekend(dateString: string): boolean {
-  const d = new Date(dateString + "T00:00:00");
-  const day = d.getDay();
-  return day === 5 || day === 6; // Friday=5, Saturday=6
-}
-
-function calculateDetailedPrice(
-  pricing: PropertyPricing | null,
-  checkin: string,
-  checkout: string,
-  guests: number,
-) {
-  if (!pricing || !pricing.weekday_price || !pricing.weekend_price) return null;
-
-  let roomCharges = 0;
-  const currentDate = new Date(checkin + "T00:00:00");
-  const endDate = new Date(checkout + "T00:00:00");
-
-  while (currentDate < endDate) {
-    const dateStr = currentDate.toISOString().split("T")[0];
-    const price = isWeekend(dateStr)
-      ? pricing.weekend_price
-      : pricing.weekday_price;
-    roomCharges += price;
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  const nights = nightsBetween(checkin, checkout);
-  const guestCharges =
-    guests > 6 ? (guests - 6) * pricing.extra_person_fee * nights : 0;
-
-  const cleaningFee = pricing.cleaning_fee;
-  const monetaryFee = pricing.monetary_fee;
-  const taxPercentage = 5.5;
-
-  const subtotal = roomCharges + guestCharges + cleaningFee + monetaryFee;
-  const taxAmount = Math.round(subtotal * (taxPercentage / 100) * 100) / 100;
-  const totalPrice = Math.round((subtotal + taxAmount) * 100) / 100;
-
-  return {
-    breakdown: {
-      roomCharges,
-      guestCharges,
-      cleaningFee,
-      monetaryFee,
-      taxAmount,
-      taxPercentage,
-    },
-    totalPrice,
-  };
 }
 
 const ReservationPage: React.FC = () => {
@@ -145,7 +84,6 @@ const ReservationPage: React.FC = () => {
   const displayName = SHELTER_DISPLAY_NAMES[shelter.id] ?? shelter.name;
 
   // Fetch pricing from new API
-  const [priceBreakdown, setPriceBreakdown] = React.useState<any>(null);
   const [pricing, setPricing] = React.useState<PropertyPricing | null>(null);
 
   const minNights = getMinNights(shelter.id);
@@ -153,57 +91,21 @@ const ReservationPage: React.FC = () => {
 
   // Fetch property pricing from database
   React.useEffect(() => {
-    if (!shelter) return;
-
-    const fetchPricing = async () => {
-      try {
-        const shelterToPropertyMap: Record<string, number> = {
-          "shelter-a": 1,
-          "shelter-b": 2,
-          "la-maison-modern": 3,
-          "refuge-de-la-martre": 4,
-        };
-
-        const propertyId = shelterToPropertyMap[shelter.id];
-        if (!propertyId) {
-          setPricing(null);
-          return;
-        }
-
-        const res = await fetch(
-          `/api/pricing/property?property_id=${propertyId}`,
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setPricing({
-            weekday_price: data.data.weekday_price,
-            weekend_price: data.data.weekend_price,
-            extra_person_fee: data.data.extra_person_fee,
-            cleaning_fee: data.data.cleaning_fee || 40,
-            monetary_fee: data.data.monetary_fee || 40,
-          });
-        }
-      } catch (error) {
-        console.error("Failed to fetch pricing:", error);
-        setPricing(null);
-      }
+    let cancelled = false;
+    (async () => {
+      const propertyId = shelter ? SHELTER_TO_PROPERTY_ID[shelter.id] : undefined;
+      const result = propertyId ? await fetchPropertyPricing(propertyId) : null;
+      if (!cancelled) setPricing(result);
+    })();
+    return () => {
+      cancelled = true;
     };
-
-    fetchPricing();
   }, [shelter]);
 
-  React.useEffect(() => {
-    if (checkin && checkout && pricing && guestCount > 0) {
-      // Calculate pricing with fetched data
-      const breakdown = calculateDetailedPrice(
-        pricing,
-        checkin,
-        checkout,
-        guestCount,
-      );
-      setPriceBreakdown(breakdown);
-    }
-  }, [checkin, checkout, pricing, guestCount]);
+  const priceBreakdown =
+    checkin && checkout && pricing && guestCount > 0
+      ? calculateDetailedPrice(pricing, checkin, checkout, guestCount)
+      : null;
 
   const total = priceBreakdown?.totalPrice ?? 0;
 
@@ -457,7 +359,7 @@ const ReservationPage: React.FC = () => {
                   <input
                     type="date"
                     value={checkin}
-                    min={new Date().toISOString().split("T")[0]}
+                    min={formatLocalDate(new Date())}
                     onChange={(e) => {
                       setCheckin(e.target.value);
                       const min = minCheckout(e.target.value, shelter.id);
@@ -472,7 +374,7 @@ const ReservationPage: React.FC = () => {
                     value={checkout}
                     min={
                       minCheckout(checkin, shelter.id) ||
-                      new Date().toISOString().split("T")[0]
+                      formatLocalDate(new Date())
                     }
                     onChange={(e) => setCheckout(e.target.value)}
                   />
@@ -596,35 +498,35 @@ const ReservationPage: React.FC = () => {
                   )}
                 </span>
                 <span>
-                  {formatPrice(priceBreakdown?.breakdown?.roomCharges ?? 0)}
+                  {formatPrice(priceBreakdown?.roomCharges ?? 0)}
                 </span>
               </div>
-              {priceBreakdown?.breakdown?.guestCharges > 0 && (
+              {(priceBreakdown?.guestCharges ?? 0) > 0 && (
                 <div className="rp-card-line">
                   <span>{t("reservation.extraGuests")}</span>
                   <span>
-                    {formatPrice(priceBreakdown?.breakdown?.guestCharges ?? 0)}
+                    {formatPrice(priceBreakdown?.guestCharges ?? 0)}
                   </span>
                 </div>
               )}
               <div className="rp-card-line">
                 <span>{t("reservation.cleaningFee")}</span>
                 <span>
-                  {formatPrice(priceBreakdown?.breakdown?.cleaningFee ?? 0)}
+                  {formatPrice(priceBreakdown?.cleaningFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">
                 <span>{t("reservation.monetaryFee")}</span>
                 <span>
-                  {formatPrice(priceBreakdown?.breakdown?.monetaryFee ?? 0)}
+                  {formatPrice(priceBreakdown?.monetaryFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">
                 <span>
-                  {t("reservation.tax", { pct: priceBreakdown?.breakdown?.taxPercentage ?? 0 })}
+                  {t("reservation.tax", { pct: priceBreakdown?.taxPercentage ?? 0 })}
                 </span>
                 <span>
-                  {formatPrice(priceBreakdown?.breakdown?.taxAmount ?? 0)}
+                  {formatPrice(priceBreakdown?.taxAmount ?? 0)}
                 </span>
               </div>
 

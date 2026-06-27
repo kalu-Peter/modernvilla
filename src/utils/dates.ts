@@ -2,8 +2,15 @@
 // default date range (home hero, shelter details, reservation) uses the
 // exact same rule: check-in = today, check-out = 3 nights later.
 
+// Formats using *local* calendar fields. `d.toISOString()` converts to UTC
+// first, which silently shifts the date back a day for several hours after
+// local midnight in any timezone ahead of UTC (e.g. France, UTC+1/+2) —
+// so "today" could resolve to yesterday depending on what time it is.
 export function formatDate(d: Date): string {
-  return d.toISOString().split("T")[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export function getDefaultDateRange(nights: number = 3): {

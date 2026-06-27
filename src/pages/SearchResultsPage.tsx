@@ -5,14 +5,7 @@ import { SHELTERS, SHELTER_DISPLAY_NAMES, getPropertyNameForShelter } from "../t
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
 import { useCurrency } from "../context/CurrencyContext";
-
-function nightsBetween(a: string, b: string) {
-  if (!a || !b) return 0;
-  return Math.max(
-    0,
-    Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000),
-  );
-}
+import { calculateDetailedPrice, nightsBetween, type PropertyPricing } from "../utils/pricing";
 
 function fmtDate(d: string, locale: string) {
   if (!d) return "";
@@ -29,10 +22,7 @@ function fmtDate(d: string, locale: string) {
 interface ShelterStatus {
   shelterId: string;
   available: boolean;
-  price: number | null;
-  cleaningFee?: number;
-  monetaryFee?: number;
-  extraPersonFee?: number;
+  pricing: PropertyPricing | null;
 }
 
 // Mirrors AvailabilityController::getFeesForProperty — used only as a
@@ -93,53 +83,59 @@ const SearchResultsPage: React.FC = () => {
             );
 
             let available = shelter.isAvailable !== false;
-            let price: number | null = null;
-            const fallbackCleaningFee =
-              FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE;
-            let cleaningFee = fallbackCleaningFee;
-            let monetaryFee = FALLBACK_MONETARY_FEE;
-            let extraPersonFee = 0;
+            let pricing: PropertyPricing | null = null;
 
             if (propertyData) {
               available = propertyData.available;
-
-              // Calculate price based on first night (simplified)
               if (propertyData.pricing) {
-                const firstNightDate = new Date(checkin);
-                const dayOfWeek = firstNightDate.getDay();
-                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
-                price = isWeekend
-                  ? propertyData.pricing.weekend_price
-                  : propertyData.pricing.weekday_price;
-
-                cleaningFee = propertyData.pricing.cleaning_fee || fallbackCleaningFee;
-                monetaryFee = propertyData.pricing.monetary_fee || FALLBACK_MONETARY_FEE;
-                extraPersonFee = propertyData.pricing.extra_person_fee || 0;
+                pricing = {
+                  weekday_price: propertyData.pricing.weekday_price,
+                  weekend_price: propertyData.pricing.weekend_price,
+                  extra_person_fee: propertyData.pricing.extra_person_fee || 0,
+                  cleaning_fee:
+                    propertyData.pricing.cleaning_fee ||
+                    FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ||
+                    FALLBACK_MONETARY_FEE,
+                  monetary_fee: propertyData.pricing.monetary_fee || FALLBACK_MONETARY_FEE,
+                };
               }
             }
 
-            results[shelter.id] = {
-              shelterId: shelter.id,
-              available,
-              price,
-              cleaningFee,
-              monetaryFee,
-              extraPersonFee,
-            };
+            // No live pricing at all (property has no pricing row yet, or
+            // the property/API lookup failed) — fall back to a flat rate
+            // from the static tiers in types.ts so the card still shows a
+            // usable estimate instead of nothing.
+            if (!pricing) {
+              const tier = shelter.pricing[0];
+              const flatRate = tier?.basePrice ?? 0;
+              pricing = {
+                weekday_price: flatRate,
+                weekend_price: flatRate,
+                extra_person_fee: tier?.extraPersonFee ?? 0,
+                cleaning_fee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE,
+                monetary_fee: FALLBACK_MONETARY_FEE,
+              };
+            }
+
+            results[shelter.id] = { shelterId: shelter.id, available, pricing };
           });
         }
       } catch (error) {
         console.error("Failed to check availability:", error);
-        // Fallback: assume all are available
+        // Fallback: assume all are available, price from the static tiers
         SHELTERS.forEach((shelter) => {
+          const tier = shelter.pricing[0];
+          const flatRate = tier?.basePrice ?? 0;
           results[shelter.id] = {
             shelterId: shelter.id,
             available: true,
-            price: null,
-            cleaningFee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE,
-            monetaryFee: FALLBACK_MONETARY_FEE,
-            extraPersonFee: 0,
+            pricing: {
+              weekday_price: flatRate,
+              weekend_price: flatRate,
+              extra_person_fee: tier?.extraPersonFee ?? 0,
+              cleaning_fee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE,
+              monetary_fee: FALLBACK_MONETARY_FEE,
+            },
           };
         });
       }
@@ -237,22 +233,15 @@ const SearchResultsPage: React.FC = () => {
             {visibleShelters.map((shelter) => {
               const displayName = SHELTER_DISPLAY_NAMES[shelter.id] ?? shelter.name;
               const status = statuses[shelter.id];
-              const pricePerNight =
-                status?.price ?? shelter.pricing[0]?.basePrice ?? 0;
-              const baseGuests = shelter.pricing[0]?.baseGuests ?? 6;
-              const extraGuestCharges =
-                guests > baseGuests
-                  ? (guests - baseGuests) * (status?.extraPersonFee ?? 0) * nights
-                  : 0;
-              const totalBase = pricePerNight * nights + extraGuestCharges;
-              const cleaningFee = status?.cleaningFee ?? 40;
-              const monetaryFee = status?.monetaryFee ?? 40;
-              const taxPercentage = 5.5;
-              const subtotal = totalBase + cleaningFee + monetaryFee;
-              const taxAmount =
-                Math.round(subtotal * (taxPercentage / 100) * 100) / 100;
-              const totalWithFees =
-                Math.round((subtotal + taxAmount) * 100) / 100;
+              const pricePerNight = status?.pricing?.weekday_price ?? 0;
+              const breakdown = calculateDetailedPrice(
+                status?.pricing ?? null,
+                checkin,
+                checkout,
+                guests,
+                shelter.pricing[0]?.baseGuests,
+              );
+              const totalWithFees = breakdown?.totalPrice ?? 0;
               return (
                 <div key={shelter.id} className="sr-card">
                   <div className="sr-card-img">

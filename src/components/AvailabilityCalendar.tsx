@@ -260,6 +260,16 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
   );
 };
 
+// Formats using local calendar fields — date.toISOString() converts to UTC
+// first, which shifts the date back a day in timezones ahead of UTC (e.g.
+// France), making cells/clicks/block-matching resolve to the wrong date.
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 // Helper function to create a calendar day
 function createCalendarDay(
   date: Date,
@@ -267,8 +277,8 @@ function createCalendarDay(
   blocks: PropertyBlock[],
   events: ImportedCalendarEvent[],
 ): CalendarDay {
-  const dateStr = date.toISOString().split("T")[0];
-  const today = new Date().toISOString().split("T")[0];
+  const dateStr = formatLocalDate(date);
+  const today = formatLocalDate(new Date());
 
   // Check for blocks in priority order: Booking, Airbnb, Manual, Maintenance
   const bookingBlock = blocks.find(
