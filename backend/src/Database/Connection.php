@@ -19,7 +19,11 @@ class Connection
 
     private static function connect(): PDO
     {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
+        // 127.0.0.1 (not "localhost") forces a TCP connection — "localhost"
+        // makes most MySQL clients try a Unix socket file instead, which on
+        // some shared hosts isn't where PHP expects it and fails with
+        // SQLSTATE[HY000] [2002] No such file or directory.
+        $host = $_ENV['DB_HOST'] ?? '127.0.0.1';
         $port = $_ENV['DB_PORT'] ?? '3306';
         $dbname = $_ENV['DB_NAME'] ?? 'shelter';
         $user = $_ENV['DB_USER'] ?? 'root';

@@ -22,9 +22,17 @@ class AdminAuth
 
     private static function getAdminToken(): ?string
     {
-        // Check header: x-admin-secret
-        $headers = getallheaders();
-        return $headers['x-admin-secret'] ?? $_GET['admin_secret'] ?? null;
+        // Check header: x-admin-secret. Matched case-insensitively — some
+        // server stacks (e.g. LiteSpeed's PHP) title-case header names
+        // (X-Admin-Secret) instead of preserving the lowercase the
+        // frontend actually sends, which would silently break a literal
+        // ['x-admin-secret'] lookup.
+        foreach (getallheaders() as $name => $value) {
+            if (strcasecmp($name, 'x-admin-secret') === 0) {
+                return $value;
+            }
+        }
+        return $_GET['admin_secret'] ?? null;
     }
 
     public static function isAdmin(): bool
