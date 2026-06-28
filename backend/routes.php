@@ -8,6 +8,7 @@ return [
     // Public Routes
     'GET' => [
         '/api/properties' => 'PropertiesController@getAll',
+        '/api/reservations/status' => 'ReservationsController@getStatus',
         '/api/availability' => 'AvailabilityController@check',
         '/api/availability/batch' => 'AvailabilityController@checkBatch',
         '/api/availability/calendar' => 'AvailabilityController@getCalendar',
@@ -20,11 +21,11 @@ return [
 
     'POST' => [
         '/api/reservations' => 'ReservationsController@create',
-        '/api/payments/create' => 'PaymentController@create',
         '/api/payments/callback' => 'PaymentController@callback',
         '/api/admin/auth' => 'AdminController@login',
         '/api/admin/login' => 'AdminController@login',
         '/api/admin/users' => 'AdminController@manageUsers',
+        '/api/admin/reservations/approve' => 'ReservationsController@approve',
         '/api/pricing/save_override' => 'PricingCalendarController@saveOverride',
         '/api/pricing/update_base' => 'PricingCalendarController@updateBasePricing',
         '/api/availability/create_block' => 'AvailabilityController@createBlock',

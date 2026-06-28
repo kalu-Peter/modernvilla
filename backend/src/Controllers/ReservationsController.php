@@ -2,10 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Config\Config;
 use App\Database\Connection;
 use App\Helpers\Response;
 use App\Helpers\Request;
 use App\Helpers\Uuid;
+use App\Middleware\AdminAuth;
+use App\Services\SwiklyClient;
 
 class ReservationsController
 {
@@ -75,9 +78,173 @@ class ReservationsController
                 'pending'
             ]);
 
-            Response::success(null, 'Reservation created successfully', 201);
+            Response::success(['reservation' => ['id' => $id]], 'Reservation created successfully', 201);
         } catch (\Exception $e) {
             Response::error('Failed to create reservation', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * GET /api/reservations/status?id=...
+     * Public, minimal status check used by the post-payment redirect page —
+     * deliberately returns only payment_status/confirmed, no guest PII.
+     */
+    public function getStatus(): void
+    {
+        try {
+            $id = Request::getQueryParam('id');
+            if (!$id) {
+                Response::error('Reservation id is required', null, 400);
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+            $stmt = $pdo->prepare('SELECT payment_status, confirmed, cancelled FROM reservations WHERE id = ?');
+            $stmt->execute([$id]);
+            $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$reservation) {
+                Response::error('Reservation not found', null, 404);
+                return;
+            }
+
+            Response::success([
+                'payment_status' => $reservation['payment_status'],
+                'confirmed' => (bool) $reservation['confirmed'],
+                'cancelled' => (bool) $reservation['cancelled'],
+            ]);
+        } catch (\Exception $e) {
+            Response::error('Failed to fetch reservation status', [$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /api/admin/reservations/approve
+     * Admin-only. Body: { id }
+     * Marks the reservation confirmed and, if the property has a deposit
+     * configured, creates a Swikly Deposit request and returns its checkout
+     * link so the admin can send it to the guest themselves (WhatsApp etc.).
+     */
+    public function approve(): void
+    {
+        if (!AdminAuth::verify()) {
+            return;
+        }
+
+        try {
+            $body = Request::getBody();
+            $id = $body['id'] ?? null;
+
+            if (!$id) {
+                Response::error('Reservation id is required', null, 400);
+                return;
+            }
+
+            $pdo = Connection::getInstance();
+            $stmt = $pdo->prepare('
+                SELECT id, property_id, property_name, checkin, checkout, name, phone, email,
+                       confirmed, cancelled, swikly_link
+                FROM reservations WHERE id = ?
+            ');
+            $stmt->execute([$id]);
+            $reservation = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$reservation) {
+                Response::error('Reservation not found', null, 404);
+                return;
+            }
+
+            if ($reservation['cancelled']) {
+                Response::error('Cannot approve a cancelled reservation', null, 409);
+                return;
+            }
+
+            // Already approved — return the existing link instead of
+            // creating a duplicate Swikly deposit request.
+            if ($reservation['confirmed']) {
+                Response::success([
+                    'link' => $reservation['swikly_link'],
+                    'name' => $reservation['name'],
+                    'phone' => $reservation['phone'],
+                ], 'Already approved');
+                return;
+            }
+
+            $depositAmount = 0.0;
+            if ($reservation['property_id']) {
+                $depStmt = $pdo->prepare('SELECT deposit_amount FROM property_pricing WHERE property_id = ?');
+                $depStmt->execute([$reservation['property_id']]);
+                $depositAmount = (float) ($depStmt->fetchColumn() ?: 0);
+            }
+
+            $link = null;
+            $requestId = null;
+
+            if ($depositAmount > 0) {
+                $swikly = SwiklyClient::fromConfig();
+                if (!$swikly) {
+                    Response::error('Payment provider is not configured', null, 500);
+                    return;
+                }
+
+                [$firstName, $lastName] = SwiklyClient::splitName($reservation['name']);
+
+                // startDate/endDate must be today or later — clamp in case
+                // checkin has already passed by approval time.
+                $today = date('Y-m-d');
+                $startDate = max($reservation['checkin'], $today);
+                $endDate = $reservation['checkout'] > $startDate
+                    ? $reservation['checkout']
+                    : date('Y-m-d', strtotime($startDate . ' +1 day'));
+
+                $payload = [
+                    'description' => 'Alsace Hideaways — Security deposit (' . $reservation['property_name'] . ')',
+                    'language' => 'fr',
+                    'customId' => $reservation['id'],
+                    'customIdMustBeUnique' => true,
+                    'firstName' => $firstName,
+                    'lastName' => $lastName,
+                    'email' => $reservation['email'],
+                    'phoneNumber' => $reservation['phone'],
+                    'skipToPaymentPageIfPossible' => true,
+                    'deposit' => [
+                        'startDate' => $startDate,
+                        'endDate' => $endDate,
+                        'amount' => (int) round($depositAmount * 100),
+                    ],
+                ];
+
+                $frontendUrl = rtrim((string) Config::get('FRONTEND_URL', ''), '/');
+                if ($frontendUrl) {
+                    $payload['redirectUrl'] = $frontendUrl . '/payment-callback?reservation=' . $reservation['id'];
+                    $payload['callbacks'] = [
+                        'requestSecured' => $frontendUrl . '/api/payments/callback',
+                    ];
+                }
+
+                [$status, $result] = $swikly->request('POST', '/accounts/' . $swikly->accountId() . '/requests', $payload);
+
+                if ($status < 200 || $status >= 300 || !isset($result['request']['link'])) {
+                    Response::error('Failed to create deposit request', [$result['message'] ?? 'Unknown error'], 502);
+                    return;
+                }
+
+                $link = $result['request']['link'];
+                $requestId = $result['request']['id'] ?? null;
+            }
+
+            $updateStmt = $pdo->prepare('
+                UPDATE reservations SET confirmed = true, swikly_request_id = ?, swikly_link = ? WHERE id = ?
+            ');
+            $updateStmt->execute([$requestId, $link, $id]);
+
+            Response::success([
+                'link' => $link,
+                'name' => $reservation['name'],
+                'phone' => $reservation['phone'],
+            ], 'Reservation approved');
+        } catch (\Exception $e) {
+            Response::error('Failed to approve reservation', [$e->getMessage()], 500);
         }
     }
 
@@ -140,7 +307,7 @@ class ReservationsController
     {
         try {
             $pdo = Connection::getInstance();
-            $stmt = $pdo->query('SELECT id, property_name, guests, checkin, checkout, name, phone, email, total_price, payment_status, confirmed, cancelled, created_at FROM reservations ORDER BY checkin DESC');
+            $stmt = $pdo->query('SELECT id, property_name, property_id, guests, checkin, checkout, name, phone, email, total_price, payment_status, confirmed, cancelled, swikly_request_id, swikly_link, created_at FROM reservations ORDER BY checkin DESC');
             $reservations = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             header('Content-Type: application/json');

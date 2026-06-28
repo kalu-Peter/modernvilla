@@ -55,6 +55,12 @@ CREATE TABLE IF NOT EXISTS property_pricing (
     monetary_fee DECIMAL(10,2) NOT NULL DEFAULT 40
         CHECK (monetary_fee >= 0),
 
+    -- Security deposit (caution) amount, separate from and much smaller
+    -- than the rental total. Charged via a Swikly Deposit request once an
+    -- admin approves the reservation, not collected at booking time.
+    deposit_amount DECIMAL(10,2) NOT NULL DEFAULT 0
+        CHECK (deposit_amount >= 0),
+
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_property_pricing_property
@@ -86,6 +92,11 @@ CREATE TABLE IF NOT EXISTS reservations (
   confirmed      BOOLEAN NOT NULL DEFAULT FALSE,
   cancelled      BOOLEAN NOT NULL DEFAULT FALSE,
   created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  -- Set when an admin approves the reservation and a Swikly Deposit request
+  -- is created for it — lets the dashboard re-show/re-send the same link.
+  swikly_request_id VARCHAR(255) NULL,
+  swikly_link        VARCHAR(500) NULL,
 
   CONSTRAINT checkout_after_checkin CHECK (checkout > checkin),
   CONSTRAINT fk_reservations_property_name
