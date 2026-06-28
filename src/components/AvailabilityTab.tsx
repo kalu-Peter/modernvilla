@@ -52,12 +52,15 @@ export const AvailabilityTab: React.FC = () => {
       if (!res.ok) throw new Error("Failed to fetch calendar data");
 
       const data = await res.json();
-      const calendarData = data.data as AvailabilityCalendarData;
+      const calendarData = (data.data ?? {}) as Partial<AvailabilityCalendarData>;
 
-      setBlocks(calendarData.blocks || []);
-      setIcalSources(calendarData.ical_sources || []);
-      setImportedEvents(calendarData.imported_events || []);
-      setReservations(calendarData.reservations || []);
+      // Array.isArray (not just `|| []`) — a falsy fallback doesn't catch
+      // a non-array truthy value (e.g. an object), which would still crash
+      // every .filter()/.find() these get passed into downstream.
+      setBlocks(Array.isArray(calendarData.blocks) ? calendarData.blocks : []);
+      setIcalSources(Array.isArray(calendarData.ical_sources) ? calendarData.ical_sources : []);
+      setImportedEvents(Array.isArray(calendarData.imported_events) ? calendarData.imported_events : []);
+      setReservations(Array.isArray(calendarData.reservations) ? calendarData.reservations : []);
       setSelectedPropertyId(propertyId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error loading calendar");

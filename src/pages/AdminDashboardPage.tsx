@@ -184,7 +184,12 @@ const AdminDashboardPage: React.FC = () => {
       try {
         const res = await api("/reservations");
         if (res.ok) {
-          setReservations(await res.json());
+          const data = await res.json();
+          // Guard against a non-array response (e.g. a PHP warning/notice
+          // corrupting the JSON body, or an unexpected shape) — without
+          // this, every .filter()/.length below would throw and crash the
+          // whole dashboard instead of just showing an empty list.
+          setReservations(Array.isArray(data) ? data : []);
           if (markSeen) markReservationsSeen();
         }
       } finally {
@@ -240,7 +245,10 @@ const AdminDashboardPage: React.FC = () => {
     setUsersLoading(true);
     try {
       const res = await api("/users");
-      if (res.ok) setUsers(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(Array.isArray(data) ? data : []);
+      }
     } finally {
       setUsersLoading(false);
     }
