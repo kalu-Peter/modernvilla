@@ -8,6 +8,7 @@ use App\Helpers\Response;
 use App\Helpers\Request;
 use App\Helpers\Uuid;
 use App\Middleware\AdminAuth;
+use App\Services\Mailer;
 use App\Services\SwiklyClient;
 
 class ReservationsController
@@ -78,10 +79,47 @@ class ReservationsController
                 'pending'
             ]);
 
+            $this->notifyAdminOfNewReservation($id, $body);
+
             Response::success(['reservation' => ['id' => $id]], 'Reservation created successfully', 201);
         } catch (\Exception $e) {
             Response::error('Failed to create reservation', [$e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Best-effort email to the admin so a new booking gets approved
+     * promptly — failure here is logged by Mailer::send() and never
+     * propagates, since losing this notification shouldn't fail the
+     * reservation the guest is waiting on.
+     */
+    private function notifyAdminOfNewReservation(string $id, array $body): void
+    {
+        $adminEmail = Config::get('ADMIN_NOTIFICATION_EMAIL');
+        if (!$adminEmail) {
+            return;
+        }
+
+        $dashboardUrl = rtrim((string) Config::get('FRONTEND_URL', ''), '/') . '/admin/dashboard';
+        $ref = strtoupper(substr($id, 0, 8));
+
+        $html = '
+            <h2>New booking request</h2>
+            <p>A new reservation is awaiting your approval.</p>
+            <table cellpadding="6" cellspacing="0">
+                <tr><td><strong>Reference</strong></td><td>' . htmlspecialchars($ref) . '</td></tr>
+                <tr><td><strong>Property</strong></td><td>' . htmlspecialchars((string) $body['property_name']) . '</td></tr>
+                <tr><td><strong>Guest</strong></td><td>' . htmlspecialchars((string) $body['name']) . '</td></tr>
+                <tr><td><strong>Dates</strong></td><td>' . htmlspecialchars((string) $body['checkin']) . ' to ' . htmlspecialchars((string) $body['checkout']) . '</td></tr>
+                <tr><td><strong>Guests</strong></td><td>' . htmlspecialchars((string) $body['guests']) . '</td></tr>
+                <tr><td><strong>Total price</strong></td><td>€' . htmlspecialchars((string) $body['total_price']) . '</td></tr>
+                <tr><td><strong>Phone</strong></td><td>' . htmlspecialchars((string) $body['phone']) . '</td></tr>
+                <tr><td><strong>Email</strong></td><td>' . htmlspecialchars((string) $body['email']) . '</td></tr>
+            </table>
+            <p><a href="' . htmlspecialchars($dashboardUrl) . '">Review and approve in the admin dashboard</a></p>
+        ';
+
+        Mailer::send($adminEmail, 'New booking request — ' . $body['property_name'], $html);
     }
 
     /**

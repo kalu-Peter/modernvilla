@@ -25,6 +25,37 @@ function getMinNights(shelterId: string) {
   return MIN_NIGHTS[shelterId] ?? 1;
 }
 
+const COUNTRY_CODES = [
+  { code: "+33", label: "France (+33)" },
+  { code: "+32", label: "Belgium (+32)" },
+  { code: "+41", label: "Switzerland (+41)" },
+  { code: "+49", label: "Germany (+49)" },
+  { code: "+44", label: "United Kingdom (+44)" },
+  { code: "+39", label: "Italy (+39)" },
+  { code: "+34", label: "Spain (+34)" },
+  { code: "+351", label: "Portugal (+351)" },
+  { code: "+31", label: "Netherlands (+31)" },
+  { code: "+352", label: "Luxembourg (+352)" },
+  { code: "+353", label: "Ireland (+353)" },
+  { code: "+43", label: "Austria (+43)" },
+  { code: "+45", label: "Denmark (+45)" },
+  { code: "+46", label: "Sweden (+46)" },
+  { code: "+47", label: "Norway (+47)" },
+  { code: "+358", label: "Finland (+358)" },
+  { code: "+48", label: "Poland (+48)" },
+  { code: "+420", label: "Czech Republic (+420)" },
+  { code: "+30", label: "Greece (+30)" },
+  { code: "+212", label: "Morocco (+212)" },
+  { code: "+216", label: "Tunisia (+216)" },
+  { code: "+213", label: "Algeria (+213)" },
+  { code: "+1", label: "United States / Canada (+1)" },
+  { code: "+61", label: "Australia (+61)" },
+  { code: "+971", label: "United Arab Emirates (+971)" },
+  { code: "+86", label: "China (+86)" },
+  { code: "+81", label: "Japan (+81)" },
+  { code: "+91", label: "India (+91)" },
+];
+
 function minCheckout(checkin: string, shelterId: string) {
   if (!checkin) return "";
   const d = new Date(checkin);
@@ -69,6 +100,7 @@ const ReservationPage: React.FC = () => {
     lastName: "",
     email: "",
     phone: "",
+    countryCode: "+33",
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -109,7 +141,9 @@ const ReservationPage: React.FC = () => {
 
   const total = priceBreakdown?.totalPrice ?? 0;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
@@ -167,19 +201,26 @@ const ReservationPage: React.FC = () => {
           checkin,
           checkout,
           name: `${formData.firstName.trim()} ${formData.lastName.trim()}`,
-          phone: formData.phone.trim(),
+          phone: `${formData.countryCode}${formData.phone.replace(/\D/g, "")}`,
           email: formData.email.trim().toLowerCase(),
+          total_price: total,
         }),
       });
       const data = (await res.json()) as {
-        reservation?: { id: string };
+        data?: { reservation?: { id: string } };
         error?: string;
       };
       if (!res.ok) {
         setSubmitError(data.error ?? t("reservation.errorGeneric"));
         return;
       }
-      setConfirmationId(data.reservation?.id ?? "");
+      const reservationId = data.data?.reservation?.id ?? "";
+      setConfirmationId(reservationId);
+
+      // Reservations are reviewed by an admin before any payment is
+      // requested — no Swikly involvement at submission time. Once
+      // approved, the guest is sent a deposit link separately (WhatsApp).
+
       setSubmitted(true);
     } catch {
       setSubmitError(t("reservation.errorNetwork"));
@@ -303,7 +344,7 @@ const ReservationPage: React.FC = () => {
         .rp-field input:focus, .rp-field select:focus { border-color:#c9a84c; box-shadow:0 0 0 3px rgba(201,168,76,0.12); }
         .rp-field input::placeholder { color:#c4c9d4; }
         .rp-phone-wrap { display:flex; }
-        .rp-phone-prefix { padding:12px 14px; background:#f5f6fa; border:1.5px solid #e5e7eb; border-right:none; border-radius:10px 0 0 10px; font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:500; color:#6b7280; white-space:nowrap; display:flex; align-items:center; }
+        .rp-phone-prefix { flex:0 0 128px; padding:12px 10px; background:#f5f6fa; border:1.5px solid #e5e7eb; border-right:none; border-radius:10px 0 0 10px !important; font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:500; color:#1a1a2e; cursor:pointer; }
         .rp-phone-wrap input { border-radius:0 10px 10px 0 !important; }
 
         .rp-error { background:#fef2f2; border:1px solid #fecaca; color:#991b1b; font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:500; padding:12px 16px; border-radius:10px; margin-bottom:18px; }
@@ -439,7 +480,19 @@ const ReservationPage: React.FC = () => {
               <div className="rp-field">
                 <label>{t("reservation.phoneNumber")}</label>
                 <div className="rp-phone-wrap">
-                  <span className="rp-phone-prefix">+33</span>
+                  <select
+                    className="rp-phone-prefix"
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={handleChange}
+                    aria-label="Country code"
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     type="tel"
                     name="phone"

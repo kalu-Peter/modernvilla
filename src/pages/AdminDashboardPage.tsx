@@ -199,6 +199,74 @@ const AdminDashboardPage: React.FC = () => {
     [api],
   );
 
+  // ── Desktop notifications for new bookings ──────────────────────────────
+  // Polls regardless of which tab is active, so a new reservation pops a
+  // real OS notification (+ a short beep) as long as this dashboard is
+  // open in some browser tab — works even if that tab isn't focused.
+  const [notifPermission, setNotifPermission] =
+    useState<NotificationPermission>(
+      typeof Notification !== "undefined" ? Notification.permission : "denied",
+    );
+  const seenPendingIdsRef = React.useRef<Set<string> | null>(null);
+
+  const requestNotificationPermission = async () => {
+    if (typeof Notification === "undefined") return;
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+  };
+
+  const playNotificationSound = () => {
+    try {
+      const ctx = new AudioContext();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.frequency.value = 880;
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.2);
+    } catch {
+      // Audio blocked (e.g. autoplay policy) — the desktop notification,
+      // if permitted, still fires regardless.
+    }
+  };
+
+  useEffect(() => {
+    fetchReservations();
+    const interval = setInterval(() => fetchReservations(), 25000);
+    return () => clearInterval(interval);
+  }, [fetchReservations]);
+
+  useEffect(() => {
+    const pendingIds = reservations
+      .filter((r) => getReservationStatus(r) === "pending")
+      .map((r) => r.id);
+
+    if (seenPendingIdsRef.current === null) {
+      // First load — seed without notifying, so pre-existing pending
+      // reservations don't all fire notifications the moment this mounts.
+      seenPendingIdsRef.current = new Set(pendingIds);
+      return;
+    }
+
+    const newOnes = pendingIds.filter(
+      (id) => !seenPendingIdsRef.current!.has(id),
+    );
+    if (newOnes.length === 0) return;
+
+    newOnes.forEach((id) => seenPendingIdsRef.current!.add(id));
+    playNotificationSound();
+    if (notifPermission === "granted") {
+      new Notification("New booking request", {
+        body:
+          newOnes.length === 1
+            ? "A new reservation is awaiting approval."
+            : `${newOnes.length} new reservations are awaiting approval.`,
+      });
+    }
+  }, [reservations, notifPermission]);
+
   const updateReservation = async (
     id: string,
     changes: Partial<
@@ -232,6 +300,44 @@ const AdminDashboardPage: React.FC = () => {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  // Approving creates a Swikly deposit request server-side (if the
+  // property has a deposit configured) and stores the checkout link on the
+  // reservation — the admin then sends that link to the guest themselves
+  // (Send via WhatsApp button below), there's no automated guest email/SMS.
+  const approveReservation = async (r: AdminReservation) => {
+    setActionLoading(r.id);
+    try {
+      const res = await api("/reservations/approve", {
+        method: "POST",
+        body: JSON.stringify({ id: r.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const link: string | null = data.data?.link ?? null;
+        setReservations((prev) =>
+          prev.map((x) =>
+            x.id === r.id ? { ...x, confirmed: true, swikly_link: link } : x,
+          ),
+        );
+      } else {
+        window.alert(data.error ?? "Failed to approve reservation");
+      }
+    } catch {
+      window.alert("Failed to approve reservation");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const buildWhatsAppDepositLink = (r: AdminReservation) => {
+    const message =
+      `Bonjour ${r.name}, votre réservation pour ${r.property_name} ` +
+      `(${r.checkin} au ${r.checkout}) est confirmée ! Merci de régler la ` +
+      `caution de sécurité via ce lien : ${r.swikly_link}`;
+    const digits = r.phone.replace(/\D/g, "");
+    return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
   };
 
   // ── Users ────────────────────────────────────────────────────────────────
@@ -466,6 +572,32 @@ const AdminDashboardPage: React.FC = () => {
               {/* ── RESERVATIONS ──────────────────────────────────────────── */}
               {activeTab === "reservations" && (
                 <>
+                  {notifPermission === "default" && (
+                    <div
+                      className="adm-form-row"
+                      style={{
+                        alignItems: "center",
+                        background: "#fffbeb",
+                        border: "1px solid #fde68a",
+                        borderRadius: 8,
+                        padding: "10px 14px",
+                        marginBottom: 16,
+                      }}
+                    >
+                      <span style={{ fontSize: "0.85rem", color: "#92400e" }}>
+                        Enable desktop notifications to get pinged immediately
+                        when a new booking comes in.
+                      </span>
+                      <button
+                        type="button"
+                        className="adm-btn"
+                        onClick={requestNotificationPermission}
+                      >
+                        Enable notifications
+                      </button>
+                    </div>
+                  )}
+
                   {/* Filters */}
                   <div className="adm-form-row">
                     <div className="adm-form-field">
@@ -542,18 +674,45 @@ const AdminDashboardPage: React.FC = () => {
                                 <td>
                                   <div className="adm-actions">
                                     {status === "pending" && (
-                                      <button
-                                        className="adm-btn"
-                                        disabled={actionLoading === r.id}
-                                        onClick={() =>
-                                          updateReservation(r.id, {
-                                            confirmed: true,
-                                          })
-                                        }
-                                      >
-                                        Confirm
-                                      </button>
+                                      <>
+                                        <button
+                                          className="adm-btn"
+                                          disabled={actionLoading === r.id}
+                                          onClick={() => approveReservation(r)}
+                                        >
+                                          Approve
+                                        </button>
+                                        <button
+                                          className="adm-btn danger"
+                                          disabled={actionLoading === r.id}
+                                          onClick={() =>
+                                            updateReservation(r.id, {
+                                              cancelled: true,
+                                            })
+                                          }
+                                        >
+                                          Decline
+                                        </button>
+                                      </>
                                     )}
+                                    {status === "confirmed" &&
+                                      r.swikly_link &&
+                                      r.payment_status !== "paid" && (
+                                        <a
+                                          className="adm-btn"
+                                          href={buildWhatsAppDepositLink(r)}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                        >
+                                          Send Deposit Link
+                                        </a>
+                                      )}
+                                    {status === "confirmed" &&
+                                      r.payment_status === "paid" && (
+                                        <span className="adm-badge-status confirmed">
+                                          Deposit paid
+                                        </span>
+                                      )}
                                     <button
                                       className="adm-btn danger"
                                       disabled={actionLoading === r.id}

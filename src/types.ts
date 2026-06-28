@@ -412,6 +412,8 @@ export interface AdminReservation {
   confirmed: boolean;
   cancelled: boolean;
   created_at: string;
+  swikly_request_id: string | null;
+  swikly_link: string | null;
 }
 
 export interface RevenueMonthly {

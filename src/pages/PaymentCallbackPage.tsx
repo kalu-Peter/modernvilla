@@ -9,12 +9,17 @@ export default function PaymentCallbackPage() {
   const [status, setStatus] = useState<Status>("checking");
   const [message, setMessage] = useState("Verifying your payment…");
 
-  const trackingId = searchParams.get("OrderTrackingId");
+  // Swikly redirects back to redirectUrl=".../payment-callback?reservation=<id>"
+  // once the guest secures the request — but the authoritative confirmation
+  // comes from the requestSecured webhook hitting our backend separately,
+  // which can lag slightly behind the redirect. Poll our own status
+  // endpoint briefly to bridge that gap instead of trusting the redirect alone.
+  const reservationId = searchParams.get("reservation");
 
   useEffect(() => {
-    if (!trackingId) {
+    if (!reservationId) {
       setStatus("missing");
-      setMessage("No payment reference found.");
+      setMessage("No reservation reference found.");
       return;
     }
 
@@ -24,24 +29,25 @@ export default function PaymentCallbackPage() {
     const poll = async () => {
       attempts++;
       try {
-        const res = await fetch("/api/payments", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "pesapal-status", orderTrackingId: trackingId }),
-        });
-        const data = await res.json() as { status: string };
+        const res = await fetch(
+          `/api/reservations/status?id=${encodeURIComponent(reservationId)}`,
+        );
+        const body = (await res.json()) as {
+          data?: { payment_status: string; cancelled: boolean };
+        };
+        const paymentStatus = body.data?.payment_status;
 
-        if (data.status === "success") {
+        if (paymentStatus === "paid") {
           setStatus("success");
-          setMessage("Payment confirmed! Your booking is being processed.");
+          setMessage("Payment confirmed! Your booking is now secured.");
           clearInterval(timer);
-        } else if (data.status === "failed") {
+        } else if (paymentStatus === "failed" || body.data?.cancelled) {
           setStatus("failed");
           setMessage("Payment was not completed. Please try again.");
           clearInterval(timer);
         } else if (attempts >= maxAttempts) {
           setStatus("failed");
-          setMessage("We could not confirm your payment. If you were charged, please contact us.");
+          setMessage("We could not confirm your payment yet. If you completed checkout, please contact us and we'll verify it manually.");
           clearInterval(timer);
         }
       } catch {
@@ -56,7 +62,7 @@ export default function PaymentCallbackPage() {
     poll();
     const timer = setInterval(poll, 5000);
     return () => clearInterval(timer);
-  }, [trackingId]);
+  }, [reservationId]);
 
   return (
     <div style={{
@@ -130,14 +136,14 @@ export default function PaymentCallbackPage() {
         </p>
 
         {/* Reference */}
-        {trackingId && (
+        {reservationId && (
           <p style={{
             fontSize: "0.72rem",
             color: "#9ca3af",
             marginBottom: 32,
             fontFamily: "monospace",
           }}>
-            Ref: {trackingId}
+            Ref: {reservationId.substring(0, 8).toUpperCase()}
           </p>
         )}
 

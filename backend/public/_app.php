@@ -60,6 +60,13 @@ spl_autoload_register(function ($class) {
     }
 });
 
+// Composer's autoloader, for third-party packages (PHPMailer etc.) — the
+// custom autoloader above only knows about the App\ namespace.
+$vendorAutoload = dirname(__DIR__) . '/vendor/autoload.php';
+if (file_exists($vendorAutoload)) {
+    require $vendorAutoload;
+}
+
 use App\Config\Config;
 use App\Helpers\Response;
 use App\Helpers\Request;
