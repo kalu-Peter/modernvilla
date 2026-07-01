@@ -16,14 +16,14 @@ export interface PropertyPricing {
   weekend_price: number | null;
   extra_person_fee: number;
   cleaning_fee: number;
-  monetary_fee: number;
+  linen_fee: number;
 }
 
 export interface PriceBreakdown {
   roomCharges: number;
   guestCharges: number;
   cleaningFee: number;
-  monetaryFee: number;
+  linenFee: number;
   taxAmount: number;
   taxPercentage: number;
   totalPrice: number;
@@ -69,6 +69,7 @@ export function calculateDetailedPrice(
   checkout: string,
   guests: number,
   baseGuests: number = DEFAULT_BASE_GUESTS,
+  includeLinen: boolean = true,
 ): PriceBreakdown | null {
   if (!pricing || !pricing.weekday_price || !pricing.weekend_price) return null;
   if (!checkin || !checkout) return null;
@@ -90,17 +91,17 @@ export function calculateDetailedPrice(
     guests > baseGuests ? (guests - baseGuests) * pricing.extra_person_fee * nights : 0;
 
   const cleaningFee = pricing.cleaning_fee;
-  const monetaryFee = pricing.monetary_fee;
+  const linenFee = includeLinen ? pricing.linen_fee * guests : 0;
 
-  const subtotal = roomCharges + guestCharges + cleaningFee + monetaryFee;
-  const taxAmount = Math.round(subtotal * (TAX_PERCENTAGE / 100) * 100) / 100;
-  const totalPrice = Math.round((subtotal + taxAmount) * 100) / 100;
+  // Tourist tax (taxe de séjour) applies only to room/night charges, not fees.
+  const taxAmount = Math.round(roomCharges * (TAX_PERCENTAGE / 100) * 100) / 100;
+  const totalPrice = Math.round((roomCharges + guestCharges + cleaningFee + linenFee + taxAmount) * 100) / 100;
 
   return {
     roomCharges,
     guestCharges,
     cleaningFee,
-    monetaryFee,
+    linenFee,
     taxAmount,
     taxPercentage: TAX_PERCENTAGE,
     totalPrice,
@@ -120,7 +121,7 @@ export async function fetchPropertyPricing(
       weekend_price: data.data.weekend_price,
       extra_person_fee: data.data.extra_person_fee,
       cleaning_fee: data.data.cleaning_fee || 40,
-      monetary_fee: data.data.monetary_fee || 40,
+      linen_fee: data.data.linen_fee ?? 12,
     };
   } catch {
     return null;

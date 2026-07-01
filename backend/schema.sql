@@ -52,8 +52,8 @@ CREATE TABLE IF NOT EXISTS property_pricing (
     cleaning_fee DECIMAL(10,2) NOT NULL DEFAULT 40
         CHECK (cleaning_fee >= 0),
 
-    monetary_fee DECIMAL(10,2) NOT NULL DEFAULT 40
-        CHECK (monetary_fee >= 0),
+    linen_fee DECIMAL(10,2) NOT NULL DEFAULT 12
+        CHECK (linen_fee >= 0),
 
     -- Security deposit (caution) amount, separate from and much smaller
     -- than the rental total. Charged via a Swikly Deposit request once an

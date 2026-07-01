@@ -102,6 +102,7 @@ const ReservationPage: React.FC = () => {
     phone: "",
     countryCode: "+33",
   });
+  const [includeLinen, setIncludeLinen] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -136,7 +137,7 @@ const ReservationPage: React.FC = () => {
 
   const priceBreakdown =
     checkin && checkout && pricing && guestCount > 0
-      ? calculateDetailedPrice(pricing, checkin, checkout, guestCount)
+      ? calculateDetailedPrice(pricing, checkin, checkout, guestCount, undefined, includeLinen)
       : null;
 
   const total = priceBreakdown?.totalPrice ?? 0;
@@ -372,6 +373,11 @@ const ReservationPage: React.FC = () => {
         .rp-card-nights-badge { display:inline-block; background:#f5f6fa; border-radius:20px; font-size:0.68rem; font-weight:600; color:#9098a9; padding:3px 10px; margin-left:8px; }
         .rp-card-zero { text-align:center; color:#c4c9d4; font-family:'Inter',sans-serif; font-size:0.78rem; padding:12px 0; }
 
+        /* Linen checkbox row */
+        .rp-linen-row { display:flex; justify-content:space-between; align-items:center; font-family:'Inter',sans-serif; font-size:0.8rem; color:#6b7280; margin-bottom:10px; }
+        .rp-linen-label { display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
+        .rp-linen-label input[type="checkbox"] { width:16px; height:16px; accent-color:#c9a84c; cursor:pointer; flex-shrink:0; }
+
         /* WhatsApp pill */
         .rp-wa-pill { display:flex; align-items:center; gap:8px; margin-top:20px; padding:12px 16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; font-family:'Inter',sans-serif; font-size:0.75rem; color:#065f46; font-weight:500; }
 
@@ -568,10 +574,17 @@ const ReservationPage: React.FC = () => {
                   {formatPrice(priceBreakdown?.cleaningFee ?? 0)}
                 </span>
               </div>
-              <div className="rp-card-line">
-                <span>{t("reservation.monetaryFee")}</span>
-                <span>
-                  {formatPrice(priceBreakdown?.monetaryFee ?? 0)}
+              <div className="rp-linen-row">
+                <label className="rp-linen-label">
+                  <input
+                    type="checkbox"
+                    checked={includeLinen}
+                    onChange={(e) => setIncludeLinen(e.target.checked)}
+                  />
+                  {t("reservation.linenFeeOptional")}
+                </label>
+                <span style={{ fontFamily: "'Inter',sans-serif", fontSize: "0.8rem", color: includeLinen ? "#6b7280" : "#c4c9d4" }}>
+                  {formatPrice(priceBreakdown?.linenFee ?? 0)}
                 </span>
               </div>
               <div className="rp-card-line">

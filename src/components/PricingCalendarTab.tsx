@@ -22,7 +22,7 @@ interface BasePricing {
   weekend_price: number | null;
   extra_person_fee: number;
   cleaning_fee: number;
-  monetary_fee: number;
+  linen_fee: number;
 }
 
 interface PropertyInfo {
@@ -56,7 +56,7 @@ interface BasePricingModalState {
   weekendPrice: string;
   extraPersonFee: string;
   cleaningFee: string;
-  monetaryFee: string;
+  linenFee: string;
 }
 
 const PricingCalendarTab: React.FC = () => {
@@ -93,7 +93,7 @@ const PricingCalendarTab: React.FC = () => {
       weekendPrice: "",
       extraPersonFee: "",
       cleaningFee: "",
-      monetaryFee: "",
+      linenFee: "",
     });
 
   const secret = sessionStorage.getItem("adminSecret") ?? "";
@@ -192,8 +192,8 @@ const PricingCalendarTab: React.FC = () => {
         ? basePricing.cleaning_fee * rate
         : 0
       ).toFixed(2),
-      monetaryFee: (basePricing.monetary_fee
-        ? basePricing.monetary_fee * rate
+      linenFee: (basePricing.linen_fee
+        ? basePricing.linen_fee * rate
         : 0
       ).toFixed(2),
     });
@@ -206,7 +206,7 @@ const PricingCalendarTab: React.FC = () => {
       weekendPrice: "",
       extraPersonFee: "",
       cleaningFee: "",
-      monetaryFee: "",
+      linenFee: "",
     });
   };
 
@@ -235,8 +235,8 @@ const PricingCalendarTab: React.FC = () => {
       const cleaningFeeInEUR = convertToEUR(
         parseFloat(basePricingModal.cleaningFee) || 0,
       );
-      const monetaryFeeInEUR = convertToEUR(
-        parseFloat(basePricingModal.monetaryFee) || 0,
+      const linenFeeInEUR = convertToEUR(
+        parseFloat(basePricingModal.linenFee) || 0,
       );
 
       const response = await fetch("/api/pricing/update_base", {
@@ -251,7 +251,7 @@ const PricingCalendarTab: React.FC = () => {
           weekend_price: weekendInEUR,
           extra_person_fee: extraFeeInEUR,
           cleaning_fee: cleaningFeeInEUR,
-          monetary_fee: monetaryFeeInEUR,
+          linen_fee: linenFeeInEUR,
         }),
       });
 
@@ -262,7 +262,7 @@ const PricingCalendarTab: React.FC = () => {
           weekend_price: data.data.weekend_price,
           extra_person_fee: data.data.extra_person_fee,
           cleaning_fee: data.data.cleaning_fee,
-          monetary_fee: data.data.monetary_fee,
+          linen_fee: data.data.linen_fee,
         });
         setMessage("Base pricing updated successfully");
         setMessageType("success");
@@ -1001,9 +1001,9 @@ const PricingCalendarTab: React.FC = () => {
                 </div>
               </div>
               <div className="pricing-base-pricing-item">
-                <div className="pricing-base-pricing-label">Monetary Fee</div>
+                <div className="pricing-base-pricing-label">Linen fee / person</div>
                 <div className="pricing-base-pricing-price">
-                  {formatPrice(basePricing.monetary_fee)}
+                  {formatPrice(basePricing.linen_fee)}
                 </div>
               </div>
             </div>
@@ -1256,19 +1256,19 @@ const PricingCalendarTab: React.FC = () => {
             </div>
 
             <div className="pricing-modal-form-group">
-              <label>Monetary Fee ({currency.code})</label>
+              <label>Linen fee per person ({currency.code})</label>
               <input
                 type="number"
                 min="0"
                 step="0.01"
-                value={basePricingModal.monetaryFee}
+                value={basePricingModal.linenFee}
                 onChange={(e) =>
                   setBasePricingModal({
                     ...basePricingModal,
-                    monetaryFee: e.target.value,
+                    linenFee: e.target.value,
                   })
                 }
-                placeholder={`Enter monetary fee in ${currency.code}`}
+                placeholder={`Enter linen fee per person in ${currency.code}`}
               />
             </div>
 

@@ -25,9 +25,9 @@ interface ShelterStatus {
   pricing: PropertyPricing | null;
 }
 
-// Mirrors AvailabilityController::getFeesForProperty — used only as a
-// fallback when the live pricing API is unreachable.
-const FALLBACK_MONETARY_FEE = 40;
+// Fallbacks when the live pricing API is unreachable.
+const FALLBACK_CLEANING_FEE = 40;
+const FALLBACK_LINEN_FEE = 12;
 const FALLBACK_CLEANING_FEE_BY_SHELTER: Record<string, number> = {
   "shelter-a": 80,
   "shelter-b": 80,
@@ -95,8 +95,8 @@ const SearchResultsPage: React.FC = () => {
                   cleaning_fee:
                     propertyData.pricing.cleaning_fee ||
                     FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ||
-                    FALLBACK_MONETARY_FEE,
-                  monetary_fee: propertyData.pricing.monetary_fee || FALLBACK_MONETARY_FEE,
+                    FALLBACK_CLEANING_FEE,
+                  linen_fee: propertyData.pricing.linen_fee ?? FALLBACK_LINEN_FEE,
                 };
               }
             }
@@ -112,8 +112,8 @@ const SearchResultsPage: React.FC = () => {
                 weekday_price: flatRate,
                 weekend_price: flatRate,
                 extra_person_fee: tier?.extraPersonFee ?? 0,
-                cleaning_fee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE,
-                monetary_fee: FALLBACK_MONETARY_FEE,
+                cleaning_fee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_CLEANING_FEE,
+                linen_fee: FALLBACK_LINEN_FEE,
               };
             }
 
@@ -133,8 +133,8 @@ const SearchResultsPage: React.FC = () => {
               weekday_price: flatRate,
               weekend_price: flatRate,
               extra_person_fee: tier?.extraPersonFee ?? 0,
-              cleaning_fee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_MONETARY_FEE,
-              monetary_fee: FALLBACK_MONETARY_FEE,
+              cleaning_fee: FALLBACK_CLEANING_FEE_BY_SHELTER[shelter.id] ?? FALLBACK_CLEANING_FEE,
+              linen_fee: FALLBACK_LINEN_FEE,
             },
           };
         });

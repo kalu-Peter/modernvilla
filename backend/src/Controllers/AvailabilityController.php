@@ -124,7 +124,7 @@ class AvailabilityController
 
                 // Get pricing for this property
                 $stmt = $pdo->prepare('
-                    SELECT weekday_price, weekend_price, extra_person_fee, cleaning_fee, monetary_fee
+                    SELECT weekday_price, weekend_price, extra_person_fee, cleaning_fee, linen_fee
                     FROM property_pricing
                     WHERE property_id = ?
                 ');
@@ -141,7 +141,7 @@ class AvailabilityController
                         'weekend_price' => floatval($pricing['weekend_price']),
                         'extra_person_fee' => floatval($pricing['extra_person_fee']),
                         'cleaning_fee' => floatval($pricing['cleaning_fee']),
-                        'monetary_fee' => floatval($pricing['monetary_fee'])
+                        'linen_fee' => floatval($pricing['linen_fee'])
                     ] : null
                 ];
             }

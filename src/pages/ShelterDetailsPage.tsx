@@ -776,8 +776,8 @@ const ShelterDetailsPage: React.FC = () => {
                           <span>{formatPrice(breakdown.cleaningFee)}</span>
                         </div>
                         <div className="rp-card-line">
-                          <span>{t("reservation.monetaryFee")}</span>
-                          <span>{formatPrice(breakdown.monetaryFee)}</span>
+                          <span>{t("reservation.linenFee")}</span>
+                          <span>{formatPrice(breakdown.linenFee)}</span>
                         </div>
                         <div className="rp-card-line">
                           <span>{t("reservation.tax", { pct: breakdown.taxPercentage })}</span>

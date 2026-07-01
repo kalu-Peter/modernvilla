@@ -11,18 +11,18 @@ class PricingController
     /**
      * Fallback cleaning/monetary fees, only used for a property that has no
      * property_pricing row at all yet. Once a row exists, cleaning_fee and
-     * monetary_fee are real columns on it (set via /api/pricing/update_base)
+     * linen_fee are real columns on it (set via /api/pricing/update_base)
      * instead of being hardcoded here.
      */
     private function getFeesForProperty(int $propertyId): array
     {
         $fees = [
-            1 => ['cleaning_fee' => 80, 'monetary_fee' => 80],  // Shelter A
-            2 => ['cleaning_fee' => 80, 'monetary_fee' => 80],  // Shelter B
-            3 => ['cleaning_fee' => 40, 'monetary_fee' => 40],  // La Maison Modern
-            4 => ['cleaning_fee' => 40, 'monetary_fee' => 40],  // Refuge de la Martre
+            1 => ['cleaning_fee' => 80, 'linen_fee' => 80],  // Shelter A
+            2 => ['cleaning_fee' => 80, 'linen_fee' => 80],  // Shelter B
+            3 => ['cleaning_fee' => 40, 'linen_fee' => 40],  // La Maison Modern
+            4 => ['cleaning_fee' => 40, 'linen_fee' => 40],  // Refuge de la Martre
         ];
-        return $fees[$propertyId] ?? ['cleaning_fee' => 40, 'monetary_fee' => 40];
+        return $fees[$propertyId] ?? ['cleaning_fee' => 40, 'linen_fee' => 40];
     }
 
     /**
@@ -53,7 +53,7 @@ class PricingController
 
             // Get pricing
             $stmt = $pdo->prepare('
-                SELECT weekday_price, weekend_price, extra_person_fee, cleaning_fee, monetary_fee, updated_at
+                SELECT weekday_price, weekend_price, extra_person_fee, cleaning_fee, linen_fee, updated_at
                 FROM property_pricing
                 WHERE property_id = ?
             ');
@@ -69,7 +69,7 @@ class PricingController
                     'weekend_price' => null,
                     'extra_person_fee' => 0,
                     'cleaning_fee' => $fees['cleaning_fee'],
-                    'monetary_fee' => $fees['monetary_fee'],
+                    'linen_fee' => $fees['linen_fee'],
                     'updated_at' => null
                 ]);
                 return;
@@ -82,7 +82,7 @@ class PricingController
                 'weekend_price' => floatval($pricing['weekend_price']),
                 'extra_person_fee' => floatval($pricing['extra_person_fee']),
                 'cleaning_fee' => floatval($pricing['cleaning_fee']),
-                'monetary_fee' => floatval($pricing['monetary_fee']),
+                'linen_fee' => floatval($pricing['linen_fee']),
                 'updated_at' => $pricing['updated_at']
             ]);
         } catch (\Exception $e) {
