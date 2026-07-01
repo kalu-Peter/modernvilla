@@ -79,7 +79,14 @@ class ReservationsController
                 'pending'
             ]);
 
-            $this->notifyAdminOfNewReservation($id, $body);
+            // Defense in depth on top of Mailer::send()'s own try/catch —
+            // this call must never be able to turn a successful reservation
+            // into a 500 response for the guest.
+            try {
+                $this->notifyAdminOfNewReservation($id, $body);
+            } catch (\Throwable $e) {
+                error_log('notifyAdminOfNewReservation failed: ' . $e->getMessage());
+            }
 
             Response::success(['reservation' => ['id' => $id]], 'Reservation created successfully', 201);
         } catch (\Exception $e) {

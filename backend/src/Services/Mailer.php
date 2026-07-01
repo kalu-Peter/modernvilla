@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Config\Config;
-use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
@@ -37,6 +36,16 @@ class Mailer
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = (int) $port;
 
+            // Some hosts silently block/drop outbound SMTP ports instead of
+            // refusing the connection outright — without a cap, that hang
+            // can run past PHP's max_execution_time and kill the whole
+            // request with an uncatchable fatal (no exception, no log,
+            // and the reservation response never gets sent). Fail fast
+            // instead so a blocked port degrades to a logged, swallowed
+            // failure rather than taking the request down with it.
+            $mail->Timeout = 10;
+            $mail->SMTPKeepAlive = false;
+
             $mail->setFrom($user, 'Alsace Hideaways');
             $mail->addAddress($to);
             $mail->isHTML(true);
@@ -46,8 +55,11 @@ class Mailer
 
             $mail->send();
             return true;
-        } catch (PHPMailerException $e) {
-            self::log('Failed to send "' . $subject . '": ' . $mail->ErrorInfo);
+        } catch (\Throwable $e) {
+            // Catch everything, not just PHPMailerException — a blocked
+            // port or DNS failure can surface as a different throwable
+            // depending on the underlying stream/socket error.
+            self::log('Failed to send "' . $subject . '": ' . ($mail->ErrorInfo ?: $e->getMessage()));
             return false;
         }
     }
